@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    # The upstream image is currently amd64-only; Docker Desktop emulates it on Apple silicon.
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: property_lens_development
+      POSTGRES_USER: ${DATABASE_USERNAME:-property_lens}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in .env}
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init/20_remove_optional_extensions.sql:/docker-entrypoint-initdb.d/20_remove_optional_extensions.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "[ \"$$(cat /proc/1/comm)\" = postgres ] && pg_isready -U ${DATABASE_USERNAME:-property_lens} -d property_lens_development"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.2
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  redis_data:
