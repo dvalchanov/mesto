@@ -1,0 +1,1 @@
+This fixture documents the timeout scenario; source-client specs raise Faraday::TimeoutError without making a network request.

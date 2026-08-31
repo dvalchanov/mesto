@@ -1,0 +1,27 @@
+<details class="group rounded-3xl border border-slate-200 bg-white">
+  <summary class="flex cursor-pointer list-none items-center justify-between gap-5 p-6 sm:p-8">
+    <div>
+      <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500"><%= t("reports.sources.eyebrow") %></p>
+      <h2 class="mt-2 text-xl font-black"><%= t("reports.sources.title") %></h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600"><%= t("reports.sources.summary", succeeded: coverage["succeeded"].to_i, checked: coverage["checked"].to_i) %></p>
+    </div>
+    <span class="grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-xl font-bold text-slate-700 transition group-open:rotate-45">+</span>
+  </summary>
+  <div class="border-t border-slate-200 px-6 pb-6 sm:px-8 sm:pb-8">
+    <div class="divide-y divide-slate-100">
+      <% source_runs.each do |run| %>
+        <% result_key = source_result_key(run, analysis:) %>
+        <article class="grid gap-3 py-5 sm:grid-cols-[1fr_auto] sm:items-start">
+          <div>
+            <h3 class="text-sm font-black leading-5 text-slate-900"><%= source_name(run.source_key) %></h3>
+            <p class="mt-1 text-xs leading-5 text-slate-500"><%= run.relevant_at ? t("common.relevant_at", date: l(run.relevant_at.to_date, format: :short)) : t("common.unknown_date") %></p>
+            <% if run.source_url.present? %><%= link_to t("common.source_link"), run.source_url, target: "_blank", rel: "noopener noreferrer", class: "mt-2 inline-flex text-xs font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %><% end %>
+          </div>
+          <span class="w-fit rounded-full px-3 py-1.5 text-xs font-bold ring-1 <%= source_result_classes(result_key) %>"><%= source_result_text(run, analysis:) %></span>
+        </article>
+      <% end %>
+      <% if source_runs.empty? %><p class="py-5 text-sm text-slate-500"><%= t("reports.sources.empty") %></p><% end %>
+    </div>
+    <p class="rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-600"><%= t("reports.sources.method_note") %></p>
+  </div>
+</details>

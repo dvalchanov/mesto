@@ -1,0 +1,7 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type":"Feature","id":"fixture-1","properties":{"id":"fixture-1","name":"Тестов обществен обект","address":"ул. Тестова 1"},"geometry":{"type":"Point","coordinates":[23.3204,42.6902]}},
+    {"type":"Feature","id":"fixture-2","properties":{"id":"fixture-2","name":"Втори тестов обект","address":"ул. Тестова 2"},"geometry":{"type":"Point","coordinates":[23.3250,42.6920]}}
+  ]
+}

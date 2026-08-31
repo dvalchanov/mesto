@@ -1,0 +1,16 @@
+<section class="relative mt-8 overflow-hidden rounded-[2rem] bg-emerald-950 p-7 text-white sm:p-10">
+  <div class="absolute -right-20 -top-20 size-64 rounded-full bg-emerald-700/50 blur-3xl"></div>
+  <div class="relative grid gap-8 lg:grid-cols-[1fr_.8fr] lg:items-end">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300"><%= t("reports.locked.eyebrow") %></p>
+      <h2 class="mt-3 max-w-2xl text-3xl font-bold tracking-tight"><%= t("reports.locked.title") %></h2>
+      <p class="mt-4 max-w-2xl leading-7 text-emerald-100/80"><%= t("reports.locked.description") %></p>
+      <%= link_to t("reports.locked.cta"), report_checkout_path(analysis), class: "mt-7 inline-flex rounded-xl bg-white px-5 py-3.5 text-sm font-black text-emerald-950 hover:bg-emerald-50" %>
+    </div>
+    <ul class="grid gap-3 text-sm text-emerald-50">
+      <% %w[timeline planning nearby evidence].each do |preview| %>
+        <li class="flex gap-3 rounded-xl border border-emerald-700/60 bg-emerald-900/60 px-4 py-3"><span class="text-emerald-300">◆</span><%= t("reports.locked.previews.#{preview}") %></li>
+      <% end %>
+    </ul>
+  </div>
+</section>

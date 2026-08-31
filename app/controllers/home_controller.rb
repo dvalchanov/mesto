@@ -1,3 +1,5 @@
 class HomeController < ApplicationController
-  def show; end
+  def show
+    @identifier_value = params[:identifier]
+  end
 end

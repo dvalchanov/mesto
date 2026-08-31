@@ -1,0 +1,50 @@
+<article class="overflow-hidden rounded-2xl border border-slate-200">
+  <div class="border-b border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <p class="text-xs font-black uppercase tracking-wide text-emerald-700"><%= t("reports.acts.kinds.#{act.registry_kind}") %></p>
+        <h3 class="mt-1 text-lg font-black text-slate-950"><%= act.title.presence || t("reports.full.permit", number: act.act_number.presence || t("reports.full.unknown_number")) %></h3>
+        <% if act.act_number.present? %><p class="mt-1 font-mono text-xs font-bold text-slate-500"><%= act.act_number %></p><% end %>
+      </div>
+      <span class="w-fit rounded-full bg-white px-3 py-1.5 text-xs font-bold text-slate-600 ring-1 ring-slate-200"><%= act.issued_on ? l(act.issued_on, format: :short) : t("reports.overview.unknown") %></span>
+    </div>
+  </div>
+
+  <div class="p-5 sm:p-6">
+    <% fields = [["status", act.status], ["effective_on", act.effective_on && l(act.effective_on, format: :short)], ["issuer", act.issuer], ["district", act.district], ["locality", act.stated_locality], ["address", act.address], ["upi", act.stated_upi], ["construction_category", act.construction_category], ["built_up_area", act.built_up_area && t("reports.full.square_metres", value: number_with_precision(act.built_up_area, precision: 2, strip_insignificant_zeros: true))], ["gross_floor_area", act.gross_floor_area && t("reports.full.square_metres", value: number_with_precision(act.gross_floor_area, precision: 2, strip_insignificant_zeros: true))]] %>
+    <% if fields.any? { |_, value| value.present? } %>
+      <dl class="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+        <% fields.each do |label, value| %>
+          <% next if value.blank? %>
+          <div><dt class="text-xs font-semibold text-slate-500"><%= t("reports.full.#{label}") %></dt><dd class="mt-1 break-words font-bold leading-6 text-slate-900"><%= value %></dd></div>
+        <% end %>
+      </dl>
+    <% end %>
+
+    <% if act.object_description.present? %>
+      <div class="mt-5 border-t border-slate-100 pt-5">
+        <p class="text-xs font-semibold text-slate-500"><%= t("reports.full.description") %></p>
+        <p class="mt-2 text-sm leading-6 text-slate-700"><%= preview ? truncate(act.object_description, length: 420) : act.object_description %></p>
+      </div>
+    <% end %>
+
+    <div class="mt-5 rounded-xl bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
+      <span class="font-black"><%= t("reports.findings.why_it_matters") %></span>
+      <%= t("reports.findings.meaning.#{act.registry_kind}") %>
+    </div>
+
+    <% references = act.administrative_act_references.map(&:cadastral_identifier).uniq %>
+    <% if references.any? %>
+      <div class="mt-4">
+        <p class="text-xs font-semibold text-slate-500"><%= t("reports.findings.referenced_identifiers") %></p>
+        <div class="mt-2 flex flex-wrap gap-2"><% references.each do |identifier| %><code class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold"><%= identifier %></code><% end %></div>
+      </div>
+    <% end %>
+
+    <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4 text-xs">
+      <span class="rounded-full bg-emerald-50 px-2.5 py-1 font-bold text-emerald-800"><%= t("common.official_source") %></span>
+      <%= link_to t("common.source_link"), act.source_url, target: "_blank", rel: "noopener noreferrer", class: "font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %>
+      <% if act.document_url.present? %><%= link_to t("reports.findings.open_document"), act.document_url, target: "_blank", rel: "noopener noreferrer", class: "font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %><% end %>
+    </div>
+  </div>
+</article>

@@ -1,31 +1,379 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  date:
+    formats:
+      short: "%d %b %Y"
+  time:
+    formats:
+      short: "%d %b %Y, %H:%M"
+  navigation:
+    home: "Home"
+    language_bg: "BG"
+    language_en: "EN"
+    new_search: "New search"
+  layout:
+    product_tagline: "Public property data"
+    footer: "Information prototype for the Bulgarian market"
+  common:
+    official_source: "Official source"
+    calculated: "Calculated by %{product_name}"
+    unavailable: "Unavailable / unverified"
+    retrieved_at: "Retrieved %{date}"
+    relevant_at: "Data current to %{date}"
+    unknown_date: "No validity date provided"
+    source_link: "Open source"
+    back: "Back"
+  home:
+    eyebrow: "Check before buying"
+    headline: "See what public data reveals about a property."
+    supporting_copy: "Enter a cadastral identifier to check available permits, planning data, administrative activity and the surrounding area."
+    trust_note: "One identifier. A clear trail to every public source used."
+    search:
+      label: "Cadastral identifier"
+      placeholder: "E.g. 68134.1609.3263.1.10"
+      submit: "Check the property"
+      hint_title: "Where can I find it?"
+      hint: "The identifier appears on the cadastral sketch, title documents or a KAIS lookup. It contains three to five numeric groups."
+      invalid: "Enter a valid cadastral identifier with 3 to 5 numeric parts."
+      rate_limited: "Too many checks were submitted. Wait a moment and try again."
+    feature_sources: "Checked sources"
+    feature_sources_text: "NAG public registers and configured SofiaPlan data."
+    feature_provenance: "Visible provenance"
+    feature_provenance_text: "Every statement is labelled as source fact, calculation or unverified information."
+    feature_limits: "Honest limits"
+    feature_limits_text: "No match is never presented as proof that a document does not exist."
+  reports:
+    title: "Analysis for %{identifier}"
+    status_label: "Analysis status"
+    statuses: { queued: "Queued", running: "Collecting data", ready: "Ready", partial: "Partial result", failed: "Failed" }
+    coverage:
+      title: "Data coverage"
+      complete: "Complete"
+      good: "Good"
+      partial: "Partial"
+      limited: "Limited"
+      checked: "We checked %{succeeded} of %{checked} sources successfully."
+    progress:
+      title: "Building the public data trail"
+      description: "This page refreshes automatically. We show real stages rather than a made-up percentage."
+      identifier: "Checking the identifier"
+      municipal: "Searching municipal registers"
+      location: "Trying to resolve the location"
+      spatial: "Checking planning and spatial data"
+      metrics: "Calculating nearby places and activity"
+      report: "Preparing the analysis"
+      states: { pending: "Pending", active: "In progress", completed: "Complete", failed: "Failed", unavailable: "Unavailable" }
+    outside_sofia:
+      title: "Valid identifier outside current municipal coverage"
+      body: "The identifier is structurally valid, but this prototype currently has its richest coverage for Sofia Municipality. We keep it valid and show which sources do not apply."
+    failed: { title: "The analysis could not be completed", body: "The public sources did not return enough reliable information. Please try again later." }
+    no_data:
+      title: "Not enough data for a full analysis"
+      body: "We did not find reliable content in the successfully checked records. This does not prove that administrative acts do not exist. We will not offer payment for an empty report."
+    partial_notice: "Some sources were unavailable. Available results remain visible with exact provenance."
+    hierarchy:
+      title: "Identifier hierarchy"
+      submitted: "Submitted identifier"
+      parcel: "Parcel"
+      building: "Building"
+      individual_object: "Individual object"
+      level: "Level"
+      levels: { parcel: "Parcel", building: "Building", individual_object: "Individual object" }
+    sources:
+      eyebrow: "Method and evidence"
+      title: "Checked public sources"
+      empty: "No checks have been recorded yet."
+      summary: "%{succeeded} of %{checked} applicable checks returned a usable response. Open for details."
+      method_note: "‘No match found’ only means that the checked public records returned no result for the identifier used. It does not prove that a document does not exist. Spatial datasets are marked as used only when the property has a reliable location."
+      statuses: { pending: "Pending", running: "In progress", succeeded: "Succeeded", unavailable: "Unavailable", failed: "Failed" }
+      results:
+        records_found:
+          one: "%{count} record found"
+          other: "%{count} records found"
+        no_match: "Checked — no match"
+        used_for_calculation: "Used in calculations"
+        data_returned: "Data returned"
+        needs_location: "Not applied — location missing"
+        unavailable: "Source unavailable"
+        failed: "Check failed"
+        running: "Checking"
+        pending: "Check pending"
+      names:
+        nag_building_permits: "NAG — building permits"
+        nag_design_visas: "NAG — design visas"
+        nag_urban_planning_orders: "NAG — planning orders"
+        nag_occupancy_certificates: "NAG — occupancy certificates"
+        cadastre: "AGKK — cadastral hierarchy and geometry"
+        arcgis_development_potential: "SofiaPlan — development potential"
+        arcgis_functional_zoning: "SofiaPlan — predominant functional zoning"
+        sofiaplan_dataset_schools: "SofiaPlan — schools"
+        sofiaplan_dataset_kindergartens: "SofiaPlan — kindergartens"
+        sofiaplan_dataset_green_spaces: "SofiaPlan — parks and gardens"
+        sofiaplan_dataset_transit: "SofiaPlan — metro stations"
+        sofiaplan_dataset_flood_risk: "SofiaPlan — flood risk"
+    property_facts:
+      eyebrow: "01 · Basic facts"
+      title: "Property at a glance"
+      description: "We start with facts you can compare against the cadastral scheme, title deed and listing. Data from a linked administrative record is labelled and should be confirmed for the exact property."
+      from_public_data: "Public data + identifier structure"
+      type: "Property type"
+      area_labels: { parcel: "Parcel area", building: "Building area", individual_object: "Individual object area" }
+      area_sources:
+        cadastre: "Official AGKK open data"
+        geometry_calculation: "Calculated by %{product_name} from cadastral geometry"
+      cadastre_data_date: "Data current to %{date}"
+      missing: "Not found in the sources checked"
+      missing_short: "Not found"
+      area_missing_help:
+        parcel: "Compare the area in a current cadastral sketch and the title document."
+        building: "Request a current building sketch and construction documents."
+        individual_object: "Request a current cadastral scheme and compare built-up area, common parts and the area in the title deed."
+      address: "Publicly stated address"
+      address_missing_help: "Confirm the address in a current cadastral scheme and the seller’s documents."
+      address_cadastre_note: "Address from the official cadastral open data."
+      related_record_note: "From a linked municipal record — confirm it applies to the exact property."
+      public_records: "Linked public acts"
+      latest_record: "The latest record found is dated %{date}"
+      no_records: "No match in the records checked"
+      from_identifier: "Determined from the number of components in the cadastral identifier"
+      identifiers_title: "Cadastral hierarchy"
+      location_title: "Identification and locality"
+      settlement: "Settlement"
+      cadastre_area: "Cadastral district"
+      district: "Administrative district"
+      locality: "Locality"
+      upi: "Regulated plot (UPI)"
+      parcel_number: "Parcel number"
+      object_number: "Object number"
+      floor: "Floor"
+      levels_count: "Number of levels"
+      entrance: "Entrance"
+      purpose: "Cadastral purpose"
+      additional_parts: "Stated ancillary and common parts"
+      validation_document: "Cadastral-map approval act"
+      parcel_area: "Parcel area: %{area} m². This is not the area of the selected individual object."
+      settlements:
+        "68134": "Sofia"
+    cadastre_hierarchy:
+      eyebrow: "Official cadastral hierarchy"
+      title: "All available AGKK facts"
+      description: "The selected object, its building and its parcel are shown separately so you can compare the complete property identity and context—not just its area—against the cadastral scheme, title deed and listing."
+      record_titles: { individual_object: "Individual object", building: "Building", parcel: "Land parcel" }
+      fields:
+        object_document_area: "Object area in the cadastral data"
+        outline_area_sqm: "Mapped outline area"
+        building_footprint_area: "Building outline area"
+        parcel_area: "Land parcel area"
+        perimeter_m: "Outline perimeter"
+        object_number: "Object number"
+        floor: "Floor"
+        address_floor: "Floor stated in the address"
+        levels_count: "Object levels"
+        entrance: "Entrance"
+        block_number: "Block"
+        purpose: "Purpose / function"
+        additional_parts: "Ancillary and common parts"
+        floors_count: "Building floors"
+        objects_count: "Individual objects in the building"
+        regulation_parcel: "Regulated plot (UPI)"
+        quarter: "Regulation quarter"
+        territory_type: "Territory type"
+        permanent_use: "Permanent land use"
+        category_type: "Category"
+        settlement_name: "Settlement"
+        address: "Cadastral address"
+        district: "Administrative district"
+        locality: "Locality / neighbourhood"
+        street_name: "Street"
+        street_number: "Street number"
+        place: "Place"
+        old_identifier: "Previous identifier / number"
+        ownership_type: "Ownership category in the cadastral register"
+        validation_document: "Cadastral-map approval act"
+        geometry_available: "Cadastral geometry"
+        source_crs: "Source coordinate reference system"
+        technical_components: "Technical identifier components"
+      component_labels: { settlement_code: "EKATTE", cadastre_area_code: "cadastral district", parcel_number: "parcel", building_number: "building", object_number: "object" }
+      square_metres: "%{value} m²"
+      metres: "%{value} m"
+      with_code: "%{value} (code %{code})"
+      geometry_available: "Official outline available; used for the map and location"
+      open_source: "Open the AGKK archive"
+      ownership_note_title: "Important about the “ownership” field:"
+      ownership_note: "The displayed category is an attribute from the cadastral archive. It does not identify the current owner or verify title, seller, encumbrances or title validity. Those require current official searches and professional review."
+      cross_checks_eyebrow: "Consistency checks"
+      cross_checks_title: "How the records connect"
+      cross_checks_note: "%{product_name} calculates these indicators from the exact AGKK records. They are not standalone official certificates."
+      metrics:
+        parcel_buildings_count: "Buildings registered on the parcel"
+        building_objects: "Object records found in the building"
+        declared_objects: "The building states %{count}"
+        count_match: { "true": "counts match", "false": "counts differ" }
+        object_areas_sum: "Sum of object-record areas"
+        object_areas_sum_note: "This is not equivalent to gross floor area and may not include every common part."
+        footprint_percent: "Building outlines as a share of parcel area"
+        footprint_detail: "%{area} m² total registered building-outline area; this is not a planning parameter."
+    findings:
+      eyebrow: "02 · Official records"
+      title: "What we found for this identifier"
+      description: "We show concrete matches, not merely whether a technical check completed. Every record links to its public source."
+      no_match_title: "No match found in the municipal records checked"
+      no_match_body: "This does not mean that the property has no acts. A record may use another identifier, an old number or address, or may not be published in the register checked."
+      more_records:
+        one: "%{count} more linked record is included in the complete timeline."
+        other: "%{count} more linked records are included in the complete timeline."
+      why_it_matters: "Why it matters:"
+      referenced_identifiers: "Cadastral identifiers stated in this record"
+      open_document: "Open document"
+      meaning:
+        building_permits: "A permit is a public trace of authorised construction work. Compare its subject, scope, dates and current status with the building you are buying."
+        design_visas: "A design visa indicates design intent or parameters, but is not itself a building permit. Check its exact scope and whether it remains relevant."
+        urban_planning_orders: "A planning order may affect regulation, land use or development parameters. Review its scope and attached plans."
+        occupancy_certificates: "This record relates to commissioning. Match the exact building, stage and units against the seller’s documents."
+    neighborhood:
+      eyebrow: "03 · Location and surroundings"
+      title: "What is around the property"
+      description: "Distances and counts use ‘%{precision}’ precision and are prompts for an on-site check."
+      schools: "Schools within 1 km"
+      kindergartens: "Kindergartens within 1 km"
+      acts: "Administrative acts within 500 m"
+      flood: "Flood-risk layer intersections"
+      transit: "Nearest metro station"
+      green_space: "Nearest green space"
+      unnamed: "Unnamed place"
+      not_found: "Not enough data for a reliable calculation"
+      location_missing_title: "We could not resolve a reliable location"
+      location_missing_body: "We therefore do not show an arbitrary map or calculate schools, transport, green space, construction activity or flood risk for this property. An imported dataset is not the same as applying it to the property."
+      location_missing_action: "To check these topics, open the identifier in KAIS or request a current cadastral scheme from the seller."
+    buyer_checklist:
+      eyebrow: "04 · Next steps"
+      title: "What to check before paying a deposit"
+      description: "The public trail is the start of due diligence. This list turns findings and gaps into concrete questions for the seller and specialists."
+      statuses: { review: "Review the finding", buyer_check: "Compare documents", needs_document: "Request a document", not_checked: "Not checked here" }
+      items:
+        area_missing: "Request a current cadastral scheme/sketch and compare its area with the title deed and listing. Clarify usable area, built-up area and common parts separately."
+        area_compare: "Compare the displayed area with the cadastral scheme, title deed and listing; verify that they use the same definition of area."
+        location_missing: "Confirm the exact location and boundaries in KAIS or a current scheme/sketch before assessing the surroundings."
+        design_visa: "Review the design visa found: subject, applicant, affected property, date and whether it was followed by a building permit."
+        building_permit: "Match the building permit found to the exact building, approved plans, amendments and work actually completed."
+        planning_order: "Check the planning order’s scope and whether it changes regulation, access, land use or development parameters."
+        occupancy: "Request an occupancy certificate/use permit for the exact building and construction stage."
+        ownership: "Verify ownership, the seller’s authority and the chain of title with a notary or lawyer."
+        encumbrances: "Request a current encumbrance certificate immediately before the transaction and review it with a professional."
+        technical_inspection: "Arrange a technical inspection covering condition, defects, services, damp, common parts and the actual layout."
+    overview:
+      title: "Free preview"
+      direct_acts: "Directly linked acts"
+      location: "Location"
+      location_available: "Resolved"
+      location_unavailable: "Not resolved reliably"
+      freshness: "Oldest data used"
+      unknown: "Unknown"
+    acts:
+      title: "Administrative activity"
+      no_match: "We found no match in the records checked."
+      count: "%{count} matches"
+      kinds: { building_permits: "Building permits", design_visas: "Design visas", urban_planning_orders: "Planning orders", occupancy_certificates: "Occupancy certificates" }
+      short_kinds: { building_permits: "Permits", design_visas: "Visas", urban_planning_orders: "Orders", occupancy_certificates: "Occupancy" }
+    signals:
+      title: "Important factual signals"
+      acts_found: "%{count} administrative acts contain an identifier checked."
+      building_permit: "A building permit issued in %{year} was found."
+      design_visa: "A design visa linked to the property was found."
+      location_unavailable: "The location could not be resolved reliably."
+      no_matches: "We found no match in the records checked."
+    map:
+      title: "Map and location precision"
+      unavailable: "We do not show a random map because the location was not resolved reliably."
+      precision: "Precision: %{precision}"
+      precisions: { cadastral_geometry: "cadastral geometry", official_record_geometry: "official record coordinates", matched_address: "public address match", approximate: "approximate", unavailable: "unavailable" }
+      layer_selected: "Selected property"
+      layer_planning: "Planning layers"
+      layer_acts: "Administrative acts"
+      layer_amenities: "Nearby places"
+    locked:
+      eyebrow: "Full report"
+      title: "See the complete public trail and how it was calculated"
+      description: "The full analysis has already been generated. Payment unlocks the details on this shareable link."
+      cta: "Unlock full analysis — €24.90"
+      previews: { timeline: "Complete administrative timeline", planning: "Planning data and development potential", nearby: "Nearby activity, amenities and distances", evidence: "Source evidence and investigation questions" }
+    full:
+      unlocked: "Full analysis unlocked"
+      overview: "Overview"
+      timeline: "Administrative timeline"
+      permit: "Permit / act no. %{number}"
+      unknown_number: "number not provided"
+      issued_on: "Issued"
+      effective_on: "Effective"
+      issuer: "Issuer"
+      status: "Register status"
+      district: "Administrative district"
+      locality: "Locality"
+      address: "Address"
+      upi: "Regulated plot (UPI)"
+      construction_category: "Construction category"
+      built_up_area: "Built-up area in the act"
+      gross_floor_area: "Gross floor area in the act"
+      square_metres: "%{value} m²"
+      description: "Description"
+      planning: "Planning data and development potential"
+      planning_empty: "No spatial features were returned for the reliably resolved point."
+      nearby: "Nearby activity"
+      radius_count: "%{count} acts within %{radius} m"
+      radius_note: "Point-radius analysis; this is not an adjacency claim."
+      development_pressure: "Development pressure"
+      pressure_levels: { high: "High", medium: "Medium", low: "Low", unavailable: "Unavailable" }
+      pressure_reason: "%{level}: %{within_100} recent acts within 100 m, %{within_250} within 250 m, and %{within_500} within 500 m."
+      amenities: "Schools and kindergartens"
+      amenity_count: "%{count} places within %{radius} m"
+      green_transport: "Green space and transport"
+      nearest: "%{name} — approximately %{distance} m"
+      no_nearest: "No imported data for a reliable calculation."
+      environment: "Environmental data"
+      flood_intersections: "Intersections with the configured flood-risk layer: %{count}"
+      questions: "Questions to investigate"
+      evidence: "Source evidence and provenance"
+    questions:
+      building_permit: "What exactly is proposed in the building permit found?"
+      planning_change: "Has a planning scheme changed for nearby territory?"
+      freshness: "As of what date is the planning data current?"
+      occupancy: "Has an occupancy certificate been issued for the building?"
+      encumbrances: "Can the seller provide a current official encumbrance search?"
+    not_verified:
+      title: "What was not verified"
+      ownership: "Current ownership and owner identity"
+      encumbrances: "Mortgages, attachments and registered encumbrances"
+      title_validity: "Validity of title"
+      legality: "Legality and formal construction compliance"
+      future: "Exact future construction or investment returns"
+    disclaimer: "%{product_name} summarizes available public data. This information is not legal, technical or investment advice and does not replace an official search or professional review."
+    refresh: { action: "Check again", already_running: "The check is already running.", too_soon: "The data was checked recently. Try again later.", started: "A new check has started.", rate_limited: "Too many repeat checks were submitted. Try again later." }
+  payments:
+    products:
+      full_property_report:
+        name: "Full property analysis"
+  checkout:
+    title: "Unlock the full analysis"
+    subtitle: "Full analysis for %{identifier}"
+    product: "Product"
+    amount: "Amount"
+    email: "Email address"
+    email_placeholder: "name@example.com"
+    invalid_email: "Enter a valid email address."
+    fake_banner: "Test payment — you will not be charged and no real card details are entered."
+    submit: "Pay test €24.90"
+    includes_title: "You will unlock"
+    includes: "the full timeline, planning results, nearby places, evidence and investigation questions"
+    processing_title: "The test payment is ready to process"
+    processing_body: "This is a local test gateway. The primary action simulates a successful payment."
+    success_action: "Simulate successful payment"
+    fail_action: "Simulate failure"
+    cancel_action: "Simulate cancellation"
+    failed: "The test payment was unsuccessful."
+    cancelled: "The payment was declined. The analysis remains locked."
+    try_again: "Return to checkout"
+    success_title: "The full analysis is unlocked"
+    success_body: "The test payment completed successfully. Anyone with the public report link can now see the full content."
+    back_to_report: "Open the full analysis"
+    unavailable: "This result does not contain enough content for a paid analysis."
+    already_unlocked: "The full analysis is already unlocked."
+    invalid_transition: "This test payment has already finished."

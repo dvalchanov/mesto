@@ -1,7 +1,39 @@
-<section class="flex min-h-screen items-center justify-center px-6">
-  <div class="text-center">
-    <p class="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-sky-300">Property intelligence</p>
-    <h1 class="text-5xl font-semibold tracking-tight sm:text-7xl">PropertyLens</h1>
-    <p class="mt-6 text-lg text-slate-300 sm:text-xl">Bulgarian property intelligence</p>
+<% content_for :title, "#{product_name} — #{t('layout.product_tagline')}" %>
+
+<section class="relative overflow-hidden border-b border-slate-200 bg-[#f6f7f4]">
+  <div class="absolute -right-32 -top-32 size-[34rem] rounded-full bg-emerald-100/70 blur-3xl"></div>
+  <div class="absolute -bottom-40 left-1/3 size-[28rem] rounded-full bg-sky-100/60 blur-3xl"></div>
+  <div class="relative mx-auto grid max-w-7xl gap-14 px-5 py-20 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:py-28">
+    <div>
+      <p class="mb-6 inline-flex items-center rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-emerald-800 shadow-sm"><%= t("home.eyebrow") %></p>
+      <h1 class="max-w-3xl text-5xl font-bold leading-[1.04] tracking-[-0.045em] text-slate-950 sm:text-6xl"><%= t("home.headline") %></h1>
+      <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-600"><%= t("home.supporting_copy") %></p>
+      <p class="mt-8 flex items-center gap-2 text-sm font-medium text-slate-500"><span class="size-2 rounded-full bg-emerald-500"></span><%= t("home.trust_note") %></p>
+    </div>
+
+    <div class="rounded-[2rem] border border-white bg-white/90 p-5 shadow-[0_30px_80px_-40px_rgba(15,23,42,.45)] backdrop-blur sm:p-8">
+      <%= form_with url: property_analyses_path, method: :post, class: "space-y-5" do |form| %>
+        <div>
+          <%= form.label :cadastral_identifier, t("home.search.label"), class: "mb-2 block text-sm font-bold text-slate-800" %>
+          <%= form.text_field :cadastral_identifier, value: @identifier_value, maxlength: 100, required: true, autofocus: true, placeholder: t("home.search.placeholder"), class: "w-full rounded-2xl border #{@identifier_error ? 'border-rose-400 ring-4 ring-rose-50' : 'border-slate-300 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100'} bg-white px-4 py-4 font-mono text-base tracking-tight text-slate-950 outline-none transition" %>
+          <% if @identifier_error %><p class="mt-2 text-sm font-medium text-rose-700"><%= @identifier_error %></p><% end %>
+        </div>
+        <%= form.submit t("home.search.submit"), class: "w-full cursor-pointer rounded-2xl bg-emerald-950 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-950/15 transition hover:bg-emerald-800" %>
+      <% end %>
+      <div class="mt-6 rounded-2xl bg-slate-50 p-4">
+        <p class="text-sm font-bold text-slate-800"><%= t("home.search.hint_title") %></p>
+        <p class="mt-1 text-sm leading-6 text-slate-600"><%= t("home.search.hint") %></p>
+      </div>
+    </div>
   </div>
+</section>
+
+<section class="mx-auto grid max-w-7xl gap-6 px-5 py-16 sm:px-8 md:grid-cols-3">
+  <% %w[sources provenance limits].each_with_index do |feature, index| %>
+    <article class="rounded-2xl border border-slate-200 bg-white p-6">
+      <span class="mb-5 grid size-9 place-items-center rounded-xl bg-slate-950 text-xs font-bold text-white">0<%= index + 1 %></span>
+      <h2 class="text-base font-bold"><%= t("home.feature_#{feature}") %></h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600"><%= t("home.feature_#{feature}_text") %></p>
+    </article>
+  <% end %>
 </section>

@@ -1,5 +1,5 @@
 {
-  "name": "PropertyLens",
+  "name": <%= Rails.application.config.x.product_name.to_json %>,
   "icons": [
     {
       "src": "/icon.png",
@@ -16,7 +16,7 @@
   "start_url": "/",
   "display": "standalone",
   "scope": "/",
-  "description": "PropertyLens.",
-  "theme_color": "red",
-  "background_color": "red"
+  "description": <%= I18n.t("layout.product_tagline").to_json %>,
+  "theme_color": "#064e3b",
+  "background_color": "#f6f7f4"
 }
