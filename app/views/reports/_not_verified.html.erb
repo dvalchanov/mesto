@@ -1,0 +1,9 @@
+<section class="rounded-3xl border border-slate-800 bg-slate-950 p-6 text-white sm:p-8">
+  <h2 class="text-xl font-bold"><%= t("reports.not_verified.title") %></h2>
+  <ul class="mt-5 grid gap-3 text-sm text-slate-300 sm:grid-cols-2">
+    <% %w[ownership encumbrances title_validity legality future].each do |item| %>
+      <li class="flex gap-3"><span class="text-amber-300">—</span><%= t("reports.not_verified.#{item}") %></li>
+    <% end %>
+  </ul>
+  <p class="mt-7 border-t border-slate-800 pt-5 text-xs leading-6 text-slate-400"><%= t("reports.disclaimer", product_name:) %></p>
+</section>

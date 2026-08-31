@@ -1,0 +1,16 @@
+<section class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8">
+  <p class="text-xs font-black uppercase tracking-[0.16em] text-emerald-700"><%= t("reports.buyer_checklist.eyebrow") %></p>
+  <h2 class="mt-2 text-2xl font-black tracking-tight"><%= t("reports.buyer_checklist.title") %></h2>
+  <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600"><%= t("reports.buyer_checklist.description") %></p>
+  <ol class="mt-6 grid gap-3 lg:grid-cols-2">
+    <% items.each_with_index do |item, index| %>
+      <li class="flex gap-4 rounded-2xl border border-slate-200 p-4">
+        <span class="grid size-7 shrink-0 place-items-center rounded-full bg-slate-950 text-xs font-black text-white"><%= index + 1 %></span>
+        <div>
+          <span class="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide <%= checklist_status_classes(item['status']) %>"><%= t("reports.buyer_checklist.statuses.#{item['status']}") %></span>
+          <p class="mt-2 text-sm font-semibold leading-6 text-slate-800"><%= t("reports.buyer_checklist.items.#{item['key']}") %></p>
+        </div>
+      </li>
+    <% end %>
+  </ol>
+</section>

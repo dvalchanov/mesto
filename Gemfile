@@ -26,6 +26,12 @@ gem "jbuilder"
 gem "sidekiq", "~> 8.1"
 # Use Redis adapter to run Action Cable in production
 gem "redis", ">= 5.0"
+# Small, explicit public-data clients and GeoJSON parsing.
+gem "faraday", "~> 2.0"
+gem "faraday-retry", "~> 2.0"
+gem "nokogiri", "~> 1.0"
+gem "rgeo-geojson", "~> 2.0"
+gem "rubyzip", "~> 3.2"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
@@ -66,4 +72,5 @@ group :test do
   # Browser-oriented system specs
   gem "capybara", "~> 3.40"
   gem "selenium-webdriver", "~> 4.0"
+  gem "webmock", "~> 3.0"
 end

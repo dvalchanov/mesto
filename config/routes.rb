@@ -11,4 +11,16 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#show"
+
+  resources :property_analyses, only: :create
+  get "reports/:public_token", to: "reports#show", as: :report
+  post "reports/:public_token/refresh", to: "reports#refresh", as: :refresh_report
+  get "reports/:public_token/checkout", to: "orders#new", as: :report_checkout
+  post "reports/:public_token/orders", to: "orders#create", as: :report_orders
+
+  get "checkout/:public_token", to: "checkouts#show", as: :checkout
+  post "checkout/:public_token/fake/succeed", to: "checkouts#succeed", as: :fake_checkout_succeed
+  post "checkout/:public_token/fake/fail", to: "checkouts#fail", as: :fake_checkout_fail
+  post "checkout/:public_token/fake/cancel", to: "checkouts#cancel", as: :fake_checkout_cancel
+  get "checkout/:public_token/success", to: "checkouts#success", as: :checkout_success
 end

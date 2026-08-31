@@ -1,0 +1,7 @@
+<div class="space-y-7">
+  <%= render "property_facts", analysis:, facts: property_facts %>
+  <%= render "cadastre_hierarchy", facts: property_facts %>
+  <%= render "findings", analysis:, acts: preview_acts %>
+  <%= render "neighborhood_snapshot", analysis: %>
+  <%= render "buyer_checklist", items: buyer_checklist %>
+</div>

@@ -31,6 +31,22 @@ module PropertyLens
     # Keep web requests and background work on one conventional Active Job API.
     config.active_job.queue_adapter = :sidekiq
 
+    config.i18n.default_locale = :bg
+    config.i18n.available_locales = %i[bg en]
+    config.i18n.fallbacks = [ :en ]
+
+    config.x.product_name = ENV.fetch("PRODUCT_NAME", "PropertyLens")
+    config.x.data_source_mode = ENV.fetch("DATA_SOURCE_MODE", Rails.env.test? ? "fixture" : "live")
+    config.x.store_raw_source_responses = ActiveModel::Type::Boolean.new.cast(
+      ENV.fetch("STORE_RAW_SOURCE_RESPONSES", Rails.env.production? ? "false" : "false")
+    )
+    config.x.payment_provider = ENV.fetch("PAYMENT_PROVIDER", "fake")
+    config.x.fake_payments_enabled = ActiveModel::Type::Boolean.new.cast(
+      ENV.fetch("FAKE_PAYMENTS_ENABLED", Rails.env.production? ? "false" : "true")
+    )
+    config.x.map_style_url = ENV["MAP_STYLE_URL"].presence || "https://demotiles.maplibre.org/style.json"
+    config.x.development_pressure_years = ENV.fetch("DEVELOPMENT_PRESSURE_YEARS", 5).to_i
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

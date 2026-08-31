@@ -1,60 +1,38 @@
 # PropertyLens
 
-PropertyLens is the Rails foundation for a Bulgarian property-intelligence platform. This repository intentionally contains no domain models or product features yet.
+PropertyLens is a Sofia-first Rails prototype that helps a buyer understand what public information can be found for a Bulgarian cadastral identifier. A visitor can submit a parcel, building, or individual-object identifier, follow real analysis stages, inspect a useful free preview, complete a test checkout, and unlock the full report through its unguessable public URL.
 
-## Stack
+The product is an information aid, not legal due diligence. It does not verify ownership, title, mortgages, encumbrances, construction legality, formal planning compliance, or future development.
 
-- Ruby 3.4.7 and Rails 8.1.3.1
+## Stack and requirements
+
+- Ruby 3.4.7, Rails 8.1, Hotwire, Stimulus, Importmap, and Tailwind CSS 4
 - PostgreSQL 17 with PostGIS 3.5
-- Hotwire (Turbo and Stimulus), Importmap, and Tailwind CSS 4
-- Sidekiq 8 with Redis 7.2
-- RSpec, FactoryBot, Capybara, and Selenium
-- RuboCop with Rails Omakase defaults
+- Sidekiq 8 and Redis 7.2
+- RSpec, FactoryBot, Capybara, and WebMock
+- MapLibre GL for the report map
 
-## Requirements
-
-- Ruby 3.4.7 (see `.ruby-version`)
-- Bundler
-- Docker with Docker Compose
-- Google Chrome for the browser-backed system specs
-
-## Initial setup
+Install Ruby 3.4.7 and Docker, then:
 
 ```sh
-git clone <repository-url> property-lens
-cd property-lens
 cp .env.example .env
-```
-
-Replace the placeholder password in `.env`, then install gems and start the local dependencies:
-
-```sh
+# Set DATABASE_PASSWORD in .env.
 bundle install
 docker compose up -d
 bin/rails db:prepare
 ```
 
-`db:prepare` creates the development and test databases, runs migrations, enables PostGIS, and writes `db/schema.rb`. The PostGIS adapter preserves spatial column definitions in the conventional Rails schema format without requiring a host `pg_dump` matching the container's PostgreSQL version.
+PostGIS is required. `db:prepare` enables it and creates geography/geometry columns plus GiST indexes. The Compose image is `postgis/postgis:17-3.5`.
 
-The upstream `postgis/postgis` image is currently published for amd64, so Compose explicitly uses that platform. Docker Desktop transparently emulates it on Apple silicon.
+## Run the app
 
-You can also use the idempotent setup script after the dependencies are running:
-
-```sh
-bin/setup --skip-server
-```
-
-## Run the application
-
-Run the web server, Tailwind watcher, and Sidekiq together:
+Run Rails, the Tailwind watcher, and Sidekiq together:
 
 ```sh
 bin/dev
 ```
 
-PropertyLens will be available at <http://localhost:3000>.
-
-To run processes separately:
+Or run them separately:
 
 ```sh
 bin/rails server
@@ -62,35 +40,102 @@ bin/rails tailwindcss:watch
 bundle exec sidekiq -C config/sidekiq.yml
 ```
 
-Stop the local dependencies with `docker compose down`. Add `--volumes` only when you intentionally want to delete local PostgreSQL and Redis data.
+Open <http://localhost:3000>. Analysis jobs use the `analysis` queue and dataset imports use `imports`.
 
-## Test and lint
+The visible product name is configured once with `PRODUCT_NAME`; code and routes retain the PropertyLens working name. Bulgarian is the default locale and the interface also has English translations.
+
+## Data-source modes
+
+`DATA_SOURCE_MODE=live` uses the allowlisted official hosts in `config/data_sources.yml`. `DATA_SOURCE_MODE=fixture` reads offline files from `spec/fixtures/data_sources`; this is the automatic test default. Production must not use fixture mode because fixtures are representative test data, not live facts.
+
+Every request becomes an independent `SourceRun` with status, source URL, retrieval time, known validity date, checksum, and a sanitized error when needed. Raw source responses are not stored unless `STORE_RAW_SOURCE_RESPONSES=true`; it defaults to false and should stay false in production.
+
+Current integrations:
+
+- SofiaPlan API: live version/catalog clients and GeoJSON download/import. The deterministic prototype configuration pins schools `166` (2018-08-08), kindergartens `142` (2018-08-08), parks and gardens `235` (2020-09-14), metro stations `47` (2021-03-08), and significant flood-risk areas `51` (2018-06-18). Old dates are preserved and shown, never treated as current.
+- SofiaPlan ArcGIS: a generic paginated Feature Layer client queries development potential layer `31` and predominant functional zoning layer `33` by reliable location. Raw returned attributes are retained as provenance instead of assuming field meanings.
+- NAG registers: the adapter discovers the official public search-form action and searches building permits, design visas, planning orders, and occupancy certificates by full, building, and parcel identifiers. It parses the Kendo result payload and a capped set of public detail pages. The public pages have no documented third-party API, so this integration is intentionally isolated and can become `unavailable` if the form changes. It does not bypass authentication, CAPTCHAs, or access controls and does not fetch PDFs.
+- Cadastre: the default provider imports AGKK's official parcel, building, and individual-object open-data archives. It retains exact identifiers, attributes, archive dates, and vector geometry; parcel geometry is transformed from BGS2005 / CCS2005 (EPSG:7801) to WGS 84 for the report map and spatial checks. The optional AGKK WMS configuration remains overlay-only.
+
+Only HTTPS hosts explicitly allowlisted in `config/data_sources.yml` can be fetched. User input never controls a remote URL.
+
+### AGKK cadastral open data
+
+Property identity and hierarchy facts come from AGKK's public `самостоятелни обекти`, `сгради`, and `поземлени имоти` archives. This includes object area and outline, attached/common parts, floor and purpose; building footprint, floors, function, and object count; parcel area, perimeter, territory type, permanent use, regulation quarter/UPI; official addresses, approval acts, technical codes, and cadastral geometry. In live mode, an analysis imports the required hierarchy for the relevant Sofia district on first use when a municipal record provides the district hint. Imported records are reused locally and refreshed by archive checksum and importer version.
+
+To refresh a district explicitly:
+
+```sh
+bin/rails 'cadastre:sync_sofia_district[Студентски]'
+```
+
+The importer reads only the three non-ownership archives. It deliberately does not download the separate `собственост ПИ`, `собственост сгради`, or `собственост СОС` archives, and it never imports owner names. The non-ownership archives' broad cadastral ownership category may be displayed with an explicit warning that it is not a current ownership, title, seller, or encumbrance check.
+
+## Sync and maintenance commands
+
+Check connectivity and show useful source diagnostics:
+
+```sh
+bin/rails data_sources:check
+```
+
+List the live SofiaPlan catalog, optionally filtered:
+
+```sh
+bin/rails sofiaplan:datasets
+bin/rails 'sofiaplan:datasets[kindergarten]'
+```
+
+Import the five configured GeoJSON datasets. Imports upsert stable feature IDs, remove stale features, preserve freshness, and skip an unchanged checksum:
+
+```sh
+bin/rails sofiaplan:sync
+bin/rails 'sofiaplan:sync[schools]'
+```
+
+Run any valid cadastral identifier synchronously from the command line:
+
+```sh
+bin/rails 'property_lens:analyze[68134.1000.2000.1.5]'
+```
+
+For the requested live acceptance lookup, replace the example with the acceptance identifier and keep `DATA_SOURCE_MODE=live`.
+
+## Payment prototype
+
+The only catalog product is `full_property_report`, priced server-side at 2,490 euro cents. The browser never submits price or currency. With `PAYMENT_PROVIDER=fake` and `FAKE_PAYMENTS_ENABLED=true`, checkout exposes success, failure, and cancellation controls without card fields. Success is idempotent and unlocks the report for anyone holding its public UUID URL.
+
+Fake payment mutation routes are disabled in production unless `FAKE_PAYMENTS_ENABLED=true` is explicitly set. A future real gateway can implement `Payments::Gateway`, use the existing generic `Order` fields, and replace the configured gateway without changing report access. No Stripe-specific objects or terminology are present.
+
+## Map configuration
+
+Set `MAP_STYLE_URL` to a compatible MapLibre style JSON URL. Development falls back to MapLibre demo tiles. Select a licensed production tile/style provider before launch. The report does not render a random Sofia map when location resolution fails; it shows an explicit unavailable state. Radius calculations disclose when only a centroid, rather than parcel geometry, is available.
+
+## Tests and quality checks
+
+Automated tests always use fixtures and WebMock blocks non-local network access:
 
 ```sh
 bin/rspec
 bin/rubocop
+bin/rails zeitwerk:check
 ```
 
-Run the same local checks as CI with:
+Run the CI sequence with:
 
 ```sh
 bin/ci
 ```
 
-The PostGIS integration spec verifies both `geography` and `geometry` columns through Active Record. To inspect the installed PostGIS version manually:
+Coverage includes identifier parsing, source clients/parsers, GeoJSON import, ArcGIS pagination, deterministic metrics/questions, PostGIS radii/intersections/touches, independent source failure, report states, all fake-payment outcomes, idempotency, and the end-to-end Capybara journey.
 
-```sh
-bin/rails runner 'puts ActiveRecord::Base.connection.select_value("SELECT PostGIS_Version()")'
-```
+## Known limitations
 
-## Configuration
+- Municipal coverage is Sofia-first. Valid non-Sofia identifiers receive an honest limited-coverage report.
+- NAG public HTML/Kendo contracts are undocumented and may change. A failed public form is marked unavailable rather than worked around with browser automation or fabricated data.
+- AGKK open-data coverage depends on a district being identified and its archive being available. Similar identifiers are never used to infer a match; all hierarchy records and geometry are joined by exact cadastral identifiers.
+- SofiaPlan amenity datasets currently available through the catalog are dated; every date is displayed.
+- The fallback MapLibre demo style is not a production tile service.
+- Reports are link-based and have no accounts, emails, PDF export, document uploads, valuation, listing imports, or LLM-generated conclusions.
 
-Development and test read connection settings from `.env` through `dotenv-rails`. `.env` files and Rails key files are ignored; `.env.example` contains placeholders only.
-
-Production expects environment variables or Rails credentials. At minimum, configure `DATABASE_URL`, `REDIS_URL`, and the Rails secret/credentials key used by the deployment. A normal `postgres://` or `postgresql://` `DATABASE_URL` is normalized to the `postgis` Active Record adapter by `config/database.yml`.
-
-Active Job uses Sidekiq in development and production and Rails' test adapter in the test environment. The production Action Cable adapter also uses `REDIS_URL`.
-
-## Continuous integration
-
-`.github/workflows/ci.yml` provisions PostGIS and Redis services, installs the locked Ruby gems, prepares the test database, runs RSpec (including the browser system spec and PostGIS adapter check), and runs RuboCop.
+The highest-value next step is scheduling archive refreshes for all launch districts and importing fresher municipal amenity datasets, while preserving the same exact-identifier and per-source provenance rules.

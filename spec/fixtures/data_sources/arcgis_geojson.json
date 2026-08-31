@@ -1,0 +1,6 @@
+{
+  "type":"FeatureCollection",
+  "features":[
+    {"type":"Feature","properties":{"OBJECTID":1,"zone":"fixture-zone","source_note":"Offline test fixture"},"geometry":{"type":"Polygon","coordinates":[[[23.319,42.689],[23.322,42.689],[23.322,42.692],[23.319,42.692],[23.319,42.689]]]}}
+  ]
+}

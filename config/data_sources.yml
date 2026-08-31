@@ -1,0 +1,76 @@
+shared: &shared
+  allowed_hosts:
+    - api.sofiaplan.bg
+    - gis.sofiaplan.bg
+    - nag.sofia.bg
+    - kais.cadastre.bg
+  http:
+    open_timeout: 5
+    read_timeout: 18
+    retries: 2
+  sofiaplan:
+    base_url: <%= ENV.fetch("SOFIAPLAN_API_BASE_URL", "https://api.sofiaplan.bg") %>
+    datasets:
+      schools:
+        id: "166"
+        name: "Училища"
+        category: schools
+        relevant_at: "2018-08-08"
+      kindergartens:
+        id: "142"
+        name: "Детски градини"
+        category: kindergartens
+        relevant_at: "2018-08-08"
+      green_spaces:
+        id: "235"
+        name: "Паркове и градини"
+        category: green_spaces
+        relevant_at: "2020-09-14"
+      transit:
+        id: "47"
+        name: "Метростанции"
+        category: transit
+        relevant_at: "2021-03-08"
+      flood_risk:
+        id: "51"
+        name: "Райони със значителен потенциален риск от наводнения"
+        category: flood_risk
+        relevant_at: "2018-06-18"
+  arcgis:
+    development_potential:
+      url: <%= ENV.fetch("SOFIAPLAN_ARCGIS_DEVELOPMENT_POTENTIAL_URL", "https://gis.sofiaplan.bg/server/rest/services/programa_za_sofia/programa_sofia_atlas_na_analizite/FeatureServer/31") %>
+    functional_zoning:
+      url: <%= ENV.fetch("SOFIAPLAN_ARCGIS_FUNCTIONAL_ZONING_URL", "https://gis.sofiaplan.bg/server/rest/services/programa_za_sofia/programa_sofia_atlas_na_analizite/FeatureServer/33") %>
+  nag:
+    request_delay_seconds: 0.5
+    detail_limit: 25
+    registers:
+      building_permits:
+        url: <%= ENV.fetch("NAG_BUILDING_PERMITS_URL", "https://nag.sofia.bg/RegisterBuildingPermitsPortal/Index") %>
+        identifier_field: Identifier
+      design_visas:
+        url: <%= ENV.fetch("NAG_DESIGN_VISAS_URL", "https://nag.sofia.bg/registervisasofproection") %>
+        identifier_field: KkkrIdentifier
+      urban_planning_orders:
+        url: <%= ENV.fetch("NAG_URBAN_PLANNING_ORDERS_URL", "https://nag.sofia.bg/registerurbanplanningorders") %>
+        identifier_field: KkkrIdentifier
+      occupancy_certificates:
+        url: <%= ENV.fetch("NAG_OCCUPANCY_CERTIFICATES_URL", "https://nag.sofia.bg/RegisterCertificateForExploitationBuildings") %>
+        identifier_field: Identifier
+  cadastre:
+    provider: <%= ENV.fetch("CADASTRE_PROVIDER", "open_data") %>
+    wms_url: <%= ENV.fetch("AGKK_WMS_URL", "") %>
+    wms_username: <%= ENV.fetch("AGKK_WMS_USERNAME", "") %>
+    wms_password: <%= ENV.fetch("AGKK_WMS_PASSWORD", "") %>
+    open_data:
+      portal_url: "https://kais.cadastre.bg/bg/OpenData"
+      download_url: "https://kais.cadastre.bg/bg/OpenData/Download"
+      download_timeout: 120
+      auto_import: <%= ENV.fetch("CADASTRE_OPEN_DATA_AUTO_IMPORT", "true") %>
+
+development:
+  <<: *shared
+test:
+  <<: *shared
+production:
+  <<: *shared

@@ -1,0 +1,90 @@
+<% records = facts.fetch("cadastre_records", {}) %>
+<% if records.present? %>
+  <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
+    <div class="border-b border-slate-200 bg-emerald-950 p-6 text-white sm:p-8">
+      <p class="text-xs font-black uppercase tracking-[0.16em] text-emerald-300"><%= t("reports.cadastre_hierarchy.eyebrow") %></p>
+      <h2 class="mt-2 text-2xl font-black tracking-tight sm:text-3xl"><%= t("reports.cadastre_hierarchy.title") %></h2>
+      <p class="mt-3 max-w-4xl text-sm leading-6 text-emerald-50/80"><%= t("reports.cadastre_hierarchy.description") %></p>
+    </div>
+
+    <div class="grid gap-5 bg-slate-50/70 p-5 sm:p-7 lg:grid-cols-3">
+      <% %w[individual_object building parcel].each do |level| %>
+        <% record = records[level] %>
+        <% next unless record %>
+        <article class="flex flex-col rounded-2xl bg-white ring-1 ring-slate-200">
+          <header class="border-b border-slate-100 p-5">
+            <p class="text-xs font-black uppercase tracking-wide text-emerald-700"><%= t("reports.cadastre_hierarchy.record_titles.#{level}") %></p>
+            <code class="mt-2 block break-all text-sm font-black text-slate-950"><%= record["cadastral_identifier"] %></code>
+            <% if record["source_relevant_at"] %>
+              <p class="mt-2 text-xs text-slate-500"><%= t("reports.property_facts.cadastre_data_date", date: l(record["source_relevant_at"].to_date, format: :short)) %></p>
+            <% end %>
+          </header>
+
+          <dl class="flex-1 divide-y divide-slate-100 px-5">
+            <% cadastral_record_fields(record, level).each do |field, value| %>
+              <div class="py-3.5">
+                <dt class="text-xs font-semibold text-slate-500"><%= t("reports.cadastre_hierarchy.fields.#{field}") %></dt>
+                <dd class="mt-1 break-words text-sm font-bold leading-6 text-slate-900"><%= value %></dd>
+              </div>
+            <% end %>
+          </dl>
+
+          <footer class="border-t border-slate-100 p-5">
+            <%= link_to t("reports.cadastre_hierarchy.open_source"), record["source_url"], target: "_blank", rel: "noopener", class: "text-xs font-bold text-emerald-700 underline decoration-emerald-200 underline-offset-4 hover:text-emerald-900" %>
+          </footer>
+        </article>
+      <% end %>
+    </div>
+
+    <% metrics = facts.fetch("cadastre_hierarchy_metrics", {}) %>
+    <% if metrics.present? %>
+      <div class="border-t border-slate-200 bg-white p-6 sm:p-8">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-xs font-black uppercase tracking-wide text-sky-700"><%= t("reports.cadastre_hierarchy.cross_checks_eyebrow") %></p>
+            <h3 class="mt-1 text-lg font-black text-slate-950"><%= t("reports.cadastre_hierarchy.cross_checks_title") %></h3>
+          </div>
+          <p class="max-w-xl text-xs leading-5 text-slate-500"><%= t("reports.cadastre_hierarchy.cross_checks_note", product_name:) %></p>
+        </div>
+        <dl class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <% if metrics["parcel_buildings_count"] %>
+            <div class="rounded-2xl bg-sky-50 p-4 ring-1 ring-sky-100">
+              <dt class="text-xs font-semibold text-sky-800"><%= t("reports.cadastre_hierarchy.metrics.parcel_buildings_count") %></dt>
+              <dd class="mt-2 text-2xl font-black text-sky-950"><%= metrics["parcel_buildings_count"] %></dd>
+            </div>
+          <% end %>
+          <% if metrics["building_object_records_count"] %>
+            <div class="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
+              <dt class="text-xs font-semibold text-emerald-800"><%= t("reports.cadastre_hierarchy.metrics.building_objects") %></dt>
+              <dd class="mt-2 text-2xl font-black text-emerald-950"><%= metrics["building_object_records_count"] %></dd>
+              <% if metrics["building_declared_objects_count"] %>
+                <p class="mt-1 text-xs text-emerald-800"><%= t("reports.cadastre_hierarchy.metrics.declared_objects", count: metrics["building_declared_objects_count"]) %> · <%= t("reports.cadastre_hierarchy.metrics.count_match.#{metrics['building_object_count_matches']}") %></p>
+              <% end %>
+            </div>
+          <% end %>
+          <% if metrics["building_object_areas_sum_sqm"] %>
+            <div class="rounded-2xl bg-violet-50 p-4 ring-1 ring-violet-100">
+              <dt class="text-xs font-semibold text-violet-800"><%= t("reports.cadastre_hierarchy.metrics.object_areas_sum") %></dt>
+              <dd class="mt-2 text-2xl font-black text-violet-950"><%= number_with_precision(metrics["building_object_areas_sum_sqm"], precision: 2, strip_insignificant_zeros: true) %> m²</dd>
+              <p class="mt-1 text-xs leading-5 text-violet-800"><%= t("reports.cadastre_hierarchy.metrics.object_areas_sum_note") %></p>
+            </div>
+          <% end %>
+          <% if metrics["parcel_footprint_percent"] %>
+            <div class="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100">
+              <dt class="text-xs font-semibold text-amber-800"><%= t("reports.cadastre_hierarchy.metrics.footprint_percent") %></dt>
+              <dd class="mt-2 text-2xl font-black text-amber-950"><%= number_with_precision(metrics["parcel_footprint_percent"], precision: 2, strip_insignificant_zeros: true) %>%</dd>
+              <p class="mt-1 text-xs leading-5 text-amber-800"><%= t("reports.cadastre_hierarchy.metrics.footprint_detail", area: number_with_precision(metrics["parcel_building_footprint_sqm"], precision: 2, strip_insignificant_zeros: true)) %></p>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    <% end %>
+
+    <% if records.values.any? { |record| record["ownership_type"].present? } %>
+      <div class="border-t border-amber-200 bg-amber-50 px-6 py-4 text-xs leading-5 text-amber-950 sm:px-8">
+        <strong><%= t("reports.cadastre_hierarchy.ownership_note_title") %></strong>
+        <%= t("reports.cadastre_hierarchy.ownership_note") %>
+      </div>
+    <% end %>
+  </section>
+<% end %>

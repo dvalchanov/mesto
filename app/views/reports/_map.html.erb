@@ -1,0 +1,19 @@
+<section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+  <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <h2 class="text-xl font-bold"><%= t("reports.map.title") %></h2>
+    <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.map.precision", precision: t("reports.map.precisions.#{analysis.location_precision}")) %></p>
+  </div>
+  <% if analysis.centroid %>
+    <% content_for :head do %><link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.1/dist/maplibre-gl.css" rel="stylesheet"><% end %>
+    <div data-controller="property-map" data-property-map-payload-value="<%= report_map_payload(analysis, acts: local_assigns.fetch(:acts, AdministrativeAct.none)).to_json %>" data-property-map-style-url-value="<%= Rails.application.config.x.map_style_url %>">
+      <div class="mb-3 flex flex-wrap gap-2">
+        <% { selected: "layer_selected", planning: "layer_planning", acts: "layer_acts", amenities: "layer_amenities" }.each do |layer, label| %>
+          <button type="button" data-action="property-map#toggle" data-layer="<%= layer %>" class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700"><%= t("reports.map.#{label}") %></button>
+        <% end %>
+      </div>
+      <div data-property-map-target="canvas" class="h-[25rem] overflow-hidden rounded-2xl bg-slate-100"></div>
+    </div>
+  <% else %>
+    <div class="grid min-h-56 place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm leading-6 text-slate-600"><%= t("reports.map.unavailable") %></div>
+  <% end %>
+</section>

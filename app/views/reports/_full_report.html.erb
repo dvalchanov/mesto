@@ -1,0 +1,63 @@
+<div class="mt-8 space-y-6">
+  <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-black text-emerald-900"><span class="grid size-7 place-items-center rounded-full bg-emerald-600 text-white">✓</span><%= t("reports.full.unlocked") %></div>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+    <h2 class="text-2xl font-bold"><%= t("reports.full.timeline") %></h2>
+    <div class="mt-7 space-y-5">
+      <% acts.each do |act| %><%= render "administrative_act", act:, preview: false %><% end %>
+      <% if acts.empty? %><p class="text-sm text-slate-500"><%= t("reports.acts.no_match") %></p><% end %>
+    </div>
+  </section>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+    <h2 class="text-xl font-bold"><%= t("reports.full.planning") %></h2>
+    <% planning = Array(analysis.summary["planning"]) %>
+    <div class="mt-5 space-y-4">
+      <% planning.each do |layer| %>
+        <% Array(layer["features"]).each do |feature| %>
+          <article class="rounded-2xl bg-slate-50 p-4">
+            <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= source_name(layer["source_key"]) %></p>
+            <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-2"><% feature.fetch("properties", {}).first(8).each do |key, value| %><div><dt class="font-semibold text-slate-500"><%= key.to_s.humanize %></dt><dd class="break-words text-slate-800"><%= value %></dd></div><% end %></dl>
+          </article>
+        <% end %>
+      <% end %>
+      <% if planning.sum { |layer| Array(layer["features"]).length }.zero? %><p class="text-sm text-slate-500"><%= t("reports.full.planning_empty") %></p><% end %>
+    </div>
+  </section>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+      <h2 class="text-xl font-bold"><%= t("reports.full.nearby") %></h2>
+      <% nearby = analysis.metrics.fetch("nearby_activity", {}) %>
+      <% if nearby["available"] %>
+        <div class="mt-5 space-y-3"><% nearby.fetch("counts", {}).each do |radius, count| %><p class="flex justify-between border-b border-slate-100 pb-3 text-sm"><span><%= t("reports.full.radius_count", count:, radius:) %></span></p><% end %></div>
+        <% if nearby["radius_based"] %><p class="mt-4 rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-900"><%= t("reports.full.radius_note") %></p><% end %>
+      <% else %><p class="mt-4 text-sm text-slate-500"><%= t("common.unavailable") %></p><% end %>
+      <% pressure = analysis.metrics.fetch("development_pressure", { "level" => "unavailable" }) %>
+      <div class="mt-6 border-t border-slate-200 pt-5"><h3 class="font-bold"><%= t("reports.full.development_pressure") %></h3><p class="mt-2 text-sm leading-6 text-slate-600"><%= t("reports.full.pressure_reason", level: t("reports.full.pressure_levels.#{pressure['level']}"), within_100: pressure["within_100"].to_i, within_250: pressure["within_250"].to_i, within_500: pressure["within_500"].to_i) %></p><span class="mt-3 inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-800"><%= t("common.calculated", product_name:) %></span></div>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+      <h2 class="text-xl font-bold"><%= t("reports.full.amenities") %></h2>
+      <% amenities = analysis.metrics.fetch("amenities", {}) %>
+      <div class="mt-5 space-y-5"><% %w[schools kindergartens].each do |category| %><div><h3 class="text-sm font-bold"><%= t("reports.sources.names.sofiaplan_dataset_#{category}") %></h3><div class="mt-2 flex flex-wrap gap-2"><% amenities.fetch(category, {}).each do |radius, count| %><span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold"><%= t("reports.full.amenity_count", count:, radius:) %></span><% end %></div></div><% end %></div>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+      <h2 class="text-xl font-bold"><%= t("reports.full.green_transport") %></h2>
+      <div class="mt-5 space-y-4"><% %w[nearest_green_space nearest_transit].each do |key| %><% nearest = analysis.metrics.dig("amenities", key) %><p class="rounded-2xl bg-slate-50 p-4 text-sm font-semibold"><%= nearest ? t("reports.full.nearest", name: nearest["name"].presence || source_name(key), distance: nearest["distance_m"]) : t("reports.full.no_nearest") %></p><% end %></div>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+      <h2 class="text-xl font-bold"><%= t("reports.full.environment") %></h2>
+      <p class="mt-5 text-sm leading-6 text-slate-700"><%= analysis.metrics.dig("environment", "available") ? t("reports.full.flood_intersections", count: analysis.metrics.dig("environment", "flood_risk_intersections").to_i) : t("common.unavailable") %></p>
+    </section>
+  </div>
+
+  <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+    <h2 class="text-xl font-bold"><%= t("reports.full.questions") %></h2>
+    <ol class="mt-5 grid gap-3 sm:grid-cols-2"><% Array(analysis.summary["questions"]).each_with_index do |key, index| %><li class="flex gap-3 rounded-2xl bg-slate-50 p-4 text-sm leading-6"><span class="font-black text-emerald-700"><%= index + 1 %>.</span><%= t(key) %></li><% end %></ol>
+  </section>
+
+  <div class="text-center"><%= button_to t("reports.refresh.action"), refresh_report_path(analysis), method: :post, class: "rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:border-slate-400" %></div>
+</div>
