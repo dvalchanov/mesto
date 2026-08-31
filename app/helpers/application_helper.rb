@@ -1,7 +1,7 @@
 module ApplicationHelper
   CADASTRE_COMMON_FIELDS = %w[
     settlement_name address district locality street_name street_number place old_identifier
-    ownership_type validation_document geometry_available technical_components
+    ownership_type validation_document geometry_available source_crs technical_components
   ].freeze
   CADASTRE_LEVEL_FIELDS = {
     "individual_object" => %w[
@@ -100,6 +100,7 @@ module ApplicationHelper
     }.fetch(field, field)
     value = case source_field
     when "technical_components" then cadastral_components(record)
+    when "source_crs" then record.dig("properties", "source_crs")
     else record[source_field]
     end
     return if value.blank?

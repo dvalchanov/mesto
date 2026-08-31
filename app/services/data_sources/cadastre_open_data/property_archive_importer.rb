@@ -3,6 +3,7 @@ module DataSources
     class PropertyArchiveImporter
       BATCH_SIZE = 500
       IMPORTER_VERSION = 2
+      SOURCE_CRS = "EPSG:7801 (BGS2005 / CCS2005)".freeze
       ARCHIVE_LEVELS = {
         individual_objects: "individual_object",
         buildings: "building",
@@ -55,6 +56,7 @@ module DataSources
           raise ArgumentError, "The archive does not contain a DBF file" unless dbf_entry
 
           shp_entry = archive.entries.find { |candidate| candidate.name.downcase.end_with?(".shp") }
+          validate_projection!(archive) if shp_entry
           relevant_at ||= dbf_entry.time
           rows = DbfReader.new(dbf_entry.get_input_stream).each_record
           geometries = shp_entry && ShpReader.new(shp_entry.get_input_stream).each
@@ -64,7 +66,7 @@ module DataSources
             next unless row
 
             import.records_seen += 1
-            attributes = property_attributes(row, relevant_at)
+            attributes = property_attributes(row, relevant_at, geometry_wkt.present?)
             next unless attributes
 
             identifier = attributes.fetch(:cadastral_identifier)
@@ -94,14 +96,14 @@ module DataSources
         raise ArgumentError, "The SHP and DBF record counts do not match"
       end
 
-      def property_attributes(row, relevant_at)
+      def property_attributes(row, relevant_at, has_geometry)
         identifier = CadastralIdentifier.new(row["cadnum"])
         return unless identifier.valid? && identifier.level.to_s == @identifier_level
 
-        common_attributes(row, relevant_at).merge(kind_attributes(row))
+        common_attributes(row, relevant_at, has_geometry).merge(kind_attributes(row))
       end
 
-      def common_attributes(row, relevant_at)
+      def common_attributes(row, relevant_at, has_geometry)
         {
           cadastral_identifier: row.fetch("cadnum"),
           identifier_level: @identifier_level,
@@ -121,7 +123,9 @@ module DataSources
           source_archive_key: @source_archive_key,
           source_url: @source_url,
           source_relevant_at: relevant_at,
-          properties: component_properties(row)
+          properties: component_properties(row).tap do |properties|
+            properties["source_crs"] = SOURCE_CRS if has_geometry
+          end
         }
       end
 
@@ -179,6 +183,14 @@ module DataSources
           "building_number" => row["cadbuild"].presence,
           "object_number" => row["cadapp"].presence
         }.compact
+      end
+
+      def validate_projection!(archive)
+        entry = archive.entries.find { |candidate| candidate.name.downcase.end_with?(".prj") }
+        projection = entry&.get_input_stream&.read.to_s
+        return if projection.include?("BGS2005") && projection.include?("Lambert_Conformal_Conic")
+
+        raise ArgumentError, "The cadastral SHP projection is not BGS2005 / CCS2005"
       end
 
       def flush(batch, geometry_batch)

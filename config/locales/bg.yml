@@ -216,6 +216,7 @@ bg:
         ownership_type: "Категория на собствеността в КККР"
         validation_document: "Акт за одобрение на кадастралната карта"
         geometry_available: "Кадастрална геометрия"
+        source_crs: "Координатна система на източника"
         technical_components: "Техническо разлагане на идентификатора"
       component_labels:
         settlement_code: "ЕКАТТЕ"

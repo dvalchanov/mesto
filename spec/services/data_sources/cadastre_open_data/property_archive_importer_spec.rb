@@ -36,6 +36,7 @@ RSpec.describe DataSources::CadastreOpenData::PropertyArchiveImporter do
     Zip::File.open(archive.path, create: true) do |zip|
       zip.get_output_stream("data.dbf") { |io| io.write(build_dbf(parcel_fields, [ row ])) }
       zip.get_output_stream("data.shp") { |io| io.write(build_shp) }
+      zip.get_output_stream("data.prj") { |io| io.write('PROJCS["BGS2005",PROJECTION["Lambert_Conformal_Conic"]]') }
     end
 
     described_class.new(
@@ -47,6 +48,7 @@ RSpec.describe DataSources::CadastreOpenData::PropertyArchiveImporter do
 
     expect(property.source_geometry.geometry_type.type_name).to eq("MultiPolygon")
     expect(property.geometry.geometry_type.type_name).to eq("MultiPolygon")
+    expect(property.properties.fetch("source_crs")).to eq("EPSG:7801 (BGS2005 / CCS2005)")
     expect(CadastralProperty.where(id: property.id).pick(Arel.sql("ST_Area(source_geometry)"))).to be_within(0.01).of(100)
   ensure
     archive&.unlink

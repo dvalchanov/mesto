@@ -190,6 +190,7 @@ en:
         ownership_type: "Ownership category in the cadastral register"
         validation_document: "Cadastral-map approval act"
         geometry_available: "Cadastral geometry"
+        source_crs: "Source coordinate reference system"
         technical_components: "Technical identifier components"
       component_labels: { settlement_code: "EKATTE", cadastre_area_code: "cadastral district", parcel_number: "parcel", building_number: "building", object_number: "object" }
       square_metres: "%{value} m²"
