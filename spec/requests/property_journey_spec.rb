@@ -7,6 +7,18 @@ RSpec.describe "Property report journey", type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("<title>Mesto —")
     expect(response.body).to include('property="og:site_name" content="Mesto"')
+    expect(response.body).to include('/favicon.ico', '/apple-touch-icon.png', pwa_manifest_path)
+  end
+
+  it "serves installable Mesto icons through the web app manifest" do
+    get pwa_manifest_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.media_type).to eq("application/json")
+    expect(response.parsed_body.fetch("icons")).to contain_exactly(
+      hash_including("src" => "/android-chrome-192x192.png", "sizes" => "192x192"),
+      hash_including("src" => "/android-chrome-512x512.png", "sizes" => "512x512", "purpose" => "maskable")
+    )
   end
 
   it "serves the bilingual buyer knowledge library" do
