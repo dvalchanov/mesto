@@ -1,22 +1,22 @@
 {
-  "name": <%= Rails.application.config.x.product_name.to_json %>,
+  "name": <%= raw json_escape(Rails.application.config.x.product_name.to_json) %>,
   "icons": [
     {
-      "src": "/icon.svg",
-      "type": "image/svg+xml",
-      "sizes": "any"
+      "src": "/android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
     },
     {
-      "src": "/icon.svg",
-      "type": "image/svg+xml",
-      "sizes": "any",
+      "src": "/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "maskable"
     }
   ],
   "start_url": "/",
   "display": "standalone",
   "scope": "/",
-  "description": <%= I18n.t("layout.meta_description").to_json %>,
+  "description": <%= raw json_escape(I18n.t("layout.meta_description").to_json) %>,
   "theme_color": "#173f34",
   "background_color": "#f4f0e8"
 }
