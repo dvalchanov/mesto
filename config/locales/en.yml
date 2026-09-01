@@ -428,7 +428,6 @@ en:
       cta: "Unlock full analysis — €24.90"
       previews: { timeline: "Complete administrative timeline", planning: "Planning data and development potential", nearby: "Nearby activity, amenities and distances", evidence: "Source evidence and investigation questions" }
     full:
-      unlocked: "Full analysis unlocked"
       overview: "Overview"
       timeline: "Administrative timeline"
       permit: "Permit / act no. %{number}"

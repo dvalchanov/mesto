@@ -34,10 +34,7 @@
     <header class="site-header">
       <div class="site-shell site-header__inner">
         <%= link_to root_path, class: "brand", aria: { label: t("navigation.home") } do %>
-          <span class="brand__mark" aria-hidden="true">
-            <svg viewBox="0 0 40 40" fill="none"><path d="M8 29V15l12-7 12 7v14"/><path d="M13 29V18l7-4 7 4v11M5 29h30"/><path d="M17 29v-7h6v7"/></svg>
-          </span>
-          <span class="brand__word"><%= product_name %><span class="brand__dot">.</span></span>
+          <%= mesto_wordmark(variant: :accent, theme: :light, animate: current_page?(root_path), css_class: "brand__wordmark", title: product_name) %>
         <% end %>
 
         <nav class="site-nav" aria-label="<%= t('navigation.primary') %>">
@@ -73,8 +70,7 @@
         <div class="site-footer__top">
           <div class="site-footer__brand">
             <%= link_to root_path, class: "brand brand--footer" do %>
-              <span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M8 29V15l12-7 12 7v14"/><path d="M13 29V18l7-4 7 4v11M5 29h30"/><path d="M17 29v-7h6v7"/></svg></span>
-              <span class="brand__word"><%= product_name %><span class="brand__dot">.</span></span>
+              <%= mesto_wordmark(variant: :monochrome, theme: :dark, css_class: "brand__wordmark", title: product_name) %>
             <% end %>
             <p><%= t("layout.footer_intro") %></p>
           </div>

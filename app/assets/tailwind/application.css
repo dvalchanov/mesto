@@ -57,12 +57,39 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 
 .site-header__inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
 
-.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; flex: none; }
-.brand__mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--pine); color: var(--paper); }
-.brand__mark svg { width: 25px; height: 25px; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.brand__word { font-family: var(--font-serif); font-size: 25px; font-weight: 600; letter-spacing: -.05em; line-height: 1; }
-.brand__dot { color: var(--clay); }
-.brand:hover .brand__mark { transform: rotate(-3deg); background: var(--clay); }
+.brand { display: inline-flex; align-items: center; color: var(--ink); text-decoration: none; flex: none; }
+.brand__wordmark { display: block; width: 143px; height: auto; }
+
+.mesto-wordmark {
+  display: block;
+  overflow: visible;
+  --mesto-logo-primary: #173f34;
+  --mesto-logo-accent: #b95f3f;
+  --mesto-logo-secondary: #6f8060;
+  --mesto-logo-tertiary: #d8c2a2;
+}
+.mesto-wordmark--theme-dark {
+  --mesto-logo-primary: #f4f0e8;
+  --mesto-logo-accent: #cf7a57;
+  --mesto-logo-secondary: #a9b79d;
+  --mesto-logo-tertiary: #d8c2a2;
+}
+.mesto-wordmark__cell { transform-box: fill-box; transform-origin: center; transition: fill .28s ease, opacity .28s ease, transform .28s ease; }
+.mesto-wordmark__cell--primary { fill: var(--mesto-logo-primary); }
+.mesto-wordmark__cell--accent { fill: var(--mesto-logo-accent); }
+.mesto-wordmark__cell--secondary { fill: var(--mesto-logo-secondary); }
+.mesto-wordmark__cell--tertiary { fill: var(--mesto-logo-tertiary); }
+.mesto-wordmark--animated .mesto-wordmark__cell {
+  opacity: 0;
+  transform: translateY(5px) scale(.55);
+  animation: mesto-cell-assemble .5s cubic-bezier(.2, .75, .25, 1) both;
+  animation-delay: calc(90ms + (var(--cell-index) * 15ms));
+}
+.mesto-wordmark--animated .mesto-wordmark__cell--accent {
+  animation: mesto-cell-assemble .5s cubic-bezier(.2, .75, .25, 1) both, mesto-accent-reveal .42s ease-out both;
+  animation-delay: calc(90ms + (var(--cell-index) * 15ms)), 1.52s;
+}
+.brand:hover .mesto-wordmark__cell--accent { fill: var(--mesto-logo-secondary); transform: translateY(-1px); }
 
 .site-nav { display: flex; align-items: center; gap: 30px; margin-left: auto; }
 .site-nav a { color: #42504a; text-decoration: none; font-size: 13px; font-weight: 700; }
@@ -225,7 +252,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 
 .site-footer { border-top: 1px solid rgba(255,255,255,.09); padding: 64px 0 28px; background: var(--pine-deep); color: white; }
 .brand--footer { color: white; }
-.brand--footer .brand__mark { background: rgba(255,255,255,.1); }
+.brand--footer .brand__wordmark { width: 150px; }
 .site-footer__top { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; padding-bottom: 55px; }
 .site-footer__brand > p { max-width: 390px; margin: 20px 0 0; color: #9dafaa; font-size: 12px; line-height: 1.8; }
 .site-footer__links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 50px; }
@@ -325,6 +352,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .checkout-state p { margin: 13px auto 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
 
 @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(185,95,63,.13); } }
+@keyframes mesto-cell-assemble { to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes mesto-accent-reveal { from { fill: var(--mesto-logo-primary); } to { fill: var(--mesto-logo-accent); } }
 
 @media (max-width: 1020px) {
   .site-nav { display: none; }
@@ -340,7 +369,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 @media (max-width: 800px) {
   .site-shell { width: min(100% - 2rem, 1180px); }
   .site-header__inner { min-height: 66px; }
-  .brand__word { font-size: 23px; }
+  .brand__wordmark { width: 128px; }
   .site-actions__cta { display: none; }
   .home-hero { min-height: 0; padding-top: 62px; }
   .home-hero::before { display: none; }
@@ -417,4 +446,5 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .mesto-wordmark--animated .mesto-wordmark__cell { opacity: 1; transform: none; animation: none !important; }
 }

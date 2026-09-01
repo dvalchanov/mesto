@@ -1,6 +1,12 @@
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="112" fill="#173f34"/>
-  <path d="M104 374V194L256 104l152 90v180" fill="none" stroke="#f4f0e8" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M169 374V235l87-51 87 51v139M70 374h372" fill="none" stroke="#f4f0e8" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M222 374v-83h68v83" fill="none" stroke="#c56e4a" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="512" height="512" viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title id="title">Mesto</title>
+  <rect width="58" height="58" rx="12" fill="#173f34"/>
+  <g fill="#f4f0e8">
+    <rect x="9" y="9" width="6" height="6" rx=".7"/><rect x="41" y="9" width="6" height="6" rx=".7"/>
+    <rect x="9" y="17" width="6" height="6" rx=".7"/><rect x="17" y="17" width="6" height="6" rx=".7"/><rect x="33" y="17" width="6" height="6" rx=".7"/><rect x="41" y="17" width="6" height="6" rx=".7"/>
+    <rect x="9" y="25" width="6" height="6" rx=".7"/><rect x="41" y="25" width="6" height="6" rx=".7"/>
+    <rect x="9" y="33" width="6" height="6" rx=".7"/><rect x="41" y="33" width="6" height="6" rx=".7"/>
+    <rect x="9" y="41" width="6" height="6" rx=".7"/><rect x="41" y="41" width="6" height="6" rx=".7"/>
+  </g>
+  <rect x="25" y="25" width="6" height="6" rx=".7" fill="#cf7a57"/>
 </svg>
