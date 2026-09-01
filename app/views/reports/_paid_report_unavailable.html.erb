@@ -1,0 +1,27 @@
+<section class="rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:p-8" data-testid="paid-report-unavailable">
+  <p class="text-xs font-black uppercase tracking-[0.16em] text-amber-800"><%= t("reports.paid_unavailable.eyebrow") %></p>
+  <h2 class="mt-2 text-2xl font-black text-amber-950"><%= t("reports.paid_unavailable.title") %></h2>
+  <p class="mt-3 max-w-3xl text-sm leading-6 text-amber-900"><%= t("reports.paid_unavailable.body") %></p>
+  <% incomplete_runs = source_runs.select { |run| run.status.in?(%w[failed unavailable]) } %>
+  <% dependent_runs = incomplete_runs.select { |run| source_result_key(run, analysis:) == "needs_location" } %>
+  <% blocking_runs = incomplete_runs - dependent_runs %>
+  <% if blocking_runs.any? %>
+    <p class="mt-5 text-xs font-black uppercase tracking-wide text-amber-800"><%= t("reports.paid_unavailable.blocking_checks") %></p>
+    <ul class="mt-5 grid gap-2 sm:grid-cols-2">
+      <% blocking_runs.each do |run| %>
+        <li class="rounded-xl border border-amber-200 bg-white/70 px-4 py-3">
+          <p class="text-sm font-bold text-amber-950"><%= source_name(run.source_key) %></p>
+          <% if (issue = source_issue_text(run, analysis:)) %>
+            <p class="mt-1.5 text-xs font-medium leading-5 text-amber-900"><%= issue %></p>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+  <% if dependent_runs.any? %>
+    <p class="mt-4 rounded-xl border border-amber-200 bg-white/60 p-4 text-sm leading-6 text-amber-900"><%= t("reports.paid_unavailable.location_dependencies", count: dependent_runs.count) %></p>
+  <% end %>
+  <p class="mt-5 text-sm font-bold text-amber-950"><%= t("reports.paid_unavailable.no_charge") %></p>
+  <p class="mt-2 text-sm leading-6 text-amber-900"><%= t("reports.paid_unavailable.retry_note") %></p>
+  <%= button_to t("reports.refresh.action"), refresh_report_path(analysis), method: :post, class: "mt-5 rounded-xl border border-amber-400 bg-white px-4 py-2.5 text-sm font-bold text-amber-950 hover:border-amber-600" %>
+</section>

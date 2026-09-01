@@ -12,7 +12,19 @@ RSpec.describe Analysis::Runner do
     expect(analysis.source_runs.succeeded.count).to be >= 1
     expect(analysis.source_runs.where(status: "unavailable", source_key: "cadastre")).to exist
     expect(analysis.administrative_acts.count).to eq(2)
-    expect(analysis.summary.fetch("paid_content_available")).to be(true)
+    expect(analysis.summary.fetch("paid_content_available")).to be(false)
+    expect(analysis).not_to be_meaningful_paid_content
+  end
+
+  it "imports missing shared spatial datasets before applying them to a located property" do
+    analysis = create(:property_analysis)
+
+    described_class.new(analysis).call
+
+    expect(SpatialDataset.where(key: DataSources.config.dig("sofiaplan", "datasets").keys)
+      .where.not(last_imported_at: nil).count).to eq(5)
+    expect(analysis.source_runs.where("source_key LIKE ?", "sofiaplan_dataset_%").pluck(:status).uniq)
+      .to eq([ "succeeded" ])
   end
 
   it "does not duplicate administrative acts on a repeated run" do

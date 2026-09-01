@@ -7,14 +7,16 @@ module Analysis
     end
 
     def call
-      paid_content = @analysis.administrative_acts.exists? || @analysis.centroid.present? || planning_features.any?
+      planning = planning_features
+      paid_content = @coverage["status"] == "complete" && meaningful_paid_sections?(planning)
       {
         "progress" => @analysis.progress,
         "coverage" => @coverage,
         "property_facts" => property_facts,
         "signals" => signals.first(2),
         "questions" => QuestionsBuilder.new(analysis: @analysis, metrics: @metrics).call,
-        "planning" => planning_features,
+        "planning" => planning,
+        "planning_summary" => PlanningSummaryBuilder.new(planning).call,
         "paid_content_available" => paid_content,
         "generated_at" => Time.current.iso8601
       }
@@ -43,6 +45,13 @@ module Analysis
         .where(status: "succeeded").map do |run|
           { "source_key" => run.source_key, "features" => run.parsed_payload.fetch("features", []) }
         end
+    end
+
+    def meaningful_paid_sections?(planning)
+      @analysis.administrative_acts.exists? ||
+        planning.any? { |layer| Array(layer["features"]).any? } ||
+        @metrics.dig("amenities", "availability")&.value?(true) ||
+        @metrics.dig("environment", "available") == true
     end
   end
 end

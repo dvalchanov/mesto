@@ -26,6 +26,16 @@ class SpatialFeature < ApplicationRecord
     ])))
   end
 
+  def self.with_distance_to(point)
+    return none unless point
+
+    select(Arel.sql(sanitize_sql_array([
+      "spatial_features.*, ST_Distance(spatial_features.geometry::geography, " \
+        "ST_GeomFromText(?, 4326)::geography) AS map_distance_m",
+      point.as_text
+    ])))
+  end
+
   def distance_to(point)
     self.class.where(id:).pick(Arel.sql(self.class.sanitize_sql_array([
       "ST_Distance(spatial_features.geometry::geography, ST_GeomFromText(?, 4326)::geography)", point.as_text

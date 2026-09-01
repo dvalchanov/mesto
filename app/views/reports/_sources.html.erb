@@ -15,6 +15,7 @@
           <div>
             <h3 class="text-sm font-black leading-5 text-slate-900"><%= source_name(run.source_key) %></h3>
             <p class="mt-1 text-xs leading-5 text-slate-500"><%= run.relevant_at ? t("common.relevant_at", date: l(run.relevant_at.to_date, format: :short)) : t("common.unknown_date") %></p>
+            <% if (issue = source_issue_text(run, analysis:)) %><p class="mt-2 max-w-2xl text-xs font-semibold leading-5 text-amber-800"><%= issue %></p><% end %>
             <% if run.source_url.present? %><%= link_to t("common.source_link"), run.source_url, target: "_blank", rel: "noopener noreferrer", class: "mt-2 inline-flex text-xs font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %><% end %>
           </div>
           <span class="w-fit rounded-full px-3 py-1.5 text-xs font-bold ring-1 <%= source_result_classes(result_key) %>"><%= source_result_text(run, analysis:) %></span>

@@ -12,8 +12,8 @@ RSpec.describe "Mesto journey", type: :system do
 
     analysis = PropertyAnalysis.last
     expect(page).to have_text(I18n.t("reports.progress.title"))
-    DataSources::Sofiaplan::DatasetSynchronizer.new.sync
-    Analysis::Runner.new(analysis).call
+    Analysis::Runner.new(analysis, cadastre_provider: successful_cadastre_provider).call
+    expect(analysis.reload.status).to eq("ready")
     visit report_path(analysis)
     expect(page).to have_text(I18n.t("reports.locked.cta"))
     expect(page).not_to have_text(I18n.t("reports.full.timeline"))
@@ -28,5 +28,16 @@ RSpec.describe "Mesto journey", type: :system do
     expect(page).to have_text(I18n.t("reports.full.timeline"))
     visit report_path(analysis)
     expect(page).to have_text(I18n.t("reports.full.timeline"))
+  end
+
+
+  def successful_cadastre_provider
+    point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3205, 42.6905)
+    result = DataSources::Result.success(
+      data: { "centroid" => point, "precision" => "cadastral_geometry" },
+      source_url: "https://kais.cadastre.bg/bg/OpenData",
+      relevant_at: Time.zone.parse("2026-08-05")
+    )
+    instance_double(Cadastre::Provider, locate: result)
   end
 end

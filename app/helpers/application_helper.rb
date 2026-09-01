@@ -92,6 +92,30 @@ module ApplicationHelper
     t("reports.sources.results.#{key}", **options)
   end
 
+  def source_issue_text(run, analysis:)
+    result_key = source_result_key(run, analysis:)
+    return unless result_key.in?(%w[needs_location unavailable failed])
+
+    if result_key == "needs_location"
+      t("reports.sources.issues.needs_location")
+    elsif cadastre_archive_unavailable?(run)
+      t("reports.sources.issues.cadastre_archive_unavailable")
+    elsif run.source_key.start_with?("sofiaplan_dataset_")
+      t("reports.sources.issues.spatial_dataset")
+    else
+      t("reports.sources.issues.#{result_key}")
+    end
+  end
+
+  def dataset_relevance_text(metadata)
+    value = metadata.to_h["relevant_at"]
+    return t("common.unknown_date") if value.blank?
+
+    t("common.relevant_at", date: l(Date.iso8601(value), format: :short))
+  rescue Date::Error
+    t("common.unknown_date")
+  end
+
   def checklist_status_classes(status)
     {
       "review" => "bg-emerald-50 text-emerald-800",
@@ -143,37 +167,17 @@ module ApplicationHelper
   end
 
   def report_map_payload(analysis, acts: AdministrativeAct.none)
-    features = []
-    if analysis.centroid
-      features << map_feature(analysis.centroid, kind: "selected", label: analysis.submitted_identifier)
-    end
-    if analysis.parcel_geometry
-      features << map_feature(analysis.parcel_geometry, kind: "parcel", label: analysis.parcel_identifier)
-    end
-    acts.where.not(geometry: nil).limit(100).each do |act|
-      features << map_feature(act.geometry, kind: "act", label: act.title.presence || act.act_number, source_url: act.source_url)
-    end
-    if analysis.full_report_unlocked? && analysis.centroid
-      SpatialFeature.within(analysis.centroid, 2_000).includes(:spatial_dataset).limit(250).each do |feature|
-        features << map_feature(
-          feature.geometry, kind: "amenity", category: feature.category,
-          label: feature.name, source_url: feature.spatial_dataset.source_url
-        )
-      end
-    end
-    Array(analysis.summary["planning"]).each do |layer|
-      Array(layer["features"]).each do |feature|
-        features << feature.deep_dup.tap do |entry|
-          entry["properties"] = entry.fetch("properties", {}).merge(
-            "kind" => "planning", "source_key" => layer["source_key"]
-          )
-        end
-      end
-    end
-    { type: "FeatureCollection", features: }
+    Analysis::ReportMapBuilder.new(analysis:, acts:).call
   end
 
   private
+
+  def cadastre_archive_unavailable?(run)
+    return false unless run.source_key == "cadastre"
+
+    run.error_class == "DataSources::CadastreOpenData::ArchiveUnavailable" ||
+      run.error_class == "Faraday::ServerError"
+  end
 
   def cadastral_components(record)
     properties = record.fetch("properties", {})
@@ -194,13 +198,5 @@ module ApplicationHelper
     return payload["count"].to_i if payload.is_a?(Hash) && payload.key?("count")
 
     0
-  end
-
-  def map_feature(geometry, properties)
-    {
-      type: "Feature",
-      geometry: RGeo::GeoJSON.encode(geometry),
-      properties: properties.compact
-    }
   end
 end

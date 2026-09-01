@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import * as Turbo from "@hotwired/turbo-rails"
+import { Turbo } from "@hotwired/turbo-rails"
 
 export default class extends Controller {
   static values = { active: Boolean }

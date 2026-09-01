@@ -1,5 +1,14 @@
 module DataSources
   module CadastreOpenData
+    class ArchiveUnavailable < StandardError
+      attr_reader :status
+
+      def initialize(archive_key:, status:)
+        @status = status
+        super("The official AGKK open-data archive is not currently published for #{archive_key} (HTTP #{status})")
+      end
+    end
+
     class ArchiveClient
       DOWNLOAD_URL = "https://kais.cadastre.bg/bg/OpenData/Download".freeze
 
@@ -16,6 +25,10 @@ module DataSources
         tempfile.write(response.body)
         tempfile.rewind
         yield tempfile.path, url
+      rescue Faraday::Error => error
+        raise unless error.response_status
+
+        raise ArchiveUnavailable.new(archive_key:, status: error.response_status), cause: error
       ensure
         tempfile&.close!
       end

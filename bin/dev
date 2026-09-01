@@ -5,12 +5,33 @@ if ! gem list foreman -i --silent; then
   gem install foreman
 fi
 
-# Default to port 3000 if not specified
-export PORT="${PORT:-3000}"
+if [ -n "${CONDUCTOR_PORT:-}" ]; then
+  # Conductor allocates ten ports per workspace. Keep the web process and its
+  # Docker services isolated so parallel worktrees never swap databases.
+  export PORT="${PORT:-$CONDUCTOR_PORT}"
+  export DATABASE_PORT="${DATABASE_PORT:-$((CONDUCTOR_PORT + 1))}"
+  export REDIS_PORT="${REDIS_PORT:-$((CONDUCTOR_PORT + 2))}"
+  export REDIS_URL="${REDIS_URL:-redis://localhost:${REDIS_PORT}/0}"
+  # Do not inherit a Compose project name from a terminal that previously ran
+  # another worktree; that can reconnect this workspace to the wrong volume.
+  export COMPOSE_PROJECT_NAME="$(basename "$(pwd -P)")"
+
+  docker compose up -d --wait || exit 1
+  bin/rails db:prepare || exit 1
+  FOREMAN_ENV_FILE=/dev/null
+else
+  # Default to port 3000 outside Conductor.
+  export PORT="${PORT:-3000}"
+  FOREMAN_ENV_FILE=
+fi
 
 # Let the debug gem allow remote connections,
 # but avoid loading until `debugger` is called
 export RUBY_DEBUG_OPEN="true"
 export RUBY_DEBUG_LAZY="true"
 
-exec foreman start -f Procfile.dev "$@"
+if [ -n "$FOREMAN_ENV_FILE" ]; then
+  exec foreman start -e "$FOREMAN_ENV_FILE" -f Procfile.dev "$@"
+else
+  exec foreman start -f Procfile.dev "$@"
+fi

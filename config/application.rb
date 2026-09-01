@@ -45,7 +45,7 @@ module Mesto
     config.x.fake_payments_enabled = ActiveModel::Type::Boolean.new.cast(
       ENV.fetch("FAKE_PAYMENTS_ENABLED", Rails.env.production? ? "false" : "true")
     )
-    config.x.map_style_url = ENV["MAP_STYLE_URL"].presence || "https://demotiles.maplibre.org/style.json"
+    config.x.map_style_url = ENV["MAP_STYLE_URL"].presence || "https://tiles.openfreemap.org/styles/liberty"
     config.x.development_pressure_years = ENV.fetch("DEVELOPMENT_PRESSURE_YEARS", 5).to_i
 
     # Configuration for the application, engines, and railties goes here.
