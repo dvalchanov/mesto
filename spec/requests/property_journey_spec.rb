@@ -45,9 +45,10 @@ RSpec.describe "Property report journey", type: :request do
     analysis = create(:property_analysis)
     get report_path(analysis)
     expect(response.body).to include(I18n.t("reports.progress.title"))
+    expect(response.body).to include("report-progress__grid-loader")
 
-    DataSources::Sofiaplan::DatasetSynchronizer.new.sync
-    Analysis::Runner.new(analysis).call
+    Analysis::Runner.new(analysis, cadastre_provider: successful_cadastre_provider).call
+    expect(analysis.reload.status).to eq("ready")
     get report_path(analysis)
     expect(response.body).to include(I18n.t("reports.property_facts.title"), I18n.t("reports.findings.title"), I18n.t("reports.locked.cta"))
     expect(response.body).not_to include(I18n.t("reports.full.timeline"))
@@ -91,5 +92,90 @@ RSpec.describe "Property report journey", type: :request do
     get report_checkout_path(analysis)
 
     expect(response).to redirect_to(report_path(analysis))
+  end
+
+  it "does not offer checkout when any required check is incomplete" do
+    analysis = create(
+      :property_analysis,
+      status: "partial",
+      coverage_status: "partial",
+      summary: { "paid_content_available" => true }
+    )
+
+    get report_checkout_path(analysis)
+
+    expect(response).to redirect_to(report_path(analysis))
+    follow_redirect!
+    expect(response.body).to include(I18n.t("checkout.unavailable"))
+    expect(response.body).to include(I18n.t("reports.paid_unavailable.no_charge"))
+    expect(response.body).not_to include(I18n.t("reports.locked.cta"))
+  end
+
+  it "separates a blocking location failure from spatial checks skipped because of it" do
+    analysis = create(:property_analysis, status: "partial", coverage_status: "good")
+    analysis.source_runs.create!(
+      source_key: "cadastre", status: "unavailable",
+      error_class: "DataSources::CadastreOpenData::ArchiveUnavailable",
+      error_message: "Official district archive is not published"
+    )
+    analysis.source_runs.create!(
+      source_key: "arcgis_functional_zoning", status: "unavailable",
+      error_message: "A reliable location is required"
+    )
+
+    get report_path(analysis)
+
+    panel = Nokogiri::HTML5(response.body).at_css('[data-testid="paid-report-unavailable"]').text
+    expect(panel).to include(
+      I18n.t("reports.sources.names.cadastre"),
+      I18n.t("reports.sources.issues.cadastre_archive_unavailable"),
+      I18n.t("reports.paid_unavailable.location_dependencies", count: 1)
+    )
+    expect(panel).not_to include(I18n.t("reports.sources.names.arcgis_functional_zoning"))
+  end
+
+  it "explains an already-unlocked partial report without raw planning fields or false zeroes" do
+    analysis = create(
+      :property_analysis,
+      status: "partial",
+      coverage_status: "partial",
+      metrics: {
+        "amenities" => { "availability" => {} },
+        "environment" => { "available" => false }
+      },
+      summary: {
+        "paid_content_available" => false,
+        "planning" => [
+          {
+            "source_key" => "arcgis_functional_zoning",
+            "features" => [
+              {
+                "properties" => {
+                  "RegName" => "Малинова долина", "Rajon" => "Студентска",
+                  "Preobl_et" => "от 4 до 6 етажа", "Gaz_17" => 123, "Adm_rzp" => 456
+                }
+              }
+            ]
+          }
+        ]
+      }
+    )
+    order = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "buyer@example.com")
+    Payments::FakeGateway.new.succeed(order)
+
+    get report_path(analysis)
+
+    expect(response.body).to include("Малинова долина", I18n.t("reports.full.not_calculated"))
+    expect(response.body).not_to include("Gaz 17", "Adm rzp")
+  end
+
+  def successful_cadastre_provider
+    point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3205, 42.6905)
+    result = DataSources::Result.success(
+      data: { "centroid" => point, "precision" => "cadastral_geometry" },
+      source_url: "https://kais.cadastre.bg/bg/OpenData",
+      relevant_at: Time.zone.parse("2026-08-05")
+    )
+    instance_double(Cadastre::Provider, locate: result)
   end
 end

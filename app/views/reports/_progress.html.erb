@@ -2,12 +2,23 @@
   <p class="eyebrow"><span></span><%= t("reports.statuses.running") %></p>
   <h2><%= t("reports.progress.title") %></h2>
   <p><%= t("reports.progress.description") %></p>
+  <% if analysis.progress.any? { |item| item["key"] == "location" && item["status"] == "active" } %>
+    <p class="report-progress__note"><%= t("reports.progress.location_wait") %></p>
+  <% end %>
   <ol>
     <% Analysis::Runner::STAGES.each_with_index do |stage, index| %>
       <% progress = analysis.progress.find { |item| item["key"] == stage } %>
       <% state = progress&.fetch("status", nil) || (index.zero? ? "active" : "pending") %>
       <li>
-        <span class="report-progress__state <%= 'is-active' if state == 'active' %> <%= 'is-complete' if state == 'completed' %>"><%= progress_icon(state) %></span>
+        <span class="report-progress__state <%= 'is-active' if state == 'active' %> <%= 'is-complete' if state == 'completed' %>">
+          <% if state == "active" %>
+            <span class="report-progress__grid-loader" aria-hidden="true">
+              <% 9.times do %><span></span><% end %>
+            </span>
+          <% else %>
+            <%= progress_icon(state) %>
+          <% end %>
+        </span>
         <p><%= t("reports.progress.#{stage}") %></p>
         <small><%= t("reports.progress.states.#{state}") %></small>
       </li>

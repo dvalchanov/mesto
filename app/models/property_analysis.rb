@@ -27,7 +27,7 @@ class PropertyAnalysis < ApplicationRecord
   end
 
   def meaningful_paid_content?
-    return false unless status.in?(%w[ready partial]) && sofia?
+    return false unless status == "ready" && coverage_status == "complete" && sofia?
 
     summary["paid_content_available"] == true
   end

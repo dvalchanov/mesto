@@ -94,6 +94,7 @@ module Analysis
           ))
         end
       end
+      import_missing_spatial_datasets if @analysis.centroid
       track_spatial_datasets
       spatial_success = @analysis.source_runs.where("source_key LIKE 'arcgis_%' OR source_key LIKE 'sofiaplan_dataset_%'").succeeded.exists?
       set_stage("spatial", spatial_success ? "completed" : "unavailable")
@@ -133,6 +134,8 @@ module Analysis
             data: { "category" => key, "feature_count" => dataset.spatial_features.count },
             source_url: dataset.source_url, fetched_at: dataset.last_imported_at, relevant_at: dataset.relevant_at
           )
+        elsif @spatial_sync_results&.key?(key)
+          @spatial_sync_results.fetch(key)
         else
           DataSources::Result.unavailable(
             source_url: "#{DataSources.config.dig("sofiaplan", "base_url")}/datasets/#{config.fetch("id")}",
@@ -140,6 +143,18 @@ module Analysis
           )
         end
         record_result("sofiaplan_dataset_#{key}", result)
+      end
+    end
+
+    def import_missing_spatial_datasets
+      missing_keys = DataSources.config.dig("sofiaplan", "datasets").keys.reject do |key|
+        SpatialDataset.where(key:).where.not(last_imported_at: nil).exists?
+      end
+      return if missing_keys.empty?
+
+      synchronizer = DataSources::Sofiaplan::DatasetSynchronizer.new
+      @spatial_sync_results = missing_keys.each_with_object({}) do |key, results|
+        results.merge!(synchronizer.sync(key))
       end
     end
 
