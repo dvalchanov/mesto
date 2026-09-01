@@ -34,13 +34,13 @@ export default class extends Controller {
   renderData() {
     this.map.addSource("property-data", { type: "geojson", data: this.payloadValue })
 
-    this.addLayer({ id: "parcel-fill", type: "fill", filter: ["==", ["get", "kind"], "parcel"], paint: { "fill-color": "#059669", "fill-opacity": 0.2 } })
-    this.addLayer({ id: "parcel-line", type: "line", filter: ["==", ["get", "kind"], "parcel"], paint: { "line-color": "#047857", "line-width": 3 } })
-    this.addLayer({ id: "planning-fill", type: "fill", filter: ["==", ["get", "kind"], "planning"], paint: { "fill-color": "#7c3aed", "fill-opacity": 0.18 } })
-    this.addLayer({ id: "planning-line", type: "line", filter: ["==", ["get", "kind"], "planning"], paint: { "line-color": "#7c3aed", "line-width": 2 } })
-    this.addLayer({ id: "amenities", type: "circle", filter: ["==", ["get", "kind"], "amenity"], paint: { "circle-color": "#0284c7", "circle-radius": 5, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5 } })
-    this.addLayer({ id: "acts", type: "circle", filter: ["==", ["get", "kind"], "act"], paint: { "circle-color": "#e11d48", "circle-radius": 6, "circle-stroke-color": "#ffffff", "circle-stroke-width": 2 } })
-    this.addLayer({ id: "selected", type: "circle", filter: ["==", ["get", "kind"], "selected"], paint: { "circle-color": "#064e3b", "circle-radius": 8, "circle-stroke-color": "#ffffff", "circle-stroke-width": 3 } })
+    this.addLayer({ id: "parcel-fill", type: "fill", filter: ["==", ["get", "kind"], "parcel"], paint: { "fill-color": "#173f34", "fill-opacity": 0.18 } })
+    this.addLayer({ id: "parcel-line", type: "line", filter: ["==", ["get", "kind"], "parcel"], paint: { "line-color": "#173f34", "line-width": 3 } })
+    this.addLayer({ id: "planning-fill", type: "fill", filter: ["==", ["get", "kind"], "planning"], paint: { "fill-color": "#b95f3f", "fill-opacity": 0.16 } })
+    this.addLayer({ id: "planning-line", type: "line", filter: ["==", ["get", "kind"], "planning"], paint: { "line-color": "#b95f3f", "line-width": 2 } })
+    this.addLayer({ id: "amenities", type: "circle", filter: ["==", ["get", "kind"], "amenity"], paint: { "circle-color": "#6f8060", "circle-radius": 5, "circle-stroke-color": "#fffefb", "circle-stroke-width": 1.5 } })
+    this.addLayer({ id: "acts", type: "circle", filter: ["==", ["get", "kind"], "act"], paint: { "circle-color": "#b95f3f", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
+    this.addLayer({ id: "selected", type: "circle", filter: ["==", ["get", "kind"], "selected"], paint: { "circle-color": "#173f34", "circle-radius": 8, "circle-stroke-color": "#fffefb", "circle-stroke-width": 3 } })
 
     this.fitToData()
     ;["selected", "acts", "amenities", "planning-fill", "parcel-fill"].forEach((id) => {

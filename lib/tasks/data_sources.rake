@@ -74,7 +74,7 @@ namespace :sofiaplan do
   end
 end
 
-namespace :property_lens do
+namespace :mesto do
   desc "Run a property analysis synchronously"
   task :analyze, [ :identifier ] => :environment do |_task, args|
     identifier = CadastralIdentifier.new(args[:identifier])

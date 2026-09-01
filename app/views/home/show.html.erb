@@ -1,39 +1,156 @@
 <% content_for :title, "#{product_name} — #{t('layout.product_tagline')}" %>
 
-<section class="relative overflow-hidden border-b border-slate-200 bg-[#f6f7f4]">
-  <div class="absolute -right-32 -top-32 size-[34rem] rounded-full bg-emerald-100/70 blur-3xl"></div>
-  <div class="absolute -bottom-40 left-1/3 size-[28rem] rounded-full bg-sky-100/60 blur-3xl"></div>
-  <div class="relative mx-auto grid max-w-7xl gap-14 px-5 py-20 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:py-28">
-    <div>
-      <p class="mb-6 inline-flex items-center rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-emerald-800 shadow-sm"><%= t("home.eyebrow") %></p>
-      <h1 class="max-w-3xl text-5xl font-bold leading-[1.04] tracking-[-0.045em] text-slate-950 sm:text-6xl"><%= t("home.headline") %></h1>
-      <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-600"><%= t("home.supporting_copy") %></p>
-      <p class="mt-8 flex items-center gap-2 text-sm font-medium text-slate-500"><span class="size-2 rounded-full bg-emerald-500"></span><%= t("home.trust_note") %></p>
+<section class="home-hero" id="property-check">
+  <div class="home-hero__topography" aria-hidden="true">
+    <svg viewBox="0 0 760 640" fill="none"><path d="M25 104c118-80 190 14 306-34 90-37 155-99 279-40 91 44 89 154 46 218-49 74-147 59-202 136-55 76-18 158-117 199-113 47-159-79-252-92-86-12-113-99-50-165 53-55 106-70 87-142-16-63-132-30-97-80Z"/><path d="M98 141c85-51 150 4 237-24 105-34 204-88 280-1 78 88-39 159-97 202-70 53-60 117-132 163-82 53-131-60-222-50-87 10-111-60-57-119 58-62 103-77 69-130-29-44-132-13-78-41Z"/><path d="M183 179c75-35 117 18 191-10 93-35 170-68 220-4 55 70-37 117-91 154-67 46-61 95-121 124-65 31-104-45-173-34-64 11-85-34-48-81 42-54 86-76 47-109-31-27-74-18-25-40Z"/></svg>
+  </div>
+  <div class="site-shell home-hero__grid">
+    <div class="home-hero__copy">
+      <p class="eyebrow"><span></span><%= t("home.eyebrow") %></p>
+      <h1><%= t("home.headline_html").html_safe %></h1>
+      <p class="home-hero__lead"><%= t("home.supporting_copy") %></p>
+      <div class="home-hero__proof">
+        <span class="proof-avatars" aria-hidden="true"><i>АГ</i><i>СО</i><i>НГ</i></span>
+        <p><strong><%= t("home.source_count") %></strong><br><%= t("home.source_note") %></p>
+      </div>
     </div>
 
-    <div class="rounded-[2rem] border border-white bg-white/90 p-5 shadow-[0_30px_80px_-40px_rgba(15,23,42,.45)] backdrop-blur sm:p-8">
-      <%= form_with url: property_analyses_path, method: :post, class: "space-y-5" do |form| %>
+    <div class="search-panel">
+      <div class="search-panel__heading">
+        <span class="search-panel__icon"><%= mesto_icon("search", css_class: "size-5") %></span>
         <div>
-          <%= form.label :cadastral_identifier, t("home.search.label"), class: "mb-2 block text-sm font-bold text-slate-800" %>
-          <%= form.text_field :cadastral_identifier, value: @identifier_value, maxlength: 100, required: true, autofocus: true, placeholder: t("home.search.placeholder"), class: "w-full rounded-2xl border #{@identifier_error ? 'border-rose-400 ring-4 ring-rose-50' : 'border-slate-300 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100'} bg-white px-4 py-4 font-mono text-base tracking-tight text-slate-950 outline-none transition" %>
-          <% if @identifier_error %><p class="mt-2 text-sm font-medium text-rose-700"><%= @identifier_error %></p><% end %>
+          <p><%= t("home.search.card_eyebrow") %></p>
+          <h2><%= t("home.search.card_title") %></h2>
         </div>
-        <%= form.submit t("home.search.submit"), class: "w-full cursor-pointer rounded-2xl bg-emerald-950 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-950/15 transition hover:bg-emerald-800" %>
-      <% end %>
-      <div class="mt-6 rounded-2xl bg-slate-50 p-4">
-        <p class="text-sm font-bold text-slate-800"><%= t("home.search.hint_title") %></p>
-        <p class="mt-1 text-sm leading-6 text-slate-600"><%= t("home.search.hint") %></p>
       </div>
+      <%= form_with url: property_analyses_path, method: :post, class: "property-search" do |form| %>
+        <div>
+          <%= form.label :cadastral_identifier, t("home.search.label"), class: "form-label" %>
+          <div class="property-search__field <%= 'has-error' if @identifier_error %>">
+            <%= mesto_icon("map-pin", css_class: "size-5") %>
+            <%= form.text_field :cadastral_identifier, value: @identifier_value, maxlength: 100, required: true, autofocus: true, placeholder: t("home.search.placeholder"), aria: { describedby: (@identifier_error ? "identifier-error" : "identifier-hint") } %>
+          </div>
+          <% if @identifier_error %><p id="identifier-error" class="form-error"><%= @identifier_error %></p><% end %>
+        </div>
+        <%= form.button class: "button button--primary button--wide" do %>
+          <span><%= t("home.search.submit") %></span>
+          <%= mesto_icon("arrow-right", css_class: "size-5") %>
+        <% end %>
+      <% end %>
+      <div class="search-panel__hint" id="identifier-hint">
+        <%= mesto_icon("document", css_class: "size-4") %>
+        <p><strong><%= t("home.search.hint_title") %></strong> <%= t("home.search.hint") %></p>
+      </div>
+      <div class="search-panel__trust">
+        <span><%= mesto_icon("shield", css_class: "size-4") %> <%= t("home.search.private") %></span>
+        <span><%= mesto_icon("check", css_class: "size-4") %> <%= t("home.search.no_registration") %></span>
+      </div>
+    </div>
+  </div>
+  <div class="site-shell home-hero__footnote">
+    <span><%= t("home.coverage_label") %></span>
+    <div></div>
+    <p><%= t("home.coverage_value") %></p>
+  </div>
+</section>
+
+<section class="home-section home-section--paper">
+  <div class="site-shell">
+    <div class="section-heading section-heading--split">
+      <div>
+        <p class="eyebrow"><span></span><%= t("home.discover.eyebrow") %></p>
+        <h2><%= t("home.discover.title") %></h2>
+      </div>
+      <p><%= t("home.discover.description") %></p>
+    </div>
+
+    <div class="discover-grid">
+      <% [
+        ["building", "identity", "discover-card--large"],
+        ["layers", "planning", ""],
+        ["route", "activity", ""],
+        ["tree", "surroundings", "discover-card--wide"]
+      ].each_with_index do |(icon, key, css), index| %>
+        <article class="discover-card <%= css %>">
+          <div class="discover-card__number">0<%= index + 1 %></div>
+          <span class="discover-card__icon"><%= mesto_icon(icon, css_class: "size-6") %></span>
+          <h3><%= t("home.discover.#{key}.title") %></h3>
+          <p><%= t("home.discover.#{key}.text") %></p>
+          <% if key == "identity" %>
+            <div class="parcel-sketch" aria-hidden="true">
+              <svg viewBox="0 0 360 150"><path d="m22 102 48-65 83 14 49-24 128 43-41 55-96-17-57 25-114-31Z"/><path d="m70 37 66 96M153 51l40 57M202 27l-9 81M289 125l-87-98"/><circle cx="193" cy="108" r="5"/></svg>
+            </div>
+          <% elsif key == "surroundings" %>
+            <div class="distance-chips">
+              <span><b>450 m</b><%= t("home.discover.surroundings.metro") %></span>
+              <span><b>3</b><%= t("home.discover.surroundings.schools") %></span>
+              <span><b>8 min</b><%= t("home.discover.surroundings.park") %></span>
+            </div>
+          <% end %>
+        </article>
+      <% end %>
     </div>
   </div>
 </section>
 
-<section class="mx-auto grid max-w-7xl gap-6 px-5 py-16 sm:px-8 md:grid-cols-3">
-  <% %w[sources provenance limits].each_with_index do |feature, index| %>
-    <article class="rounded-2xl border border-slate-200 bg-white p-6">
-      <span class="mb-5 grid size-9 place-items-center rounded-xl bg-slate-950 text-xs font-bold text-white">0<%= index + 1 %></span>
-      <h2 class="text-base font-bold"><%= t("home.feature_#{feature}") %></h2>
-      <p class="mt-2 text-sm leading-6 text-slate-600"><%= t("home.feature_#{feature}_text") %></p>
-    </article>
-  <% end %>
+<section class="home-section method-section" id="how-it-works">
+  <div class="site-shell method-grid">
+    <div class="method-intro">
+      <p class="eyebrow eyebrow--light"><span></span><%= t("home.method.eyebrow") %></p>
+      <h2><%= t("home.method.title") %></h2>
+      <p><%= t("home.method.description") %></p>
+      <div class="method-quote">
+        <span>“</span>
+        <blockquote><%= t("home.method.quote") %></blockquote>
+      </div>
+    </div>
+    <ol class="method-steps">
+      <% %w[identifier sources analysis report].each_with_index do |key, index| %>
+        <li>
+          <span class="method-steps__number"><%= index + 1 %></span>
+          <div><h3><%= t("home.method.steps.#{key}.title") %></h3><p><%= t("home.method.steps.#{key}.text") %></p></div>
+        </li>
+      <% end %>
+    </ol>
+  </div>
+  <div class="site-shell source-strip">
+    <p><%= t("home.method.sources_label") %></p>
+    <div><span>АГКК</span><span>НАГ</span><span>Софияплан</span><span>Столична община</span></div>
+  </div>
+</section>
+
+<section class="home-section knowledge-preview">
+  <div class="site-shell">
+    <div class="section-heading section-heading--split">
+      <div>
+        <p class="eyebrow"><span></span><%= t("home.knowledge.eyebrow") %></p>
+        <h2><%= t("home.knowledge.title") %></h2>
+      </div>
+      <%= link_to guides_path, class: "text-link" do %><%= t("home.knowledge.view_all") %><%= mesto_icon("arrow-up-right", css_class: "size-4") %><% end %>
+    </div>
+    <div class="article-grid">
+      <% [[guides_path, "guide", "01"], [documents_path, "documents", "02"], [glossary_path, "glossary", "03"]].each do |path, key, number| %>
+        <%= link_to path, class: "article-card" do %>
+          <span class="article-card__number"><%= number %></span>
+          <span class="article-card__tag"><%= t("home.knowledge.#{key}.tag") %></span>
+          <h3><%= t("home.knowledge.#{key}.title") %></h3>
+          <p><%= t("home.knowledge.#{key}.text") %></p>
+          <span class="article-card__link"><%= t("home.knowledge.read") %><%= mesto_icon("arrow-right", css_class: "size-4") %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<section class="home-cta">
+  <div class="site-shell home-cta__inner">
+    <div>
+      <p class="eyebrow eyebrow--light"><span></span><%= t("home.final_cta.eyebrow") %></p>
+      <h2><%= t("home.final_cta.title") %></h2>
+      <p><%= t("home.final_cta.text") %></p>
+    </div>
+    <%= link_to root_path(anchor: "property-check"), class: "button button--light" do %>
+      <%= t("home.final_cta.button") %><%= mesto_icon("arrow-right", css_class: "size-5") %>
+    <% end %>
+  </div>
 </section>

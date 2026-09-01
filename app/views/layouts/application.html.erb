@@ -1,49 +1,97 @@
+<% page_title = content_for(:title).presence || product_name %>
+<% page_description = content_for(:description).presence || t("layout.meta_description") %>
+<% canonical_origin = Rails.env.production? ? "https://#{Rails.application.config.x.app_host}" : request.base_url %>
+<% canonical_url = "#{canonical_origin}#{request.path}" %>
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>">
   <head>
-    <title><%= content_for(:title) || product_name %></title>
+    <title><%= page_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= page_description %>">
+    <meta name="theme-color" content="#f4f0e8">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="<%= product_name %>">
+    <meta property="og:title" content="<%= page_title %>">
+    <meta property="og:description" content="<%= page_description %>">
+    <meta property="og:url" content="<%= canonical_url %>">
+    <meta property="og:locale" content="<%= I18n.locale == :bg ? 'bg_BG' : 'en_US' %>">
+    <meta name="twitter:card" content="summary">
+    <link rel="canonical" href="<%= canonical_url %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="<%= product_name %>">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
-    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="min-h-screen bg-[#f6f7f4] text-slate-950 antialiased selection:bg-emerald-200">
-    <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-        <%= link_to root_path, class: "group flex items-center gap-3" do %>
-          <span class="grid size-9 place-items-center rounded-xl bg-emerald-950 text-sm font-bold text-emerald-100"><%= product_name.first %></span>
-          <span>
-            <span class="block text-sm font-bold tracking-tight"><%= product_name %></span>
-            <span class="block text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500"><%= t("layout.product_tagline") %></span>
-          </span>
+  <body>
+    <header class="site-header">
+      <div class="site-shell site-header__inner">
+        <%= link_to root_path, class: "brand", aria: { label: t("navigation.home") } do %>
+          <%= mesto_wordmark(variant: :accent, theme: :light, animate: current_page?(root_path), css_class: "brand__wordmark", title: product_name) %>
         <% end %>
-        <nav class="flex items-center gap-2 text-sm font-semibold">
-          <%= link_to t("navigation.language_bg"), url_for(locale: :bg), class: "rounded-lg px-2.5 py-1.5 #{I18n.locale == :bg ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100'}" %>
-          <%= link_to t("navigation.language_en"), url_for(locale: :en), class: "rounded-lg px-2.5 py-1.5 #{I18n.locale == :en ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100'}" %>
+
+        <nav class="site-nav" aria-label="<%= t('navigation.primary') %>">
+          <%= link_to t("navigation.how_it_works"), root_path(anchor: "how-it-works") %>
+          <%= link_to t("navigation.guides"), guides_path %>
+          <%= link_to t("navigation.documents"), documents_path %>
+          <%= link_to t("navigation.glossary"), glossary_path %>
         </nav>
+
+        <div class="site-actions">
+          <div class="locale-switch" aria-label="<%= t('navigation.language') %>">
+            <%= link_to t("navigation.language_bg"), url_for(locale: :bg), class: (I18n.locale == :bg ? "is-active" : nil), aria: { current: (I18n.locale == :bg ? "page" : nil) } %>
+            <%= link_to t("navigation.language_en"), url_for(locale: :en), class: (I18n.locale == :en ? "is-active" : nil), aria: { current: (I18n.locale == :en ? "page" : nil) } %>
+          </div>
+          <%= link_to root_path(anchor: "property-check"), class: "button button--small button--ink site-actions__cta" do %>
+            <%= t("navigation.check_property") %>
+            <%= mesto_icon("arrow-right", css_class: "size-4") %>
+          <% end %>
+        </div>
       </div>
     </header>
 
     <% if notice || alert %>
-      <div class="mx-auto max-w-7xl px-5 pt-5 sm:px-8">
-        <div class="rounded-xl border px-4 py-3 text-sm font-medium <%= alert ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900' %>"><%= alert || notice %></div>
+      <div class="site-shell flash-wrap">
+        <div class="flash <%= alert ? 'flash--alert' : 'flash--notice' %>"><%= alert || notice %></div>
       </div>
     <% end %>
 
     <main><%= yield %></main>
 
-    <footer class="border-t border-slate-200 bg-white">
-      <div class="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-8 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <p><%= product_name %> · <%= t("layout.footer") %></p>
-        <p><%= t("reports.disclaimer", product_name:) %></p>
+    <footer class="site-footer">
+      <div class="site-shell">
+        <div class="site-footer__top">
+          <div class="site-footer__brand">
+            <%= link_to root_path, class: "brand brand--footer" do %>
+              <%= mesto_wordmark(variant: :monochrome, theme: :dark, css_class: "brand__wordmark", title: product_name) %>
+            <% end %>
+            <p><%= t("layout.footer_intro") %></p>
+          </div>
+          <div class="site-footer__links">
+            <div>
+              <p class="site-footer__label"><%= t("layout.footer_product") %></p>
+              <%= link_to t("navigation.check_property"), root_path(anchor: "property-check") %>
+              <%= link_to t("navigation.how_it_works"), root_path(anchor: "how-it-works") %>
+            </div>
+            <div>
+              <p class="site-footer__label"><%= t("layout.footer_knowledge") %></p>
+              <%= link_to t("navigation.guides"), guides_path %>
+              <%= link_to t("navigation.documents"), documents_path %>
+              <%= link_to t("navigation.glossary"), glossary_path %>
+            </div>
+          </div>
+        </div>
+        <div class="site-footer__bottom">
+          <p>© <%= Time.current.year %> <%= product_name %> · <%= t("layout.footer") %></p>
+          <p><%= t("reports.disclaimer", product_name:) %></p>
+        </div>
       </div>
     </footer>
   </body>

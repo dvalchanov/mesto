@@ -12,6 +12,10 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "home#show"
 
+  get "guides", to: "knowledge#guides", as: :guides
+  get "documents", to: "knowledge#documents", as: :documents
+  get "glossary", to: "knowledge#glossary", as: :glossary
+
   resources :property_analyses, only: :create
   get "reports/:public_token", to: "reports#show", as: :report
   post "reports/:public_token/refresh", to: "reports#refresh", as: :refresh_report

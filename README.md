@@ -1,6 +1,6 @@
-# PropertyLens
+# Mesto
 
-PropertyLens is a Sofia-first Rails prototype that helps a buyer understand what public information can be found for a Bulgarian cadastral identifier. A visitor can submit a parcel, building, or individual-object identifier, follow real analysis stages, inspect a useful free preview, complete a test checkout, and unlock the full report through its unguessable public URL.
+Mesto is a Sofia-first Bulgarian property intelligence product at [mesto.bg](https://mesto.bg). It helps buyers understand what public information can be found for a cadastral identifier. A visitor can submit a parcel, building, or individual-object identifier, follow real analysis stages, inspect a useful free preview, complete checkout, and unlock the full report through its unguessable public URL.
 
 The product is an information aid, not legal due diligence. It does not verify ownership, title, mortgages, encumbrances, construction legality, formal planning compliance, or future development.
 
@@ -42,7 +42,9 @@ bundle exec sidekiq -C config/sidekiq.yml
 
 Open <http://localhost:3000>. Analysis jobs use the `analysis` queue and dataset imports use `imports`.
 
-The visible product name is configured once with `PRODUCT_NAME`; code and routes retain the PropertyLens working name. Bulgarian is the default locale and the interface also has English translations.
+The product name defaults to `Mesto` and the canonical production host defaults to `mesto.bg`; both can be configured with `PRODUCT_NAME` and `APP_HOST`. Bulgarian is the default locale and the interface also has English translations.
+
+The programmable five-row wordmark, variants, motion behavior, and usage rules are documented in [`docs/brand/mesto-logo.md`](docs/brand/mesto-logo.md).
 
 ## Data-source modes
 
@@ -96,7 +98,7 @@ bin/rails 'sofiaplan:sync[schools]'
 Run any valid cadastral identifier synchronously from the command line:
 
 ```sh
-bin/rails 'property_lens:analyze[68134.1000.2000.1.5]'
+bin/rails 'mesto:analyze[68134.1000.2000.1.5]'
 ```
 
 For the requested live acceptance lookup, replace the example with the acceptance identifier and keep `DATA_SOURCE_MODE=live`.

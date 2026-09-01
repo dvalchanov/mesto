@@ -11,7 +11,7 @@
           <button type="button" data-action="property-map#toggle" data-layer="<%= layer %>" class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700"><%= t("reports.map.#{label}") %></button>
         <% end %>
       </div>
-      <div data-property-map-target="canvas" class="h-[25rem] overflow-hidden rounded-2xl bg-slate-100"></div>
+      <div class="map-frame"><div data-property-map-target="canvas" class="h-[25rem] bg-slate-100"></div></div>
     </div>
   <% else %>
     <div class="grid min-h-56 place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm leading-6 text-slate-600"><%= t("reports.map.unavailable") %></div>

@@ -1,0 +1,53 @@
+<% content_for :title, "#{t("knowledge.#{@page}.title")} — #{product_name}" %>
+
+<section class="knowledge-hero">
+  <div class="site-shell knowledge-hero__grid">
+    <div>
+      <p class="eyebrow"><span></span><%= t("knowledge.#{@page}.eyebrow") %></p>
+      <h1><%= t("knowledge.#{@page}.title") %></h1>
+      <p class="knowledge-hero__lead"><%= t("knowledge.#{@page}.lead") %></p>
+    </div>
+    <div class="knowledge-hero__ornament" aria-hidden="true">
+      <span><%= mesto_icon(@page == "documents" ? "document" : @page == "glossary" ? "book" : "map-pin", css_class: "size-8") %></span>
+      <svg viewBox="0 0 260 180"><path d="M16 133 61 44l74-20 110 59-35 73-104-19-90-4Z"/><path d="m61 44 45 93M135 24l-29 113M245 83l-139 54"/></svg>
+    </div>
+  </div>
+</section>
+
+<div class="site-shell knowledge-layout">
+  <aside class="knowledge-nav">
+    <p><%= t("knowledge.navigation_title") %></p>
+    <%= link_to guides_path, class: (@page == "guides" ? "is-active" : nil) do %><span>01</span><%= t("navigation.guides") %><% end %>
+    <%= link_to documents_path, class: (@page == "documents" ? "is-active" : nil) do %><span>02</span><%= t("navigation.documents") %><% end %>
+    <%= link_to glossary_path, class: (@page == "glossary" ? "is-active" : nil) do %><span>03</span><%= t("navigation.glossary") %><% end %>
+  </aside>
+
+  <article class="editorial">
+    <p class="editorial__intro"><%= t("knowledge.#{@page}.intro") %></p>
+    <% t("knowledge.#{@page}.sections").each_with_index do |section, index| %>
+      <section id="section-<%= index + 1 %>">
+        <div class="editorial__section-number"><%= format("%02d", index + 1) %></div>
+        <div>
+          <h2><%= section[:title] %></h2>
+          <p><%= section[:body] %></p>
+          <% if section[:items].present? %>
+            <ul>
+              <% section[:items].each do |item| %><li><span><%= mesto_icon("check", css_class: "size-4") %></span><%= item %></li><% end %>
+            </ul>
+          <% end %>
+          <% if section[:note].present? %>
+            <aside class="editorial__note"><%= mesto_icon("spark", css_class: "size-5") %><p><%= section[:note] %></p></aside>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </article>
+</div>
+
+<section class="knowledge-cta">
+  <div class="site-shell knowledge-cta__inner">
+    <span><%= mesto_icon("shield", css_class: "size-7") %></span>
+    <div><h2><%= t("knowledge.cta.title") %></h2><p><%= t("knowledge.cta.text") %></p></div>
+    <%= link_to root_path(anchor: "property-check"), class: "button button--primary" do %><%= t("knowledge.cta.button") %><%= mesto_icon("arrow-right", css_class: "size-5") %><% end %>
+  </div>
+</section>

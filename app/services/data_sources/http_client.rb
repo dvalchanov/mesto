@@ -41,7 +41,7 @@ module DataSources
     def default_headers
       {
         "Accept" => "application/json, text/html;q=0.9",
-        "User-Agent" => "PropertyLens/0.1 public-data prototype"
+        "User-Agent" => "Mesto/0.1 public-data client (+https://mesto.bg)"
       }
     end
   end

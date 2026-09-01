@@ -31,7 +31,7 @@ module DataSources
           faraday.options.timeout = @config.fetch("download_timeout", 120)
           faraday.response :raise_error
           faraday.headers["Accept"] = "application/zip"
-          faraday.headers["User-Agent"] = "PropertyLens/0.1 public-data prototype"
+          faraday.headers["User-Agent"] = "Mesto/0.1 public-data client (+https://mesto.bg)"
         end
       end
 

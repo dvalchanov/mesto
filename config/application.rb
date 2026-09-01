@@ -18,7 +18,7 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module PropertyLens
+module Mesto
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
@@ -35,7 +35,8 @@ module PropertyLens
     config.i18n.available_locales = %i[bg en]
     config.i18n.fallbacks = [ :en ]
 
-    config.x.product_name = ENV.fetch("PRODUCT_NAME", "PropertyLens")
+    config.x.product_name = ENV.fetch("PRODUCT_NAME", "Mesto")
+    config.x.app_host = ENV.fetch("APP_HOST", "mesto.bg")
     config.x.data_source_mode = ENV.fetch("DATA_SOURCE_MODE", Rails.env.test? ? "fixture" : "live")
     config.x.store_raw_source_responses = ActiveModel::Type::Boolean.new.cast(
       ENV.fetch("STORE_RAW_SOURCE_RESPONSES", Rails.env.production? ? "false" : "false")

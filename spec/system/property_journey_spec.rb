@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "PropertyLens journey", type: :system do
+RSpec.describe "Mesto journey", type: :system do
   before { driven_by :rack_test }
   before { PropertyAnalysis.where(submitted_identifier: "68134.1000.2000.1.5").destroy_all }
 
@@ -16,7 +16,7 @@ RSpec.describe "PropertyLens journey", type: :system do
     Analysis::Runner.new(analysis).call
     visit report_path(analysis)
     expect(page).to have_text(I18n.t("reports.locked.cta"))
-    expect(page).not_to have_text(I18n.t("reports.full.unlocked"))
+    expect(page).not_to have_text(I18n.t("reports.full.timeline"))
 
     click_link I18n.t("reports.locked.cta")
     fill_in I18n.t("checkout.email"), with: "buyer@example.com"
@@ -25,7 +25,7 @@ RSpec.describe "PropertyLens journey", type: :system do
     expect(page).to have_text(I18n.t("checkout.success_title"))
     click_link I18n.t("checkout.back_to_report")
 
-    expect(page).to have_text(I18n.t("reports.full.unlocked"))
+    expect(page).to have_text(I18n.t("reports.full.timeline"))
     visit report_path(analysis)
     expect(page).to have_text(I18n.t("reports.full.timeline"))
   end

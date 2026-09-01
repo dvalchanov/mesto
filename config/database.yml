@@ -3,17 +3,17 @@ default: &default
   encoding: unicode
   host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
   port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
-  username: <%= ENV.fetch("DATABASE_USERNAME", "property_lens") %>
+  username: <%= ENV.fetch("DATABASE_USERNAME", "mesto") %>
   password: <%= ENV["DATABASE_PASSWORD"] %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
 
 development:
   <<: *default
-  database: property_lens_development
+  database: <%= ENV.fetch("DATABASE_NAME", "mesto_development") %>
 
 test:
   <<: *default
-  database: property_lens_test
+  database: <%= ENV.fetch("TEST_DATABASE_NAME", "mesto_test") %>
 
 production:
   <<: *default

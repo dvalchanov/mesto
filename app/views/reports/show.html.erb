@@ -1,48 +1,66 @@
 <% content_for :title, "#{t('reports.title', identifier: @analysis.submitted_identifier)} — #{product_name}" %>
 
-<section class="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14" data-controller="poll" data-poll-active-value="<%= @analysis.running? %>">
-  <div class="mb-8 flex flex-col gap-5 border-b border-slate-200 pb-8 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p class="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700"><%= t("reports.status_label") %> · <%= t("reports.statuses.#{@analysis.status}") %></p>
-      <h1 class="break-all font-mono text-2xl font-bold tracking-tight sm:text-4xl"><%= @analysis.submitted_identifier %></h1>
+<section class="site-shell report-page" data-controller="poll" data-poll-active-value="<%= @analysis.running? %>">
+  <header class="report-hero">
+    <div class="report-hero__main">
+      <div>
+        <p class="report-hero__status"><i></i><%= t("reports.status_label") %> · <%= t("reports.statuses.#{@analysis.status}") %></p>
+        <h1><%= @analysis.submitted_identifier %></h1>
+        <div class="report-hero__meta">
+          <span><%= mesto_icon("building", css_class: "size-4") %><%= t("reports.hierarchy.levels.#{@analysis.identifier_level}") %></span>
+          <% if @analysis.completed_at %><span><%= mesto_icon("check", css_class: "size-4") %><%= l(@analysis.completed_at, format: :short) %></span><% end %>
+          <span><%= mesto_icon("shield", css_class: "size-4") %><%= t("common.official_source") %></span>
+        </div>
+      </div>
+      <div class="report-actions">
+        <%= link_to root_path, class: "button button--ink" do %><%= mesto_icon("search", css_class: "size-4") %><%= t("navigation.new_search") %><% end %>
+      </div>
     </div>
-    <%= link_to t("navigation.new_search"), root_path, class: "inline-flex rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 hover:border-slate-400" %>
-  </div>
+    <% unless @analysis.running? %>
+      <nav class="report-hero__nav" aria-label="<%= t('reports.title', identifier: @analysis.submitted_identifier) %>">
+        <a href="#overview"><%= t("reports.full.overview") %></a>
+        <a href="#records"><%= t("reports.findings.title") %></a>
+        <a href="#context"><%= t("reports.neighborhood.title") %></a>
+        <a href="#next-steps"><%= t("reports.buyer_checklist.title") %></a>
+        <a href="#sources"><%= t("reports.sources.title") %></a>
+      </nav>
+    <% end %>
+  </header>
 
   <% if @analysis.running? %>
     <%= render "progress", analysis: @analysis %>
   <% else %>
-    <% if @analysis.status == "partial" %>
-      <div class="mb-7 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950"><%= t("reports.partial_notice") %></div>
-    <% end %>
+    <dl class="report-coverage">
+      <div><dt><%= t("reports.coverage.title") %></dt><dd><%= t("reports.coverage.#{@coverage['status'] || 'limited'}") %></dd></div>
+      <div><dt><%= t("reports.sources.title") %></dt><dd><%= @coverage["succeeded"].to_i %> / <%= @coverage["checked"].to_i %></dd></div>
+      <div><dt><%= t("reports.overview.direct_acts") %></dt><dd><%= @analysis.metrics.dig("direct_activity", "total").to_i %></dd></div>
+    </dl>
+
+    <% if @analysis.status == "partial" %><div class="report-alert"><%= t("reports.partial_notice") %></div><% end %>
     <% if @analysis.summary["outside_sofia"] %>
-      <div class="mb-8 rounded-3xl border border-sky-200 bg-sky-50 p-7">
-        <h2 class="text-xl font-bold text-sky-950"><%= t("reports.outside_sofia.title") %></h2>
-        <p class="mt-3 max-w-4xl leading-7 text-sky-900"><%= t("reports.outside_sofia.body") %></p>
-      </div>
+      <div class="report-alert"><strong><%= t("reports.outside_sofia.title") %></strong><br><%= t("reports.outside_sofia.body") %></div>
     <% elsif @analysis.status == "failed" %>
-      <div class="mb-8 rounded-3xl border border-rose-200 bg-rose-50 p-7">
-        <h2 class="text-xl font-bold text-rose-950"><%= t("reports.failed.title") %></h2>
-        <p class="mt-3 text-rose-900"><%= t("reports.failed.body") %></p>
-      </div>
+      <div class="report-alert"><strong><%= t("reports.failed.title") %></strong><br><%= t("reports.failed.body") %></div>
     <% end %>
 
-    <%= render "free_report", analysis: @analysis, property_facts: @property_facts, preview_acts: @preview_acts, buyer_checklist: @buyer_checklist %>
+    <div class="report-stack">
+      <%= render "free_report", analysis: @analysis, property_facts: @property_facts, preview_acts: @preview_acts, buyer_checklist: @buyer_checklist %>
 
-    <% if @analysis.full_report_unlocked? %>
-      <%= render "full_report", analysis: @analysis, acts: @acts, source_runs: @source_runs %>
-    <% elsif @analysis.meaningful_paid_content? %>
-      <%= render "locked_report", analysis: @analysis %>
-    <% else %>
-      <div class="mt-8 rounded-3xl border border-slate-200 bg-white p-8">
-        <h2 class="text-xl font-bold"><%= t("reports.no_data.title") %></h2>
-        <p class="mt-3 max-w-3xl leading-7 text-slate-600"><%= t("reports.no_data.body") %></p>
+      <% if @analysis.full_report_unlocked? %>
+        <%= render "full_report", analysis: @analysis, acts: @acts, source_runs: @source_runs %>
+      <% elsif @analysis.meaningful_paid_content? %>
+        <%= render "locked_report", analysis: @analysis %>
+      <% else %>
+        <section class="report-surface p-8">
+          <h2 class="text-xl font-bold"><%= t("reports.no_data.title") %></h2>
+          <p class="mt-3 max-w-3xl leading-7 text-slate-600"><%= t("reports.no_data.body") %></p>
+        </section>
+      <% end %>
+
+      <div class="space-y-5" id="sources">
+        <%= render "sources", analysis: @analysis, source_runs: @source_runs, coverage: @coverage %>
+        <%= render "not_verified" %>
       </div>
-    <% end %>
-
-    <div class="mt-8 space-y-6">
-      <%= render "sources", analysis: @analysis, source_runs: @source_runs, coverage: @coverage %>
-      <%= render "not_verified" %>
     </div>
   <% end %>
 </section>
