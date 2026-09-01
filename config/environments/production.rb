@@ -55,8 +55,10 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Generate public links on the canonical Mesto domain by default.
+  app_host = ENV.fetch("APP_HOST", "mesto.bg")
+  config.action_mailer.default_url_options = { host: app_host, protocol: "https" }
+  config.action_controller.default_url_options = { host: app_host, protocol: "https" }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
   # config.action_mailer.smtp_settings = {

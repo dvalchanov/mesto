@@ -12,13 +12,13 @@ jobs:
       postgres:
         image: postgis/postgis:17-3.5
         env:
-          POSTGRES_DB: property_lens_test
+          POSTGRES_DB: mesto_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d property_lens_test"
+          --health-cmd "pg_isready -U postgres -d mesto_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10

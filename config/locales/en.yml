@@ -7,12 +7,23 @@ en:
       short: "%d %b %Y, %H:%M"
   navigation:
     home: "Home"
+    primary: "Primary navigation"
+    language: "Language"
+    how_it_works: "How it works"
+    guides: "Buyer guide"
+    documents: "Documents"
+    glossary: "Glossary"
+    check_property: "Check a property"
     language_bg: "BG"
     language_en: "EN"
     new_search: "New search"
   layout:
     product_tagline: "Public property data"
+    meta_description: "Mesto brings public property, planning and neighbourhood data into one clear analysis."
     footer: "Information prototype for the Bulgarian market"
+    footer_intro: "Clear context for one of life's biggest decisions. Made in Bulgaria, with respect for the facts."
+    footer_product: "Product"
+    footer_knowledge: "Knowledge"
   common:
     official_source: "Official source"
     calculated: "Calculated by %{product_name}"
@@ -24,10 +35,17 @@ en:
     back: "Back"
   home:
     eyebrow: "Check before buying"
-    headline: "See what public data reveals about a property."
+    headline: "Know the place before you call it home."
+    headline_html: "Know the place<br> before you call it <em>home.</em>"
     supporting_copy: "Enter a cadastral identifier to check available permits, planning data, administrative activity and the surrounding area."
+    source_count: "12+ public sources"
+    source_note: "Brought into one understandable analysis"
+    coverage_label: "Current coverage"
+    coverage_value: "Sofia · expanding across Bulgaria"
     trust_note: "One identifier. A clear trail to every public source used."
     search:
+      card_eyebrow: "Start here"
+      card_title: "Check a specific property"
       label: "Cadastral identifier"
       placeholder: "E.g. 68134.1609.3263.1.10"
       submit: "Check the property"
@@ -35,12 +53,125 @@ en:
       hint: "The identifier appears on the cadastral sketch, title documents or a KAIS lookup. It contains three to five numeric groups."
       invalid: "Enter a valid cadastral identifier with 3 to 5 numeric parts."
       rate_limited: "Too many checks were submitted. Wait a moment and try again."
+      private: "Your check is private"
+      no_registration: "No registration"
     feature_sources: "Checked sources"
     feature_sources_text: "NAG public registers and configured SofiaPlan data."
     feature_provenance: "Visible provenance"
     feature_provenance_text: "Every statement is labelled as source fact, calculation or unverified information."
     feature_limits: "Honest limits"
     feature_limits_text: "No match is never presented as proof that a document does not exist."
+    discover:
+      eyebrow: "The full picture"
+      title: "More than an address and floor area"
+      description: "A purchase has many layers. Mesto arranges the public trail so you can see the facts, their context and the questions worth asking."
+      identity:
+        title: "Property identity"
+        text: "Cadastral hierarchy, area, use and public address — arranged for easy comparison with the documents."
+      planning:
+        title: "Planning and zoning"
+        text: "Available planning layers, regulation and indicators of potential development."
+      activity:
+        title: "Construction activity"
+        text: "Permits, design visas, orders and traces of administrative activity for the property and nearby."
+      surroundings:
+        title: "Everyday surroundings"
+        text: "Transport, schools, kindergartens and green spaces in an understandable spatial context."
+        metro: "to metro"
+        schools: "nearby schools"
+        park: "to a park"
+    method:
+      eyebrow: "How it works"
+      title: "From identifier to clear next steps"
+      description: "We do not give an automatic verdict on a property. We give structured facts, provenance and an honest explanation of what remains unknown."
+      quote: "Trust does not come from more data, but from a clear boundary between what we know and what still needs checking."
+      sources_label: "Sources we check"
+      steps:
+        identifier:
+          title: "Enter a cadastral identifier"
+          text: "We recognise whether you are checking a parcel, building or individual unit."
+        sources:
+          title: "We check the applicable public sources"
+          text: "Each request is recorded separately with a status, date and direct link to its origin."
+        analysis:
+          title: "We connect the property to its context"
+          text: "We relate cadastre, administrative records and spatial data only when location is reliable."
+        report:
+          title: "You receive a readable analysis"
+          text: "Facts, map, timeline, limitations and concrete questions for the seller and specialists."
+    knowledge:
+      eyebrow: "Library"
+      title: "Knowledge for a calmer decision"
+      view_all: "Explore the library"
+      read: "Read"
+      guide:
+        tag: "Guide"
+        title: "Before the deposit: 8 checks you should not skip"
+        text: "A practical sequence for comparing the property, its documents and its real condition."
+      documents:
+        tag: "Documents"
+        title: "Sketch, scheme, title deed — what each document proves"
+        text: "A clear overview of the role, date and limitations of the main property documents."
+      glossary:
+        tag: "Glossary"
+        title: "GFA, UPI, design visa — without administrative jargon"
+        text: "Core property terms explained so you can use them in a real conversation."
+    final_cta:
+      eyebrow: "Your place starts with clarity"
+      title: "Check the facts before making a decision."
+      text: "All you need is the cadastral identifier."
+      button: "Start a check"
+  knowledge:
+    navigation_title: "Mesto library"
+    cta:
+      title: "Have a specific property in mind?"
+      text: "Turn theory into a check of a real cadastral identifier."
+      button: "Check the property"
+    guides:
+      eyebrow: "Buyer guide"
+      title: "A calm purchase begins with the right questions"
+      lead: "A structured approach to documents, public information and conversations before paying a deposit."
+      intro: "You do not need to be a lawyer or architect to notice important discrepancies. You need to know what to request, what to compare and when to involve a specialist."
+      sections:
+        - title: "Start with the exact identity"
+          body: "Compare the cadastral identifier, address, floor, designated use and area across all available documents and the listing. Different concepts of area are not interchangeable."
+          items: ["Request a current cadastral scheme or sketch.", "Compare the individual unit, building and parcel.", "Record every discrepancy instead of assuming it is a technical error."]
+        - title: "Check the public trail"
+          body: "Permits, design visas and planning orders provide context, but they are not an automatic assessment of whether a transaction is safe. Read the subject, scope, date and exact affected property."
+          note: "No result in one public register does not prove that a document does not exist."
+        - title: "Bring in specialists before the deposit"
+          body: "A notary, lawyer and technical specialist check different risks. Public data helps you reach them with better questions."
+          items: ["A current encumbrance certificate immediately before the transaction.", "Verification of ownership and the seller's authority.", "Inspection of the actual layout, services and common parts."]
+    documents:
+      eyebrow: "Property documents"
+      title: "Each document answers a different question"
+      lead: "How to read the main documents without expecting one of them to prove everything."
+      intro: "Good due diligence is a comparison, not a search for one magic document. The exact property, issuer, date, scope and relationship to the other evidence all matter."
+      sections:
+        - title: "Cadastral scheme or sketch"
+          body: "Identifies the object in the cadastral map and shows key characteristics. For an individual unit, look for a scheme; for a parcel, a sketch."
+          items: ["Check the date of issue.", "Compare the identifier and area.", "See whether the address, floor and use match."]
+        - title: "Title deed"
+          body: "Documents the basis of acquisition and describes the property using information available when it was drawn up. It does not replace a current ownership and encumbrance check."
+          note: "A difference between an old description and the current cadastre needs a documented explanation."
+        - title: "Construction documents"
+          body: "The design visa, building permit, approved plans and commissioning documents have different roles. Check that they relate to the exact building, stage and unit."
+          items: ["A design visa is not a building permit.", "A permit does not prove the completed work matches the design.", "Commissioning may happen in stages."]
+    glossary:
+      eyebrow: "Buyer glossary"
+      title: "Property terms, in human language"
+      lead: "Short explanations of the words you will meet in documents, listings and conversations."
+      intro: "Terms are precise only within a specific document and context. Use these explanations as orientation, not a substitute for professional interpretation."
+      sections:
+        - title: "Cadastral identifier"
+          body: "A unique numeric code for an object in the cadastre. Three parts usually mean a parcel, four a building, and five an individual unit in a building."
+          note: "The full identifier is a more reliable starting point than the address."
+        - title: "UPI and cadastral parcel"
+          body: "A cadastral parcel is an object in the cadastre. A UPI is a regulated land plot under a detailed development plan. Their boundaries and numbers may not fully match."
+          items: ["The parcel describes the cadastral unit.", "The UPI describes the planning regulation.", "Comparing them requires current plans."]
+        - title: "Footprint and gross floor area"
+          body: "The building footprint is the area occupied on the land. Gross floor area combines specified floor areas under the applicable rules. Neither is automatically the area of an apartment."
+          items: ["Net area and area including common parts are different figures.", "Check exactly how area is defined in each document."]
   reports:
     title: "Analysis for %{identifier}"
     status_label: "Analysis status"

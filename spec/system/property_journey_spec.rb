@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "PropertyLens journey", type: :system do
+RSpec.describe "Mesto journey", type: :system do
   before { driven_by :rack_test }
   before { PropertyAnalysis.where(submitted_identifier: "68134.1000.2000.1.5").destroy_all }
 
