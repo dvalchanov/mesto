@@ -1,0 +1,48 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API fixture",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-02T20:51:13Z"
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 13848597999,
+      "lat": 42.6411617,
+      "lon": 23.3390570,
+      "tags": {
+        "amenity": "kindergarten",
+        "name": "Никатор"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1256636075,
+      "center": {
+        "lat": 42.6379723,
+        "lon": 23.3428779
+      },
+      "tags": {
+        "amenity": "kindergarten",
+        "name": "ДГ №190",
+        "official_name": "Детска градина №190",
+        "operator": "Столична община"
+      }
+    },
+    {
+      "type": "way",
+      "id": 315385550,
+      "center": {
+        "lat": 42.6479830,
+        "lon": 23.3422821
+      },
+      "tags": {
+        "addr:street": "Атанас Манчев",
+        "addr:housenumber": "1",
+        "amenity": "kindergarten",
+        "name": "ДГ №16 „Приказен свят“",
+        "operator": "Столична община"
+      }
+    }
+  ]
+}

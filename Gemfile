@@ -24,8 +24,8 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 # Process Active Job work outside the web process
 gem "sidekiq", "~> 8.1"
-# Use Redis adapter to run Action Cable in production
-gem "redis", ">= 5.0"
+# Use Redis-backed Action Cable across web and worker processes
+gem "redis", ">= 5.0", "< 6"
 # Small, explicit public-data clients and GeoJSON parsing.
 gem "faraday", "~> 2.0"
 gem "faraday-retry", "~> 2.0"

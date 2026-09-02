@@ -28,7 +28,10 @@ module Analysis
 
     def start_analysis
       @analysis.update!(status: "running", started_at: Time.current, failed_at: nil, failure_message: nil)
-      STAGES.each { |stage| @analysis.update_progress!(stage, stage == "identifier" ? "completed" : "pending") }
+      STAGES.each do |stage|
+        @analysis.update_progress!(stage, stage == "identifier" ? "completed" : "pending", broadcast: false)
+      end
+      @analysis.broadcast_progress!
       ProductEvent.record("analysis_started", property_analysis: @analysis)
     end
 
@@ -94,10 +97,29 @@ module Analysis
           ))
         end
       end
+      run_current_nearby_amenities
       import_missing_spatial_datasets if @analysis.centroid
       track_spatial_datasets
-      spatial_success = @analysis.source_runs.where("source_key LIKE 'arcgis_%' OR source_key LIKE 'sofiaplan_dataset_%'").succeeded.exists?
+      spatial_success = @analysis.source_runs
+        .where("source_key LIKE 'arcgis_%' OR source_key LIKE 'sofiaplan_dataset_%' OR source_key LIKE 'openstreetmap_%'")
+        .succeeded.exists?
       set_stage("spatial", spatial_success ? "completed" : "unavailable")
+    end
+
+    def run_current_nearby_amenities
+      result = if @analysis.centroid
+        DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: @analysis.centroid)
+      else
+        DataSources::Result.unavailable(
+          source_url: DataSources.config.dig("openstreetmap", "overpass_url"),
+          error: StandardError.new("A reliable property location is required")
+        )
+      end
+      record_result(
+        "openstreetmap_nearby_amenities",
+        result,
+        request_metadata: { precision: @analysis.location_precision, radius_m: DataSources::OpenStreetMap::NearbyAmenitiesClient::RADIUS_METRES }
+      )
     end
 
     def build_report

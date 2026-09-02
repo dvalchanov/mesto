@@ -4,16 +4,16 @@ module DataSources
 
     TRANSIENT_ERRORS = [ Faraday::TimeoutError, Faraday::ConnectionFailed ].freeze
 
-    def initialize
+    def initialize(open_timeout: nil, read_timeout: nil, retries: nil)
       options = DataSources.config.fetch("http")
       @connection = Faraday.new do |faraday|
         faraday.request :retry,
-          max: options.fetch("retries"),
+          max: retries.nil? ? options.fetch("retries") : retries,
           interval: 0.2,
           backoff_factor: 2,
           exceptions: TRANSIENT_ERRORS
-        faraday.options.open_timeout = options.fetch("open_timeout")
-        faraday.options.timeout = options.fetch("read_timeout")
+        faraday.options.open_timeout = open_timeout || options.fetch("open_timeout")
+        faraday.options.timeout = read_timeout || options.fetch("read_timeout")
         faraday.response :raise_error
       end
     end

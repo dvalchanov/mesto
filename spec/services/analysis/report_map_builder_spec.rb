@@ -168,4 +168,36 @@ RSpec.describe Analysis::ReportMapBuilder do
       )
     )
   end
+
+  it "maps current OpenStreetMap places with distances and direct provenance" do
+    analysis = create(
+      :property_analysis,
+      status: "partial",
+      centroid: point_factory.point(23.3460262, 42.6394047),
+      location_precision: "cadastral_geometry"
+    )
+    result = DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: analysis.centroid)
+    analysis.source_runs.create!(
+      source_key: "openstreetmap_nearby_amenities",
+      status: "succeeded",
+      parsed_payload: result.data,
+      source_url: result.source_url,
+      fetched_at: result.fetched_at,
+      relevant_at: result.relevant_at
+    )
+
+    properties = feature_properties(described_class.new(analysis:).call)
+
+    expect(properties).to include(
+      include(
+        kind: "amenity",
+        category: "kindergartens",
+        label: "ДГ №190",
+        source_url: "https://www.openstreetmap.org/way/1256636075",
+        distance_label: be_present,
+        date_label: be_present
+      )
+    )
+    expect(properties).not_to include(include(label: "ДГ №16 „Приказен свят“"))
+  end
 end

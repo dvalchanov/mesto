@@ -47,6 +47,26 @@ RSpec.describe Analysis::MetricsBuilder do
     expect(metrics.dig("amenities", "nearest_planned_transit", "name")).to eq("Planned station")
   end
 
+  it "prefers current bounded OpenStreetMap places over historical amenity snapshots" do
+    analysis.update!(centroid: point_factory.point(23.3460262, 42.6394047))
+    result = DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: analysis.centroid)
+    analysis.source_runs.create!(
+      source_key: "openstreetmap_nearby_amenities",
+      status: "succeeded",
+      parsed_payload: result.data,
+      source_url: result.source_url,
+      fetched_at: result.fetched_at,
+      relevant_at: result.relevant_at
+    )
+
+    metrics = described_class.new(analysis:).call
+
+    expect(metrics.dig("amenities", "places_source")).to eq("openstreetmap")
+    expect(metrics.dig("amenities", "kindergartens")).to eq("500" => 1, "1000" => 2, "2000" => 3)
+    expect(metrics.dig("amenities", "schools")).to eq("500" => 0, "1000" => 0, "2000" => 0)
+    expect(metrics.dig("amenities", "nearest_kindergarten", "name")).to eq("ДГ №190")
+  end
+
   it "does not calculate nearby activity or development pressure from identifier-only searches" do
     metrics = described_class.new(analysis:).call
 

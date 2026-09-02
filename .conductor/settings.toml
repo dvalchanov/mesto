@@ -1,0 +1,9 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+run_mode = "nonconcurrent"
+
+[scripts.run.dev]
+command = "bin/dev"
+default = true
+icon = "play"

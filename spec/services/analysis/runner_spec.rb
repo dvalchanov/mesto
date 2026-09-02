@@ -25,6 +25,7 @@ RSpec.describe Analysis::Runner do
       .where.not(last_imported_at: nil).count).to eq(5)
     expect(analysis.source_runs.where("source_key LIKE ?", "sofiaplan_dataset_%").pluck(:status).uniq)
       .to eq([ "succeeded" ])
+    expect(analysis.source_runs.find_by!(source_key: "openstreetmap_nearby_amenities").status).to eq("succeeded")
   end
 
   it "does not duplicate administrative acts on a repeated run" do

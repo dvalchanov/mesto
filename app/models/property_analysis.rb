@@ -8,6 +8,7 @@ class PropertyAnalysis < ApplicationRecord
   has_many :product_events, dependent: :nullify
 
   before_validation :assign_public_token, on: :create
+  after_update_commit :broadcast_terminal_report_refresh, if: :terminal_status_changed?
 
   validates :public_token, :submitted_identifier, :settlement_code, :parcel_identifier, :identifier_level, presence: true
   validates :public_token, uniqueness: true
@@ -46,15 +47,37 @@ class PropertyAnalysis < ApplicationRecord
     Array(summary["progress"])
   end
 
-  def update_progress!(key, status)
+  def update_progress!(key, status, broadcast: true)
     steps = Analysis::Runner::STAGES.map do |stage|
       existing = progress.find { |item| item["key"] == stage }
       { "key" => stage, "status" => stage == key ? status.to_s : existing&.fetch("status", nil) || "pending" }
     end
     update!(summary: summary.merge("progress" => steps))
+    broadcast_progress! if broadcast
+  end
+
+  def broadcast_progress!
+    I18n.available_locales.each do |locale|
+      I18n.with_locale(locale) do
+        broadcast_replace_to(
+          self, locale,
+          target: ActionView::RecordIdentifier.dom_id(self, :progress),
+          partial: "reports/progress",
+          locals: { analysis: self }
+        )
+      end
+    end
   end
 
   private
+
+  def terminal_status_changed?
+    saved_change_to_status? && ready_for_display?
+  end
+
+  def broadcast_terminal_report_refresh
+    I18n.available_locales.each { |locale| broadcast_refresh_to(self, locale) }
+  end
 
   def assign_public_token
     self.public_token ||= SecureRandom.uuid

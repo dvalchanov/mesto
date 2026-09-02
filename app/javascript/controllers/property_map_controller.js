@@ -56,8 +56,8 @@ export default class extends Controller {
     this.addOverlayLayer({ id: "selected-object-line", type: "line", filter: ["==", ["get", "kind"], "selected_object"], paint: { "line-color": "#a94e2f", "line-width": 3 } })
 
     this.addLayer({ id: "green-space-points", type: "circle", filter: this.pointAmenityFilter("green_spaces"), paint: { "circle-color": "#5e7b4d", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
-    this.addLayer({ id: "schools", type: "circle", filter: this.pointAmenityFilter("schools"), paint: { "circle-color": "#2878a4", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
-    this.addLayer({ id: "kindergartens", type: "circle", filter: this.pointAmenityFilter("kindergartens"), paint: { "circle-color": "#7c5aa6", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
+    this.addLayer({ id: "schools", type: "circle", filter: this.pointAmenityFilter("schools"), paint: { "circle-color": "#52646b", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
+    this.addLayer({ id: "kindergartens", type: "circle", filter: this.pointAmenityFilter("kindergartens"), paint: { "circle-color": "#b95f3f", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
     this.addLayer({ id: "transit", type: "circle", filter: this.pointAmenityFilter("transit"), paint: { "circle-color": "#b95f3f", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
     this.addLayer({ id: "acts", type: "circle", filter: ["==", ["get", "kind"], "act"], layout: { visibility: "none" }, paint: { "circle-color": "#b95f3f", "circle-radius": 6, "circle-stroke-color": "#fffefb", "circle-stroke-width": 2 } })
     this.addLayer({ id: "selected-location", type: "circle", filter: ["==", ["get", "kind"], "selected_location"], paint: { "circle-color": "#fffefb", "circle-radius": 6, "circle-stroke-color": "#173f34", "circle-stroke-width": 4 } })

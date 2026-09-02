@@ -1,6 +1,7 @@
 <% content_for :title, "#{t('reports.title', identifier: @analysis.submitted_identifier)} — #{product_name}" %>
+<%= turbo_stream_from @analysis, I18n.locale %>
 
-<section class="site-shell report-page" data-controller="poll" data-poll-active-value="<%= @analysis.running? %>">
+<section class="site-shell report-page">
   <header class="report-hero">
     <div class="report-hero__main">
       <div>
