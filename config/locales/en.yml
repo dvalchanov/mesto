@@ -259,6 +259,7 @@ en:
         sofiaplan_dataset_green_spaces: "SofiaPlan — parks and gardens"
         sofiaplan_dataset_transit: "SofiaPlan — metro stations"
         sofiaplan_dataset_flood_risk: "SofiaPlan — flood risk"
+        openstreetmap_nearby_amenities: "OpenStreetMap — nearby schools and kindergartens"
     property_facts:
       eyebrow: "01 · Basic facts"
       title: "Property at a glance"
@@ -393,8 +394,14 @@ en:
       unnamed: "Unnamed place"
       not_found: "Not enough data for a reliable calculation"
       not_calculated: "Not calculated — source unavailable"
+      nearest_mapped: "Nearest mapped place: %{name} — approximately %{distance} m. %{date}."
+      none_mapped: "No place is mapped within %{radius} m. %{date}."
+      historical_snapshot:
+        one: "%{date}: 1 record within 1 km in the historical dataset. This is not a current count."
+        other: "%{date}: %{count} records within 1 km in the historical dataset. This is not a current count."
       activity_not_assessed: "Not assessed: the registers were searched by identifier, not as a complete area-wide dataset."
-      dataset_scope_note: "A zero means no feature was found in the dated imported dataset within the stated area. It does not prove that none exists today."
+      openstreetmap_scope_note: "Counts include schools and kindergartens mapped in OpenStreetMap within 2 km. This is a current community-maintained map, not an official register—open a map item to verify its details."
+      dataset_scope_note: "Data older than 2 years is not shown as a current count. Base-map labels come from OpenStreetMap and may include newer places that are absent from the imported municipal dataset."
       location_missing_title: "We could not resolve a reliable location"
       location_missing_body: "We therefore do not show an arbitrary map or calculate schools, transport, green space, construction activity or flood risk for this property. An imported dataset is not the same as applying it to the property."
       location_missing_action: "To check these topics, open the identifier in KAIS or request a current cadastral scheme from the seller."
@@ -453,6 +460,7 @@ en:
       layers_label: "Map layers"
       canvas_label: "Interactive map for cadastral identifier %{identifier}"
       registry_note: "Roads, labels, and general places come from OpenStreetMap. Highlighted property and neighborhood overlays come from the imported public registers and retain their source dates. Select a shape or point for details."
+      registry_note_openstreetmap: "Schools and kindergartens are fetched within 2 km from the current OpenStreetMap snapshot; markers shown here are within 1 km. Other layers retain their own source and date. Select a marker or shape for details and a source link."
       object_note: "An individual unit is shown by its registered two-dimensional outline when available; this map cannot show its vertical position within the building."
       source_link: "Source"
       feature_types:
@@ -479,10 +487,10 @@ en:
         distance: "%{distance} m from the property"
     locked:
       eyebrow: "Full report"
-      title: "See the complete public trail and how it was calculated"
-      description: "The full analysis has already been generated. Payment unlocks the details on this shareable link."
+      title: "See the complete records, nearby places, and evidence"
+      description: "The full analysis has already been generated. Unlocking reveals every administrative record found, the detailed context, and the nearby-place list with distances and source links."
       cta: "Unlock full analysis — €24.90"
-      previews: { timeline: "Complete administrative timeline", planning: "Explained planning-zone context", surroundings: "Verified amenities and dated distances", evidence: "Source evidence and investigation questions" }
+      previews: { timeline: "Complete administrative timeline", planning: "Explained planning-zone context", surroundings: "Full nearby-place list with distances and sources", evidence: "Source evidence and investigation questions" }
     full:
       overview: "Overview"
       timeline: "Administrative timeline"
@@ -524,6 +532,14 @@ en:
       pressure_unavailable: "Not scored. A low score based on an incomplete area-wide register would create false reassurance."
       amenities: "Schools and kindergartens"
       amenity_count: "%{count} places within %{radius} m"
+      openstreetmap_titles:
+        schools: "Schools mapped in OpenStreetMap"
+        kindergartens: "Kindergartens mapped in OpenStreetMap"
+      mapped_places: "Places within 2 km"
+      distance_metres: "%{distance} m"
+      openstreetmap_scope_note: "Community-maintained OpenStreetMap data; open each place to verify its type, name, and operator."
+      historical_amenities: "%{date}. These records are shown only as historical context, not as the current situation."
+      historical_amenity_count: "Historical dataset: %{count} records within %{radius} m"
       green_transport: "Green space and transport"
       nearest: "%{name} — approximately %{distance} m"
       no_nearest: "No imported data for a reliable calculation."

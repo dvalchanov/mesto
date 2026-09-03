@@ -1,3 +1,5 @@
+name: mesto
+
 services:
   postgres:
     image: postgis/postgis:17-3.5
@@ -8,10 +10,10 @@ services:
       POSTGRES_USER: ${DATABASE_USERNAME:-mesto}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in .env}
     ports:
-      - "${DATABASE_PORT:-5432}:5432"
+      - "127.0.0.1:${DATABASE_PORT:-5432}:5432"
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/init/20_remove_optional_extensions.sql:/docker-entrypoint-initdb.d/20_remove_optional_extensions.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "[ \"$$(cat /proc/1/comm)\" = postgres ] && pg_isready -U ${DATABASE_USERNAME:-mesto} -d ${DATABASE_NAME:-mesto_development}"]
       interval: 5s
@@ -22,7 +24,8 @@ services:
     image: redis:7.2
     command: redis-server --appendonly yes
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    restart: unless-stopped
     volumes:
       - redis_data:/data
     healthcheck:
@@ -30,6 +33,23 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  proxy:
+    image: caddy:2-alpine
+    command:
+      - caddy
+      - reverse-proxy
+      - --from
+      - http://mesto.localhost
+      - --to
+      - host.docker.internal:3000
+      - --header-up
+      - "X-Forwarded-For: 127.0.0.1"
+    ports:
+      - "127.0.0.1:80:80"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   postgres_data:

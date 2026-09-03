@@ -4,6 +4,7 @@ shared: &shared
     - gis.sofiaplan.bg
     - nag.sofia.bg
     - kais.cadastre.bg
+    - overpass-api.de
   http:
     open_timeout: 5
     read_timeout: 18
@@ -41,6 +42,8 @@ shared: &shared
       url: <%= ENV.fetch("SOFIAPLAN_ARCGIS_DEVELOPMENT_POTENTIAL_URL", "https://gis.sofiaplan.bg/server/rest/services/programa_za_sofia/programa_sofia_atlas_na_analizite/FeatureServer/31") %>
     functional_zoning:
       url: <%= ENV.fetch("SOFIAPLAN_ARCGIS_FUNCTIONAL_ZONING_URL", "https://gis.sofiaplan.bg/server/rest/services/programa_za_sofia/programa_sofia_atlas_na_analizite/FeatureServer/33") %>
+  openstreetmap:
+    overpass_url: <%= ENV.fetch("OPENSTREETMAP_OVERPASS_URL", "https://overpass-api.de/api/interpreter") %>
   nag:
     request_delay_seconds: 0.5
     detail_limit: 25

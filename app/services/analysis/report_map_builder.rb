@@ -118,7 +118,9 @@ module Analysis
     def add_spatial_context(features)
       return unless @analysis.centroid
 
-      AMENITY_CATEGORIES.each do |category|
+      add_current_amenities(features) if current_amenities_available?
+      categories = current_amenities_available? ? AMENITY_CATEGORIES - %w[schools kindergartens] : AMENITY_CATEGORIES
+      categories.each do |category|
         next unless spatial_dataset_available?(category)
 
         SpatialFeature.in_category(category)
@@ -141,6 +143,43 @@ module Analysis
             )
           end
       end
+    end
+
+    def add_current_amenities(features)
+      nearby = Array(current_amenities_source_run.parsed_payload["features"])
+      visible_places = %w[schools kindergartens].flat_map do |category|
+        nearby.select do |feature|
+          feature["category"] == category && feature.fetch("distance_m") <= AMENITY_RADIUS_METRES
+        end.first(MAX_FEATURES_BY_CATEGORY.fetch(category))
+      end
+      visible_places.each do |feature|
+        geometry = RGeo::Geographic.spherical_factory(srid: 4326)
+          .point(feature.fetch("longitude"), feature.fetch("latitude"))
+        features << map_feature(
+          geometry,
+          kind: "amenity",
+          category: feature.fetch("category"),
+          label: feature["name"],
+          type_label: translate_feature_type(feature.fetch("category")),
+          detail: feature["operator"],
+          address: feature["address"],
+          source_url: feature["source_url"],
+          date_label: date_label(current_amenities_source_run.relevant_at),
+          distance_label: distance_label(feature.fetch("distance_m"))
+        )
+      end
+    end
+
+    def current_amenities_available?
+      current_amenities_source_run&.status == "succeeded"
+    end
+
+    def current_amenities_source_run
+      return @current_amenities_source_run if defined?(@current_amenities_source_run)
+
+      @current_amenities_source_run = @analysis.source_runs
+        .where(source_key: "openstreetmap_nearby_amenities")
+        .order(id: :desc).first
     end
 
     def spatial_dataset_available?(category)

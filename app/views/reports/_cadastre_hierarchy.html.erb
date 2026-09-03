@@ -41,39 +41,39 @@
       <div class="border-t border-slate-200 bg-white p-6 sm:p-8">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p class="text-xs font-black uppercase tracking-wide text-sky-700"><%= t("reports.cadastre_hierarchy.cross_checks_eyebrow") %></p>
+            <p class="report-section-label text-xs font-black uppercase tracking-wide"><%= t("reports.cadastre_hierarchy.cross_checks_eyebrow") %></p>
             <h3 class="mt-1 text-lg font-black text-slate-950"><%= t("reports.cadastre_hierarchy.cross_checks_title") %></h3>
           </div>
           <p class="max-w-xl text-xs leading-5 text-slate-500"><%= t("reports.cadastre_hierarchy.cross_checks_note", product_name:) %></p>
         </div>
         <dl class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <% if metrics["parcel_buildings_count"] %>
-            <div class="rounded-2xl bg-sky-50 p-4 ring-1 ring-sky-100">
-              <dt class="text-xs font-semibold text-sky-800"><%= t("reports.cadastre_hierarchy.metrics.parcel_buildings_count") %></dt>
-              <dd class="mt-2 text-2xl font-black text-sky-950"><%= metrics["parcel_buildings_count"] %></dd>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <dt class="text-xs font-semibold text-slate-600"><%= t("reports.cadastre_hierarchy.metrics.parcel_buildings_count") %></dt>
+              <dd class="mt-2 text-2xl font-black text-slate-950"><%= metrics["parcel_buildings_count"] %></dd>
             </div>
           <% end %>
           <% if metrics["building_object_records_count"] %>
-            <div class="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
-              <dt class="text-xs font-semibold text-emerald-800"><%= t("reports.cadastre_hierarchy.metrics.building_objects") %></dt>
-              <dd class="mt-2 text-2xl font-black text-emerald-950"><%= metrics["building_object_records_count"] %></dd>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <dt class="text-xs font-semibold text-slate-600"><%= t("reports.cadastre_hierarchy.metrics.building_objects") %></dt>
+              <dd class="mt-2 text-2xl font-black text-slate-950"><%= metrics["building_object_records_count"] %></dd>
               <% if metrics["building_declared_objects_count"] %>
-                <p class="mt-1 text-xs text-emerald-800"><%= t("reports.cadastre_hierarchy.metrics.declared_objects", count: metrics["building_declared_objects_count"]) %> · <%= t("reports.cadastre_hierarchy.metrics.count_match.#{metrics['building_object_count_matches']}") %></p>
+                <p class="mt-1 text-xs text-slate-600"><%= t("reports.cadastre_hierarchy.metrics.declared_objects", count: metrics["building_declared_objects_count"]) %> · <%= t("reports.cadastre_hierarchy.metrics.count_match.#{metrics['building_object_count_matches']}") %></p>
               <% end %>
             </div>
           <% end %>
           <% if metrics["building_object_areas_sum_sqm"] %>
-            <div class="rounded-2xl bg-violet-50 p-4 ring-1 ring-violet-100">
-              <dt class="text-xs font-semibold text-violet-800"><%= t("reports.cadastre_hierarchy.metrics.object_areas_sum") %></dt>
-              <dd class="mt-2 text-2xl font-black text-violet-950"><%= number_with_precision(metrics["building_object_areas_sum_sqm"], precision: 2, strip_insignificant_zeros: true) %> m²</dd>
-              <p class="mt-1 text-xs leading-5 text-violet-800"><%= t("reports.cadastre_hierarchy.metrics.object_areas_sum_note") %></p>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <dt class="text-xs font-semibold text-slate-600"><%= t("reports.cadastre_hierarchy.metrics.object_areas_sum") %></dt>
+              <dd class="mt-2 text-2xl font-black text-slate-950"><%= number_with_precision(metrics["building_object_areas_sum_sqm"], precision: 2, strip_insignificant_zeros: true) %> m²</dd>
+              <p class="mt-1 text-xs leading-5 text-slate-600"><%= t("reports.cadastre_hierarchy.metrics.object_areas_sum_note") %></p>
             </div>
           <% end %>
           <% if metrics["parcel_footprint_percent"] %>
-            <div class="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100">
-              <dt class="text-xs font-semibold text-amber-800"><%= t("reports.cadastre_hierarchy.metrics.footprint_percent") %></dt>
-              <dd class="mt-2 text-2xl font-black text-amber-950"><%= number_with_precision(metrics["parcel_footprint_percent"], precision: 2, strip_insignificant_zeros: true) %>%</dd>
-              <p class="mt-1 text-xs leading-5 text-amber-800"><%= t("reports.cadastre_hierarchy.metrics.footprint_detail", area: number_with_precision(metrics["parcel_building_footprint_sqm"], precision: 2, strip_insignificant_zeros: true)) %></p>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <dt class="text-xs font-semibold text-slate-600"><%= t("reports.cadastre_hierarchy.metrics.footprint_percent") %></dt>
+              <dd class="mt-2 text-2xl font-black text-slate-950"><%= number_with_precision(metrics["parcel_footprint_percent"], precision: 2, strip_insignificant_zeros: true) %>%</dd>
+              <p class="mt-1 text-xs leading-5 text-slate-600"><%= t("reports.cadastre_hierarchy.metrics.footprint_detail", area: number_with_precision(metrics["parcel_building_footprint_sqm"], precision: 2, strip_insignificant_zeros: true)) %></p>
             </div>
           <% end %>
         </dl>

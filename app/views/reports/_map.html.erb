@@ -12,8 +12,8 @@
     <% map_layers = [
       ["selected", "layer_selected", "bg-emerald-800", true, false, ->(property) { %w[selected_location selected_object selected_building parcel].include?(property[:kind] || property["kind"]) }],
       ["buildings", "layer_buildings", "bg-slate-500", true, true, ->(property) { (property[:kind] || property["kind"]) == "nearby_building" }],
-      ["schools", "layer_schools", "bg-sky-600", true, true, ->(property) { (property[:category] || property["category"]) == "schools" }],
-      ["kindergartens", "layer_kindergartens", "bg-violet-600", true, true, ->(property) { (property[:category] || property["category"]) == "kindergartens" }],
+      ["schools", "layer_schools", "bg-slate-600", true, true, ->(property) { (property[:category] || property["category"]) == "schools" }],
+      ["kindergartens", "layer_kindergartens", "bg-orange-700", true, true, ->(property) { (property[:category] || property["category"]) == "kindergartens" }],
       ["green_spaces", "layer_green_spaces", "bg-lime-700", true, true, ->(property) { (property[:category] || property["category"]) == "green_spaces" }],
       ["transit", "layer_transit", "bg-orange-700", true, true, ->(property) { (property[:category] || property["category"]) == "transit" }],
       ["planning", "layer_planning", "bg-orange-700", false, true, ->(property) { (property[:kind] || property["kind"]) == "planning" }],
@@ -40,7 +40,7 @@
         <% end %>
       </div>
       <div class="map-frame"><div data-property-map-target="canvas" class="h-[28rem] bg-slate-100" role="region" aria-label="<%= t("reports.map.canvas_label", identifier: analysis.submitted_identifier) %>"></div></div>
-      <p class="mt-3 text-xs leading-5 text-slate-500"><%= t("reports.map.registry_note") %></p>
+      <p class="mt-3 text-xs leading-5 text-slate-500"><%= t(analysis.metrics.dig("amenities", "places_source") == "openstreetmap" ? "reports.map.registry_note_openstreetmap" : "reports.map.registry_note") %></p>
       <% if analysis.identifier_level == "individual_object" %><p class="mt-1 text-xs leading-5 text-slate-500"><%= t("reports.map.object_note") %></p><% end %>
     </div>
   <% else %>

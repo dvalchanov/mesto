@@ -28,7 +28,8 @@ module Analysis
       return @source_runs unless @analysis && !@analysis.centroid
 
       @source_runs.where.not(
-        "source_key LIKE ? OR source_key LIKE ?", "sofiaplan_dataset_%", "arcgis_%"
+        "source_key LIKE ? OR source_key LIKE ? OR source_key LIKE ?",
+        "sofiaplan_dataset_%", "arcgis_%", "openstreetmap_%"
       )
     end
   end

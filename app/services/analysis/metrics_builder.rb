@@ -49,20 +49,37 @@ module Analysis
     def amenities
       return { "available" => false, "reason" => "insufficient_geometry", "availability" => {} } unless @analysis.centroid
 
-      availability = AMENITY_CATEGORIES.index_with { |category| spatial_dataset_available?(category) }
+      current_places_available = current_amenity_source_run&.status == "succeeded"
+      availability = AMENITY_CATEGORIES.index_with do |category|
+        if category.in?(%w[schools kindergartens])
+          current_places_available || spatial_dataset_available?(category)
+        else
+          spatial_dataset_available?(category)
+        end
+      end
       result = {
         "available" => availability.values.all?,
         "availability" => availability,
-        "datasets" => AMENITY_CATEGORIES.index_with { |category| dataset_metadata(category) }
+        "datasets" => AMENITY_CATEGORIES.index_with do |category|
+          category.in?(%w[schools kindergartens]) && current_places_available ? current_amenity_metadata : dataset_metadata(category)
+        end,
+        "places_source" => current_places_available ? "openstreetmap" : "sofiaplan"
       }
       %w[schools kindergartens].each do |category|
-        result[category] = if availability[category]
-          RADII.index_with { |radius| SpatialFeature.in_category(category).within(@analysis.centroid, radius).count }
+        if current_places_available
+          nearby = current_amenity_features(category)
+          result[category] = RADII.index_with { |radius| nearby.count { |feature| feature.fetch("distance_m") <= radius } }
+            .transform_keys(&:to_s)
+          result["nearest_#{category.singularize}"] = nearby.first
+          result["nearby_#{category}"] = nearby
+        elsif availability[category]
+          result[category] = RADII
+            .index_with { |radius| SpatialFeature.in_category(category).within(@analysis.centroid, radius).count }
             .transform_keys(&:to_s)
         else
-          {}
+          result[category] = {}
         end
-        result["nearest_#{category.singularize}"] = nearest(category) if availability[category]
+        result["nearest_#{category.singularize}"] = nearest(category) if !current_places_available && availability[category]
       end
       result["nearest_green_space"] = nearest("green_spaces", fallback_property: "type_") if availability["green_spaces"]
       if availability["transit"]
@@ -85,6 +102,30 @@ module Analysis
         "distance_m" => feature.distance_to(@analysis.centroid).round,
         "source_url" => feature.spatial_dataset.source_url
       }
+    end
+
+    def current_amenity_source_run
+      return @current_amenity_source_run if defined?(@current_amenity_source_run)
+
+      @current_amenity_source_run = @analysis.source_runs
+        .where(source_key: "openstreetmap_nearby_amenities")
+        .order(id: :desc).first
+    end
+
+    def current_amenity_features(category)
+      Array(current_amenity_source_run&.parsed_payload&.fetch("features", nil))
+        .select { |feature| feature["category"] == category }
+        .sort_by { |feature| feature.fetch("distance_m") }
+    end
+
+    def current_amenity_metadata
+      run = current_amenity_source_run
+      {
+        "provider" => "OpenStreetMap",
+        "relevant_at" => run.relevant_at&.to_date&.iso8601,
+        "retrieved_at" => run.fetched_at&.iso8601,
+        "source_url" => run.parsed_payload["license_url"] || run.source_url
+      }.compact
     end
 
     def environment

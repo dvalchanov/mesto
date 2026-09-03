@@ -1,4 +1,6 @@
 module ApplicationHelper
+  AMENITY_DATA_MAX_AGE_YEARS = 2
+
   ICON_PATHS = {
     "arrow-right" => '<path d="M5 12h14M13 6l6 6-6 6"/>',
     "arrow-up-right" => '<path d="M7 17 17 7M7 7h10v10"/>',
@@ -66,7 +68,7 @@ module ApplicationHelper
   def source_result_key(run, analysis:)
     return "needs_location" if run.source_key.start_with?("sofiaplan_dataset_", "arcgis_") && !analysis.centroid
     return run.status unless run.status == "succeeded"
-    return source_record_count(run).positive? ? "records_found" : "no_match" if run.source_key.start_with?("nag_", "arcgis_")
+    return source_record_count(run).positive? ? "records_found" : "no_match" if run.source_key.start_with?("nag_", "arcgis_", "openstreetmap_")
     return "used_for_calculation" if run.source_key.start_with?("sofiaplan_dataset_")
 
     "data_returned"
@@ -108,12 +110,22 @@ module ApplicationHelper
   end
 
   def dataset_relevance_text(metadata)
-    value = metadata.to_h["relevant_at"]
-    return t("common.unknown_date") if value.blank?
+    date = dataset_relevance_date(metadata)
+    return t("common.unknown_date") unless date
 
-    t("common.relevant_at", date: l(Date.iso8601(value), format: :short))
-  rescue Date::Error
-    t("common.unknown_date")
+    t("common.relevant_at", date: l(date, format: :short))
+  end
+
+  def dataset_relevance_date(metadata)
+    value = metadata.to_h["relevant_at"]
+    Date.iso8601(value) if value.present?
+  rescue ArgumentError, TypeError
+    nil
+  end
+
+  def amenity_dataset_current?(metadata, as_of: Date.current)
+    date = dataset_relevance_date(metadata)
+    date.present? && date >= as_of.advance(years: -AMENITY_DATA_MAX_AGE_YEARS)
   end
 
   def checklist_status_classes(status)

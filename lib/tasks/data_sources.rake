@@ -90,7 +90,7 @@ namespace :mesto do
     )
     Analysis::Runner.new(analysis).call
     analysis.reload
-    puts "report_url=http://localhost:3000/reports/#{analysis.public_token}"
+    puts "report_url=http://mesto.localhost/reports/#{analysis.public_token}"
     puts "status=#{analysis.status}"
     puts "successful_sources=#{analysis.source_runs.succeeded.pluck(:source_key).join(',')}"
     puts "failed_sources=#{analysis.source_runs.failed_or_unavailable.pluck(:source_key).join(',')}"

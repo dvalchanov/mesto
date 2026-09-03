@@ -181,6 +181,83 @@ RSpec.describe "Property report journey", type: :request do
     expect(response.body).not_to include("Gaz 17", "Adm rzp")
   end
 
+  it "does not present historical amenity zeroes as current counts" do
+    point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3460, 42.6394)
+    analysis = create(
+      :property_analysis,
+      status: "ready",
+      centroid: point,
+      completed_at: Time.zone.parse("2026-09-02"),
+      location_precision: "cadastral_geometry",
+      metrics: {
+        "amenities" => {
+          "availability" => { "schools" => true, "kindergartens" => true },
+          "schools" => { "1000" => 0 },
+          "kindergartens" => { "1000" => 0 },
+          "datasets" => {
+            "schools" => { "relevant_at" => "2018-08-08" },
+            "kindergartens" => { "relevant_at" => "2018-08-08" }
+          }
+        },
+        "environment" => { "available" => false }
+      }
+    )
+
+    get report_path(analysis)
+
+    card = Nokogiri::HTML5(response.body).at_css('[data-testid="amenity-kindergartens"]')
+    expect(card.at_css("p").text.strip).to eq("—")
+    expect(card.text).to include("Данни към 08.08.2018", "0 записа", "Това не е текущ брой")
+    expect(card["class"]).to include("border-slate-200", "bg-slate-50")
+    expect(response.body).to include(I18n.t("reports.neighborhood.dataset_scope_note"))
+
+    order = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "buyer@example.com")
+    Payments::FakeGateway.new.succeed(order)
+    get report_path(analysis)
+
+    expect(response.body).to include(I18n.t("reports.full.historical_amenities", date: "Данни към 08.08.2018"))
+    expect(response.body).not_to include(I18n.t("reports.full.amenity_count", count: 0, radius: 1000))
+  end
+
+  it "shows current nearby places and reserves the detailed list for the full report" do
+    point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3460262, 42.6394047)
+    analysis = create(
+      :property_analysis,
+      status: "ready",
+      centroid: point,
+      completed_at: Time.zone.parse("2026-09-02"),
+      location_precision: "cadastral_geometry"
+    )
+    result = DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: point)
+    analysis.source_runs.create!(
+      source_key: "openstreetmap_nearby_amenities",
+      status: "succeeded",
+      parsed_payload: result.data,
+      source_url: result.source_url,
+      fetched_at: result.fetched_at,
+      relevant_at: result.relevant_at
+    )
+    analysis.update!(metrics: Analysis::MetricsBuilder.new(analysis:).call)
+
+    get report_path(analysis)
+
+    card = Nokogiri::HTML5(response.body).at_css('[data-testid="amenity-kindergartens"]')
+    expect(card.at_css("p").text.strip).to eq("2")
+    expect(card.text).to include("ДГ №190", "303 м")
+    expect(response.body).to include(I18n.t("reports.neighborhood.openstreetmap_scope_note"))
+    expect(response.body).not_to include(I18n.t("reports.neighborhood.acts"), I18n.t("reports.neighborhood.flood"))
+
+    order = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "buyer@example.com")
+    Payments::FakeGateway.new.succeed(order)
+    get report_path(analysis)
+
+    expect(response.body).to include(
+      I18n.t("reports.full.mapped_places"),
+      "ДГ №190",
+      "https://www.openstreetmap.org/way/1256636075"
+    )
+  end
+
   def successful_cadastre_provider
     point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3205, 42.6905)
     result = DataSources::Result.success(
