@@ -62,7 +62,13 @@ RSpec.describe "Property report journey", type: :request do
     Analysis::Runner.new(analysis, cadastre_provider: successful_cadastre_provider).call
     expect(analysis.reload.status).to eq("ready")
     get report_path(analysis)
-    expect(response.body).to include(I18n.t("reports.property_facts.title"), I18n.t("reports.findings.title"), I18n.t("reports.locked.cta"))
+    expect(response.body).to include(
+      I18n.t("reports.property_facts.title"),
+      I18n.t("reports.findings.title"),
+      I18n.t("reports.due_diligence.title"),
+      I18n.t("reports.due_diligence.topics.encumbrances.title"),
+      I18n.t("reports.locked.cta")
+    )
     expect(response.body).not_to include(I18n.t("reports.full.timeline"))
 
     post report_orders_path(analysis), params: { order: { email: "buyer@example.com", amount_cents: 1 } }

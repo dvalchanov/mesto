@@ -292,6 +292,26 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .report-stack [class*="bg-emerald-950"] { background-color: var(--pine) !important; }
 .report-stack [class*="bg-slate-950"] { background-color: var(--pine-deep) !important; }
 .report-stack .report-section-label { color: var(--clay) !important; }
+.report-stack .due-diligence-note { border-left: 2px solid var(--sand); background: var(--paper); color: var(--ink); }
+.report-stack .due-diligence-list { border-top: 1px solid var(--line); }
+.report-stack details.due-diligence-topic, .report-stack details.due-diligence-topic[open] { border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none; }
+.due-diligence-topic__summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 16px; align-items: center; gap: 18px; padding: 16px 4px; }
+.due-diligence-topic__summary:hover h4 { color: var(--pine); }
+.due-diligence-topic__body { border-top: 1px solid var(--line); padding: 20px 4px 24px; }
+.due-diligence-topic__description { color: var(--muted); }
+.due-diligence-status { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; color: var(--muted); }
+.due-diligence-status::before { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--sand); content: ""; }
+.due-diligence-status--confirmed, .due-diligence-status--professional { color: var(--pine); }
+.due-diligence-status--confirmed::before { background: var(--moss); }
+.due-diligence-status--review::before { background: var(--sand); }
+.due-diligence-status--attention { color: var(--warning); }
+.due-diligence-status--attention::before { background: var(--warning); }
+.due-diligence-status--professional::before { background: var(--pine); }
+@media (max-width: 640px) {
+  .due-diligence-topic__summary { grid-template-columns: minmax(0, 1fr) 16px; gap: 6px 14px; }
+  .due-diligence-status { grid-column: 1; grid-row: 2; }
+  .due-diligence-topic__chevron { grid-column: 2; grid-row: 1 / span 2; }
+}
 .report-coverage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 20px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--line); }
 .report-coverage > div { padding: 18px 20px; background: var(--surface); }
 .report-coverage dt { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }

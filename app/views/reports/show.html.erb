@@ -45,7 +45,7 @@
     <% end %>
 
     <div class="report-stack">
-      <%= render "free_report", analysis: @analysis, property_facts: @property_facts, preview_acts: @preview_acts, buyer_checklist: @buyer_checklist, map_acts: @acts %>
+      <%= render "free_report", analysis: @analysis, property_facts: @property_facts, preview_acts: @preview_acts, buyer_checklist: @buyer_checklist, due_diligence: @due_diligence, map_acts: @acts %>
 
       <% if @analysis.full_report_unlocked? %>
         <%= render "full_report", analysis: @analysis, acts: @acts, source_runs: @source_runs %>

@@ -137,6 +137,25 @@ module ApplicationHelper
     }.fetch(status, "bg-slate-100 text-slate-700")
   end
 
+  def due_diligence_result_classes(result)
+    {
+      "found_in_report" => "due-diligence-status--confirmed",
+      "verified_in_report" => "due-diligence-status--confirmed",
+      "flood_assessed" => "due-diligence-status--confirmed",
+      "partial_in_report" => "due-diligence-status--review",
+      "checked_no_match" => "due-diligence-status--review",
+      "source_unavailable" => "due-diligence-status--attention",
+      "external_official_check" => "due-diligence-status--review",
+      "request_document" => "due-diligence-status--attention",
+      "professional_review" => "due-diligence-status--professional"
+    }.fetch(result, "due-diligence-status--review")
+  end
+
+  def due_diligence_result_text(item)
+    options = item["count"].nil? ? {} : { count: item["count"] }
+    t("reports.due_diligence.results.#{item['result']}", **options)
+  end
+
   def progress_icon(status)
     { "completed" => "✓", "active" => "•", "failed" => "!", "unavailable" => "—", "pending" => "·" }.fetch(status, "·")
   end
