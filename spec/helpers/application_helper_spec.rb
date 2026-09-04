@@ -14,4 +14,13 @@ RSpec.describe ApplicationHelper, type: :helper do
       expect(helper.amenity_dataset_current?({ "relevant_at" => "unknown" }, as_of:)).to be(false)
     end
   end
+
+  describe "#due_diligence_result_classes" do
+    it "uses the report's restrained semantic palette" do
+      expect(helper.due_diligence_result_classes("verified_in_report")).to eq("due-diligence-status--confirmed")
+      expect(helper.due_diligence_result_classes("external_official_check")).to eq("due-diligence-status--review")
+      expect(helper.due_diligence_result_classes("request_document")).to eq("due-diligence-status--attention")
+      expect(helper.due_diligence_result_classes("professional_review")).to eq("due-diligence-status--professional")
+    end
+  end
 end

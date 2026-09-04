@@ -1,0 +1,57 @@
+<section id="due-diligence" data-testid="due-diligence" class="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8">
+  <p class="report-section-label text-xs font-black uppercase tracking-[0.16em] text-emerald-700"><%= t("reports.due_diligence.eyebrow") %></p>
+  <h2 class="mt-2 text-2xl font-black tracking-tight"><%= t("reports.due_diligence.title") %></h2>
+  <p class="mt-2 max-w-4xl text-sm leading-6 text-slate-600"><%= t("reports.due_diligence.description") %></p>
+
+  <div class="due-diligence-note mt-5 p-4 text-sm leading-6">
+    <p class="font-bold"><%= t("reports.due_diligence.reading_title") %></p>
+    <p class="mt-1"><%= t("reports.due_diligence.reading_body") %></p>
+  </div>
+
+  <div class="mt-7 space-y-8">
+    <% sections.each do |section| %>
+      <section aria-labelledby="due-diligence-<%= section['key'] %>">
+        <h3 id="due-diligence-<%= section['key'] %>" class="text-lg font-black text-slate-950"><%= t("reports.due_diligence.sections.#{section['key']}") %></h3>
+        <div class="due-diligence-list due-diligence-grid mt-3 grid grid-cols-1">
+          <% section["items"].each do |item| %>
+            <details data-topic="<%= item['key'] %>" class="due-diligence-topic group">
+              <summary class="due-diligence-topic__summary cursor-pointer list-none marker:hidden">
+                <h4 class="text-sm font-bold leading-6 text-slate-900"><%= t("reports.due_diligence.topics.#{item['key']}.title") %></h4>
+                <span class="due-diligence-status text-[10px] font-black uppercase tracking-wide <%= due_diligence_result_classes(item['result']) %>"><%= due_diligence_result_text(item) %></span>
+                <%= mesto_icon("chevron-down", css_class: "due-diligence-topic__chevron size-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180") %>
+              </summary>
+              <div class="due-diligence-topic__body">
+                <dl class="grid gap-5 text-sm leading-6 lg:grid-cols-3">
+                  <div>
+                    <dt class="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"><%= t("reports.due_diligence.available_label") %></dt>
+                    <dd class="due-diligence-topic__description mt-1"><%= t("reports.due_diligence.topics.#{item['key']}.available") %></dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"><%= t("reports.due_diligence.obtain_label") %></dt>
+                    <dd class="due-diligence-topic__description mt-1"><%= t("reports.due_diligence.topics.#{item['key']}.obtain") %></dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"><%= t("reports.due_diligence.importance_label") %></dt>
+                    <dd class="mt-1 font-semibold text-slate-900"><%= t("reports.due_diligence.topics.#{item['key']}.importance") %></dd>
+                  </div>
+                </dl>
+                <% if item["sources"].any? %>
+                  <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-200 pt-4">
+                    <% item["sources"].each do |source| %>
+                      <%= link_to t("reports.due_diligence.sources.#{source['key']}", default: source_name(source["key"])), source["url"], target: "_blank", rel: "noopener noreferrer", class: "inline-flex items-center gap-1 text-xs font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </details>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+
+  <div class="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950">
+    <p class="font-black"><%= t("reports.due_diligence.deposit_warning_title") %></p>
+    <p class="mt-1"><%= t("reports.due_diligence.deposit_warning_body") %></p>
+  </div>
+</section>

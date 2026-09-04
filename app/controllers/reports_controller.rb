@@ -10,6 +10,7 @@ class ReportsController < ApplicationController
     @source_runs = @analysis.source_runs.order(:created_at)
     @property_facts = Analysis::PropertyFactsBuilder.new(analysis: @analysis).call
     @buyer_checklist = Analysis::BuyerChecklistBuilder.new(analysis: @analysis, facts: @property_facts).call
+    @due_diligence = Analysis::DueDiligenceBuilder.new(analysis: @analysis, facts: @property_facts).call
     @coverage = Analysis::CoverageBuilder.new(@source_runs, analysis: @analysis).call
   end
 
