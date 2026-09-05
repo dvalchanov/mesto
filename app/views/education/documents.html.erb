@@ -7,7 +7,7 @@
     <div><p class="eyebrow"><span></span>Библиотека</p><h1>Всеки документ отговаря на различен въпрос.</h1><p>Провери предмета, издателя, датата и обхвата. „Не е намерен“ в един източник не означава „не съществува“.</p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси по име, съкращение или въпрос", class: "form-label" %>
-      <div><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. акт16, схема, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. акт16, схема, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
     <% end %>
   </header>
 

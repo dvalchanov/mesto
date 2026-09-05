@@ -24,8 +24,8 @@
         "guide.milestone_payment" => "waiting_or_payment", "guide.before_transfer" => "before_notarial_transfer",
         "guide.handover_owner" => "before_handover"
       }.fetch(guide["key"], guide["slug"]) %>
-      <article id="<%= buyer_anchor %>" class="buyer-guide <%= 'buyer-guide--reverse' if index.odd? %>">
-        <header><span>Контекст за купувача</span><h2><%= guide["title"] %></h2><p><%= guide["summary"] %></p></header>
+      <article id="<%= buyer_anchor %>" class="buyer-guide">
+        <header><span class="buyer-guide__kicker"><b><%= format("%02d", index + 1) %></b>Контекст за купувача</span><h2><%= guide["title"] %></h2><p><%= guide["summary"] %></p></header>
         <div class="buyer-guide__body">
           <section><span>Разбери ситуацията</span><%= education_prose(guide.dig("sections", "understand")) %></section>
           <div class="buyer-guide__actions"><section><span>Преди решение</span><h3>Провери</h3><%= education_prose(guide.dig("sections", "verify")) %></section><section><span>Следваща стъпка</span><h3>Действай</h3><%= education_prose(guide.dig("sections", "act")) %></section></div>

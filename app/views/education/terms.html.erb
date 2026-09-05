@@ -7,7 +7,7 @@
     <div><p class="eyebrow"><span></span>Термини</p><h1>Точните думи правят по-добри въпроси.</h1><p>Кратко определение, реален пример и най-честото объркване — с връзка към документите и етапите.</p></div>
     <%= form_with url: terms_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси термин", class: "form-label" %>
-      <div><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. УПИ, паркомясто…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. УПИ, паркомясто…" %><%= form.submit "Търси", class: "button button--ink" %></div>
     <% end %>
   </header>
   <div class="content-index content-index--terms">

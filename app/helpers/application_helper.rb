@@ -244,7 +244,8 @@ module ApplicationHelper
 
   def education_prose(value, css_class: nil)
     paragraphs = value.to_s.split(/\n{2,}/).map(&:strip).reject(&:blank?)
-    safe_join(paragraphs.map { |paragraph| content_tag(:p, paragraph, class: css_class) })
+    classes = [ "prose-p", css_class ].compact.join(" ")
+    safe_join(paragraphs.map { |paragraph| content_tag(:p, paragraph, class: classes) })
   end
 
   def evidence_status_label(status)

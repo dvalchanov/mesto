@@ -69,7 +69,7 @@
     <div><p class="eyebrow"><span></span>Документи и понятия</p><h2>Какво точно означава това?</h2><p>Търси и по естествени варианти като „акт16“, „акт 16“ или „въвеждане в експлоатация“.</p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси документ или термин", class: "form-label" %>
-      <div><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: "Напр. Акт 15, УПИ, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: "Напр. Акт 15, УПИ, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
     <% end %>
     <div class="library-links"><%= link_to "Всички документи", education_documents_path %><%= link_to "Всички термини", terms_path %></div>
   </section>
