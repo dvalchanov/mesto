@@ -1,0 +1,150 @@
+entries:
+  - key: term.cadastral_identifier
+    slug: kadastralen-identifikator
+    kind: term
+    locale: bg
+    title: "Кадастрален идентификатор"
+    summary: "Уникален цифров код за недвижим имот в кадастъра; различните нива сочат поземлен имот, сграда или самостоятелен обект."
+    aliases: ["идентификатор", "кадастрален номер", "кадастрален идентификатор"]
+    keywords: ["ПИ", "сграда", "самостоятелен обект"]
+    related_stage_keys: []
+    related_document_keys: [document.cadastral_sketch_scheme]
+    related_term_keys: []
+    source_ids: [cadastre_identifier, cadastre_law]
+    source_checked_at: "2026-09-04"
+    content_version: 1
+    editorial_status: published
+    professional_review_status: pending
+    professional_reviewer:
+    professionally_reviewed_at:
+    sections:
+      definition: "Еднозначно означение на имот в кадастралната карта и регистри. Полетата следват йерархията на територията и обекта."
+      example: "68134.1609.3263 е поземлен имот; добавена следваща част може да означава сграда, а още една — самостоятелен обект."
+      confusion: "Не е номер на нотариален акт, партида, УПИ или автоматична гаранция за собственост. Старите идентификатори и планови означения може да са различни."
+      importance: "Пълният код е най-надеждната отправна точка за съпоставка между кадастър, строителни записи и документи по сделката."
+      related: "Сравни го в схемата/скицата, титула, договора и всеки публичен акт; провери дали документът сочи имота, сградата или само парцела."
+
+  - key: term.upi
+    slug: upi
+    kind: term
+    locale: bg
+    title: "УПИ"
+    summary: "Урегулиран поземлен имот по подробен устройствен план — планово понятие, което не е непременно идентично с кадастралния ПИ."
+    aliases: ["урегулиран поземлен имот", "упи", "парцел по регулация"]
+    keywords: ["ПУП", "регулация", "ПИ"]
+    related_stage_keys: [building.land_planning]
+    related_document_keys: [document.pup, document.design_visa]
+    related_term_keys: [term.cadastral_identifier]
+    source_ids: [zut, nag]
+    source_checked_at: "2026-09-04"
+    content_version: 1
+    editorial_status: published
+    professional_review_status: pending
+    professional_reviewer:
+    professionally_reviewed_at:
+    sections:
+      definition: "Имот, урегулиран с подробен устройствен план с определени граници, достъп, предназначение и режим според плана."
+      example: "В документ може да пише „УПИ IV-3263, кв. 12“, докато кадастърът използва цифров идентификатор за ПИ."
+      confusion: "УПИ и ПИ са от различни системи. Номерата и границите им могат да не съвпадат без специализирана съпоставка."
+      importance: "Разминаването може да засегне достъп, части от терена, строителното право и точния обхват на разрешението."
+      related: "Чети ПУП, виза, разрешение и кадастрална скица заедно; при неяснота включи архитект/геодезист и адвокат."
+
+  - key: term.ideal_shares
+    slug: idealni-chasti
+    kind: term
+    locale: bg
+    title: "Идеални части"
+    summary: "Математически дял от общо право, а не очертана физическа стая или конкретно място."
+    aliases: ["идеална част", "идеални части", "общи части"]
+    keywords: ["съсобственост", "земя", "общи части"]
+    related_stage_keys: [building.handover]
+    related_document_keys: [document.title_deed, document.cadastral_sketch_scheme]
+    related_term_keys: [term.garage_parking]
+    source_ids: [property_law, cadastre_services]
+    source_checked_at: "2026-09-04"
+    content_version: 1
+    editorial_status: published
+    professional_review_status: pending
+    professional_reviewer:
+    professionally_reviewed_at:
+    sections:
+      definition: "Квота от право на собственост или друго право върху общ обект. Всеки съсобственик има дял в цялото, освен ако отделно не е уредено ползване."
+      example: "Апартамент може да се прехвърли с 2,35% идеални части от общите части и отделен дял от терена или правото на строеж."
+      confusion: "Процентът не очертава конкретни квадратни метри в коридора или двора и не е равен автоматично на рекламните „общи части“ в площта."
+      importance: "Влияе върху предмета на сделката, разходи, управление и права върху общите части или земята."
+      related: "Сравни квотите и основанието им в нотариалния акт, схемата и проектните/договорните приложения."
+
+  - key: term.right_to_build
+    slug: pravo-na-stroezh
+    kind: term
+    locale: bg
+    title: "Право на строеж"
+    summary: "Ограничено вещно право да се изгради и притежава постройка върху чужд терен при конкретен обхват."
+    aliases: ["суперфиция", "право на строеж", "вещно право на строеж"]
+    keywords: ["земя", "възложител", "строителство"]
+    related_stage_keys: [building.land_planning, building.authorization]
+    related_document_keys: [document.title_deed, document.building_permit]
+    related_term_keys: [term.ideal_shares]
+    source_ids: [property_law, zut]
+    source_checked_at: "2026-09-04"
+    content_version: 1
+    editorial_status: published
+    professional_review_status: pending
+    professional_reviewer:
+    professionally_reviewed_at:
+    sections:
+      definition: "Вещно право, учредено в предвидената форма, което позволява на носителя да построи и притежава постройка върху земя на друго лице в определения обхват."
+      example: "Собственикът на терена може да учреди на инвеститор право да построи описана жилищна сграда срещу насрещна престация."
+      confusion: "Не е просто обещание за бъдещ апартамент, разрешение за строеж или автоматично право върху целия терен."
+      importance: "При ново строителство веригата на правата върху земята и бъдещите обекти е основна част от правната проверка."
+      related: "Провери нотариалния акт за учредяване, вписването, обхвата, условията и връзката с разрешението и договора."
+
+  - key: term.rough_construction
+    slug: grub-stroezh
+    kind: term
+    locale: bg
+    title: "Груб строеж"
+    summary: "Законово и технически значимо състояние на изпълнена ограждаща и носеща конструкция; не го свеждай механично до разговорното „има Акт 14“."
+    aliases: ["на груб строеж", "груб строеж", "акт 14"]
+    keywords: ["конструкция", "покрив"]
+    related_stage_keys: [building.act14]
+    related_document_keys: [document.act14]
+    related_term_keys: [term.right_to_build]
+    source_ids: [zut, ordinance_3, dnsk_qa]
+    source_checked_at: "2026-09-04"
+    content_version: 1
+    editorial_status: published
+    professional_review_status: pending
+    professional_reviewer:
+    professionally_reviewed_at:
+    sections:
+      definition: "ЗУТ свързва грубия строеж с изпълнени ограждащи стени и покрив на сграда/постройка; доказването и правните последици зависят от конкретния случай и документи."
+      example: "Носещата конструкция може да е приета с Акт 14, а за целите на сделка да е нужно отделно удостоверяване и точно описание на обекта."
+      confusion: "Акт 14, завършен груб строеж, кадастрално нанасяне и възможност за прехвърляне не са четири имена на едно и също действие."
+      importance: "Често се използва за договорни етапи и вещноправни действия, затова неточното понятие може да доведе до прибързано плащане."
+      related: "Поискай точния Акт 14 и приложимото удостоверяване; провери как договорът дефинира етапа с адвокат/нотариус."
+
+  - key: term.garage_parking
+    slug: garazh-sreshtu-parkomyasto
+    kind: term
+    locale: bg
+    title: "Гараж и паркомясто"
+    summary: "Гаражът може да е самостоятелен обект; „паркомясто“ често е режим на право или ползване, който трябва да се прочете в конкретните документи."
+    aliases: ["паркомясто", "паркинг място", "гараж", "идеални части паркинг"]
+    keywords: ["самостоятелен обект", "ползване", "общи части"]
+    related_stage_keys: [building.handover]
+    related_document_keys: [document.title_deed, document.cadastral_sketch_scheme, document.handover_protocol]
+    related_term_keys: [term.ideal_shares]
+    source_ids: [cadastre_law, cadastre_services, property_law]
+    source_checked_at: "2026-09-04"
+    content_version: 1
+    editorial_status: published
+    professional_review_status: pending
+    professional_reviewer:
+    professionally_reviewed_at:
+    sections:
+      definition: "Гаражът може да е кадастрално обособен самостоятелен обект. Очертаното паркомясто често не е самостоятелен недвижим имот и се предлага чрез идеални части и/или разпределено право на ползване."
+      example: "Оферта „паркомясто №12“ може юридически да означава дял от подземен гараж с договорено ползване на означена зона."
+      confusion: "Боята и номерът на пода не създават непременно самостоятелна собственост. Рекламното название не определя предмета на нотариалния акт."
+      importance: "Разликата влияе върху прехвърлянето, ползването, достъпа, разходите и възможните спорове със съсобственици."
+      related: "Сравни кадастрална схема, нотариален акт, проект, идеални части, разпределение на ползването и протокола за предаване."

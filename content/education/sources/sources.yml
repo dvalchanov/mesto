@@ -1,0 +1,79 @@
+sources:
+  - id: dnsk_qa
+    title: "ДНСК — въпроси и отговори"
+    url: "https://dnsk.bg/za-potrebitelya/vaprosi-i-otgovori/"
+    publisher: "Дирекция за национален строителен контрол"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: dnsk_commissioning
+    title: "ДНСК — въвеждане в експлоатация"
+    url: "https://dnsk.bg/za-dnsk/funkczii-i-pravomosthiya/vavezhdane-v-eksploatacziya/"
+    publisher: "Дирекция за национален строителен контрол"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: ministry_act15_16
+    title: "Регулации за Акт 15 и въвеждане в експлоатация"
+    url: "https://www.mi.government.bg/general/regulacii-s-cel-vavejdane-v-eksploataciya-akt-15-16/"
+    publisher: "Министерство на икономиката и индустрията"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: registry_certificates
+    title: "Имотен регистър — удостоверения"
+    url: "https://www.registryagency.bg/bg/registri/imoten-registar/udostovereniya/"
+    publisher: "Агенция по вписванията"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: nag
+    title: "Направление Архитектура и градоустройство"
+    url: "https://nag.sofia.bg/"
+    publisher: "Столична община"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: cadastre
+    title: "Агенция по геодезия, картография и кадастър"
+    url: "https://www.cadastre.bg/"
+    publisher: "АГКК"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: cadastre_law
+    title: "Закон за кадастъра и имотния регистър"
+    url: "https://www.cadastre.bg/zakoni/zakon-za-kadastura-i-imotniya-registur"
+    publisher: "АГКК"
+    source_updated_at: "2025-11-07"
+    checked_at: "2026-09-04"
+  - id: cadastre_identifier
+    title: "Наредба за структурата на кадастралния идентификатор"
+    url: "https://www.cadastre.bg/podzakonovi-normativni-aktove/naredba-N-rd-02-20-3-ot-29-septemvri-2016-g-za-strukt-i-sud-identifikator"
+    publisher: "АГКК"
+    source_updated_at: "2016-10-11"
+    checked_at: "2026-09-04"
+  - id: cadastre_services
+    title: "Наредба за услугите от кадастралната карта и регистрите"
+    url: "https://www.cadastre.bg/podzakonovi-normativni-aktove/naredba-N-rd-02-20-4-ot-11-oktomvri-2016-g-za-predostavyane-na-uslugi"
+    publisher: "АГКК"
+    source_updated_at: "2021-01-22"
+    checked_at: "2026-09-04"
+  - id: zut
+    title: "Закон за устройство на територията — консолидиран текст"
+    url: "https://www.lex.bg/laws/ldoc/2135163904"
+    publisher: "Държавен вестник / Lex.bg"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: ordinance_3
+    title: "Наредба № 3 от 31.07.2003 г. за актовете и протоколите по време на строителството"
+    url: "https://lex.bg/laws/ldoc/2135470582"
+    publisher: "Държавен вестник / Lex.bg"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: obligations_contracts
+    title: "Закон за задълженията и договорите — консолидиран текст"
+    url: "https://lex.bg/laws/ldoc/2121934337"
+    publisher: "Държавен вестник / Lex.bg"
+    source_updated_at:
+    checked_at: "2026-09-04"
+  - id: property_law
+    title: "Закон за собствеността — консолидиран текст"
+    url: "https://lex.bg/laws/ldoc/2122102787"
+    publisher: "Държавен вестник / Lex.bg"
+    source_updated_at:
+    checked_at: "2026-09-04"

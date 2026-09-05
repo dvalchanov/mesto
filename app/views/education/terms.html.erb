@@ -1,0 +1,16 @@
+<% content_for :title, "Имотни термини на разбираем български | #{product_name}" %>
+<% content_for :description, "Кадастрален идентификатор, УПИ, идеални части, право на строеж и други ключови понятия." %>
+
+<div class="site-shell education-page library-page">
+  <%= render "breadcrumbs", items: [["Термини", nil]] %>
+  <header class="library-hero">
+    <div><p class="eyebrow"><span></span>Термини</p><h1>Точните думи правят по-добри въпроси.</h1><p>Кратко определение, реален пример и най-честото объркване — с връзка към документите и етапите.</p></div>
+    <%= form_with url: terms_path, method: :get, class: "education-search" do |form| %>
+      <%= form.label :q, "Търси термин", class: "form-label" %>
+      <div><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. УПИ, паркомясто…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+    <% end %>
+  </header>
+  <div class="content-index content-index--terms">
+    <% @entries.each do |entry| %><%= link_to term_path(entry["slug"]) do %><span>Термин</span><h2><%= entry["title"] %></h2><p><%= entry["summary"] %></p><small>Определение · Пример · Често объркване</small><% end %><% end %>
+  </div>
+</div>

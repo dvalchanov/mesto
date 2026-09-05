@@ -12,6 +12,18 @@ class ReportsController < ApplicationController
     @buyer_checklist = Analysis::BuyerChecklistBuilder.new(analysis: @analysis, facts: @property_facts).call
     @due_diligence = Analysis::DueDiligenceBuilder.new(analysis: @analysis, facts: @property_facts).call
     @coverage = Analysis::CoverageBuilder.new(@source_runs, analysis: @analysis).call
+    report_journey = current_buyer_journey
+    report_journey = nil if report_journey&.property_analysis && report_journey.property_analysis != @analysis
+    visible_education_acts = @analysis.full_report_unlocked? ? @all_acts : @preview_acts
+    @education_presenter = Education::JourneyPresenter.new(
+      journey: report_journey,
+      analysis: @analysis,
+      visible_acts: visible_education_acts
+    )
+    @report_journey = report_journey
+    if @education_presenter.assessment&.conflict_flags&.include?("later_evidence_than_reported")
+      ProductEvent.record("building_stage_suggestion_shown", property_analysis: @analysis, metadata: { mode: "property_connected" })
+    end
   end
 
   def refresh

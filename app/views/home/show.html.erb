@@ -126,10 +126,10 @@
         <p class="eyebrow"><span></span><%= t("home.knowledge.eyebrow") %></p>
         <h2><%= t("home.knowledge.title") %></h2>
       </div>
-      <%= link_to guides_path, class: "text-link" do %><%= t("home.knowledge.view_all") %><%= mesto_icon("arrow-up-right", css_class: "size-4") %><% end %>
+      <%= link_to guide_path, class: "text-link" do %><%= t("home.knowledge.view_all") %><%= mesto_icon("arrow-up-right", css_class: "size-4") %><% end %>
     </div>
     <div class="article-grid">
-      <% [[guides_path, "guide", "01"], [documents_path, "documents", "02"], [glossary_path, "glossary", "03"]].each do |path, key, number| %>
+      <% [[guide_path, "guide", "01"], [education_documents_path, "documents", "02"], [terms_path, "glossary", "03"]].each do |path, key, number| %>
         <%= link_to path, class: "article-card" do %>
           <span class="article-card__number"><%= number %></span>
           <span class="article-card__tag"><%= t("home.knowledge.#{key}.tag") %></span>

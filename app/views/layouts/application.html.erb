@@ -43,10 +43,10 @@
         <% end %>
 
         <nav class="site-nav" aria-label="<%= t('navigation.primary') %>">
-          <%= link_to t("navigation.how_it_works"), root_path(anchor: "how-it-works") %>
-          <%= link_to t("navigation.guides"), guides_path %>
-          <%= link_to t("navigation.documents"), documents_path %>
-          <%= link_to t("navigation.glossary"), glossary_path %>
+          <%= link_to "Провери имот", root_path(anchor: "property-check") %>
+          <%= link_to "Наръчник", guide_path %>
+          <%= link_to "Документи", education_documents_path %>
+          <%= link_to "Термини", terms_path %>
         </nav>
 
         <div class="site-actions">
@@ -54,6 +54,16 @@
             <%= link_to t("navigation.language_bg"), url_for(locale: :bg), class: (I18n.locale == :bg ? "is-active" : nil), aria: { current: (I18n.locale == :bg ? "page" : nil) } %>
             <%= link_to t("navigation.language_en"), url_for(locale: :en), class: (I18n.locale == :en ? "is-active" : nil), aria: { current: (I18n.locale == :en ? "page" : nil) } %>
           </div>
+          <details class="mobile-nav">
+            <summary>Меню</summary>
+            <div>
+              <%= link_to "Провери имот", root_path(anchor: "property-check") %>
+              <%= link_to "Наръчник", guide_path %>
+              <%= link_to "Документи", education_documents_path %>
+              <%= link_to "Термини", terms_path %>
+              <% if current_buyer_journey %><%= link_to "Моето място", my_mesto_path %><% end %>
+            </div>
+          </details>
           <%= link_to root_path(anchor: "property-check"), class: "button button--small button--ink site-actions__cta" do %>
             <%= t("navigation.check_property") %>
             <%= mesto_icon("arrow-right", css_class: "size-4") %>
@@ -87,9 +97,10 @@
             </div>
             <div>
               <p class="site-footer__label"><%= t("layout.footer_knowledge") %></p>
-              <%= link_to t("navigation.guides"), guides_path %>
-              <%= link_to t("navigation.documents"), documents_path %>
-              <%= link_to t("navigation.glossary"), glossary_path %>
+              <%= link_to "Наръчник", guide_path %>
+              <%= link_to "Документи", education_documents_path %>
+              <%= link_to "Термини", terms_path %>
+              <%= link_to "Моето място", my_mesto_path %>
             </div>
           </div>
         </div>

@@ -201,6 +201,69 @@ module ApplicationHelper
     Analysis::ReportMapBuilder.new(analysis:, acts:).call
   end
 
+  BUYER_STAGE_LABELS = {
+    "researching" => "Само разглеждам и се подготвям", "shortlisting" => "Сравнявам варианти",
+    "before_deposit" => "Преди резервация или капаро", "before_preliminary_contract" => "Преди предварителен договор",
+    "preliminary_contract_signed" => "Имам подписан предварителен договор", "waiting_or_payment" => "Чакам следващ етап или плащане",
+    "before_notarial_transfer" => "Подготвям нотариалната сделка", "before_handover" => "Предстои ми предаване на имота",
+    "owner" => "Вече съм собственик", "unknown" => "Не съм сигурен"
+  }.freeze
+  PROPERTY_TYPE_LABELS = {
+    "new_build" => "Ново строителство", "completed_home" => "Завършено жилище", "house" => "Къща",
+    "land" => "Парцел", "undecided" => "Още не съм решил"
+  }.freeze
+  BUILDING_STAGE_LABELS = {
+    "land_planning" => "Терен, планиране и проект", "authorization" => "Разрешение за строеж",
+    "commencement" => "Начало и основи", "act14" => "Конструкция / Акт 14",
+    "installations_act15" => "Инсталации и довършване", "act15" => "Подготовка / Акт 15",
+    "commissioning" => "Въвеждане в експлоатация", "handover" => "Предаване и поддръжка", "unknown" => "Не знам"
+  }.freeze
+  FINANCING_LABELS = {
+    "mortgage" => "Ипотечно финансиране", "own_funds" => "Собствени средства", "undecided" => "Още не съм решил"
+  }.freeze
+
+  def buyer_stage_label(key) = BUYER_STAGE_LABELS[key.to_s] || BUYER_STAGE_LABELS["unknown"]
+  def property_type_label(key) = PROPERTY_TYPE_LABELS[key.to_s] || PROPERTY_TYPE_LABELS["undecided"]
+  def building_stage_label(key) = BUILDING_STAGE_LABELS[key.to_s] || BUILDING_STAGE_LABELS["unknown"]
+  def financing_label(key) = FINANCING_LABELS[key.to_s] || FINANCING_LABELS["undecided"]
+
+  def education_path_for(entry)
+    case entry["kind"]
+    when "stage" then new_build_stage_path(entry["slug"])
+    when "document" then education_document_path(entry["slug"])
+    when "term" then term_path(entry["slug"])
+    when "guide" then buying_guide_path(anchor: entry["slug"])
+    else guide_path
+    end
+  end
+
+  def education_source_date(source)
+    date = source["source_updated_at"].presence
+    date ? "Публикувано/обновено: #{l(Date.iso8601(date), format: :short)}" : "Дата на актуализация не е посочена"
+  end
+
+  def education_prose(value, css_class: nil)
+    paragraphs = value.to_s.split(/\n{2,}/).map(&:strip).reject(&:blank?)
+    safe_join(paragraphs.map { |paragraph| content_tag(:p, paragraph, class: css_class) })
+  end
+
+  def evidence_status_label(status)
+    {
+      "directly_found" => "Намерен пряк запис", "referenced_indirectly" => "Косвена препратка",
+      "user_reported" => "Посочено от теб", "requested_from_seller" => "За искане от продавача",
+      "separate_official_check_needed" => "Нужна е отделна официална проверка",
+      "professional_review_needed" => "Нужен е професионален преглед",
+      "no_matching_record_found" => "Не е намерен съвпадащ запис", "source_unavailable" => "Източникът е недостъпен"
+    }.fetch(status.to_s, "За проверка")
+  end
+
+  def checklist_applicability_label(status)
+    {
+      "relevant_now" => "Важно сега", "later" => "По-късно",
+      "conditional" => "При определени условия", "not_applicable" => "Вече не е приложимо"
+    }.fetch(status.to_s, "За преглед")
+  end
+
   private
 
   def cadastre_archive_unavailable?(run)

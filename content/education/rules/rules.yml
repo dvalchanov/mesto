@@ -1,0 +1,107 @@
+rules:
+  - key: rule.research
+    priority: 10
+    when:
+      buyer_stage: [researching, shortlisting, unknown]
+    then:
+      lesson_keys: [guide.research, term.cadastral_identifier, document.cadastral_sketch_scheme]
+      task_keys: [task.define_needs, task.compare_identity]
+      reason: "Защото още подреждаш критериите и сравняваш варианти."
+  - key: rule.before_deposit
+    priority: 5
+    when:
+      buyer_stage: [before_deposit]
+    then:
+      lesson_keys: [guide.before_deposit, document.title_deed, document.encumbrance_certificate]
+      task_keys: [task.request_document_pack, task.review_deposit_terms, task.verify_seller_rights]
+      reason: "Защото си преди резервация или капаро."
+  - key: rule.before_preliminary
+    priority: 5
+    when:
+      buyer_stage: [before_preliminary_contract]
+    then:
+      lesson_keys: [guide.before_preliminary_contract, document.preliminary_contract, document.building_permit]
+      task_keys: [task.verify_seller_rights, task.review_preliminary_contract, task.request_document_pack]
+      reason: "Защото си преди предварителен договор."
+  - key: rule.signed
+    priority: 5
+    when:
+      buyer_stage: [preliminary_contract_signed]
+    then:
+      lesson_keys: [guide.after_signing, document.preliminary_contract]
+      task_keys: [task.archive_signed_versions, task.compare_milestone_scope]
+      reason: "Защото вече имаш подписан предварителен договор."
+  - key: rule.payment
+    priority: 5
+    when:
+      buyer_stage: [waiting_or_payment]
+    then:
+      lesson_keys: [guide.milestone_payment, document.act14, document.act15]
+      task_keys: [task.check_payment_clause, task.compare_milestone_scope]
+      reason: "Защото чакаш следващ етап или плащане; водещ е твоят договор."
+  - key: rule.transfer
+    priority: 5
+    when:
+      buyer_stage: [before_notarial_transfer]
+    then:
+      lesson_keys: [guide.before_transfer, document.encumbrance_certificate, document.commissioning]
+      task_keys: [task.obtain_encumbrance_check, task.prepare_transfer, task.verify_commissioning_scope]
+      reason: "Защото подготвяш нотариалната сделка."
+  - key: rule.handover
+    priority: 5
+    when:
+      buyer_stage: [before_handover, owner]
+    then:
+      lesson_keys: [guide.handover_owner, document.handover_protocol, term.garage_parking]
+      task_keys: [task.prepare_handover]
+      reason: "Защото предаването и ранната собственост изискват отделна практическа подготовка."
+  - key: rule.new_build
+    priority: 20
+    when:
+      property_type: [new_build]
+    then:
+      lesson_keys: [building.authorization, building.act14, building.act15, building.commissioning]
+      task_keys: [task.compare_milestone_scope]
+      reason: "Защото разглеждаш ново строителство."
+  - key: rule.completed_home
+    priority: 8
+    when:
+      property_type: [completed_home]
+    then:
+      lesson_keys: [guide.completed_home, document.title_deed, document.encumbrance_certificate]
+      task_keys: [task.completed_home_inspection, task.compare_identity]
+      reason: "Защото разглеждаш завършено жилище."
+  - key: rule.house_land
+    priority: 8
+    when:
+      property_type: [house, land]
+    then:
+      lesson_keys: [guide.house_land_limits, document.pup, term.upi]
+      task_keys: [task.house_land_specialists, task.compare_identity]
+      reason: "Защото къщите и терените имат проверки извън маршрута за апартамент."
+  - key: rule.financing
+    priority: 15
+    when:
+      financing_context: [mortgage]
+    then:
+      lesson_keys: [guide.before_deposit]
+      task_keys: [task.financing_plan]
+      reason: "Защото обмисляш ипотечно финансиране; условията трябва да се потвърдят индивидуално."
+  - key: rule.commissioning_evidence
+    priority: 3
+    when:
+      property_connected: ["yes"]
+      evidenced_milestone: [commissioning]
+    then:
+      lesson_keys: [document.commissioning, building.commissioning]
+      task_keys: [task.verify_commissioning_scope]
+      reason: "Защото е намерен точно съпоставен запис за въвеждане в експлоатация; обхватът му още трябва да се прочете."
+  - key: rule.no_evidence
+    priority: 30
+    when:
+      property_connected: ["yes"]
+      source_coverage: [unavailable, partial]
+    then:
+      lesson_keys: [document.building_permit, document.commissioning]
+      task_keys: [task.request_document_pack]
+      reason: "Защото проверените публични източници са непълни или недостъпни; това не доказва липса на документ."

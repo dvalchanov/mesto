@@ -1,0 +1,61 @@
+<% content_for :title, "#{@entry['title']} — какво доказва | #{product_name}" %>
+<% content_for :description, @entry["summary"] %>
+
+<div class="site-shell education-page article-page">
+  <%= render "breadcrumbs", items: [["Документи", education_documents_path], [@entry["title"], nil]] %>
+  <header class="article-hero">
+    <p class="eyebrow"><span></span>Документ · просто обяснение</p>
+    <h1><%= @entry["title"] %></h1><p><%= @entry["summary"] %></p>
+    <div class="article-hero__limits"><strong>Краткият отговор</strong><span><%= @entry.dig("sections", "what") %></span></div>
+  </header>
+
+  <article class="document-article">
+    <section class="document-context" aria-label="Контекст на документа">
+      <div><span>Кога е релевантен?</span><%= education_prose(@entry.dig("sections", "when")) %></div>
+      <div><span>Кой го издава или подписва?</span><%= education_prose(@entry.dig("sections", "who")) %></div>
+      <div><span>Защо е важен за купувача?</span><%= education_prose(@entry.dig("sections", "why")) %></div>
+    </section>
+
+    <section class="evidence-boundary" aria-labelledby="evidence-boundary-title">
+      <header class="article-section-heading"><p class="eyebrow"><span></span>Граници на доказателството</p><h2 id="evidence-boundary-title">Какво точно можеш да заключиш от документа?</h2><p>Един документ отговаря на конкретен въпрос. Той рядко доказва самостоятелно собственост, фактическо изпълнение и договорно право на плащане едновременно.</p></header>
+      <div>
+        <article><span class="evidence-mark evidence-mark--yes"><%= mesto_icon("check", css_class: "size-4") %></span><div><h3>Какво установява?</h3><%= education_prose(@entry.dig("sections", "establishes")) %></div></article>
+        <article class="evidence-boundary__not"><span class="evidence-mark">×</span><div><h3>Какво НЕ установява?</h3><%= education_prose(@entry.dig("sections", "not_establish")) %></div></article>
+      </div>
+    </section>
+
+    <section class="document-reading" aria-labelledby="document-reading-title">
+      <div>
+        <p class="eyebrow"><span></span>Прочети конкретното, не само заглавието</p>
+        <h2 id="document-reading-title">Какво да сравниш?</h2>
+        <%= education_prose(@entry.dig("sections", "compare")) %>
+      </div>
+      <aside>
+        <span>Пет опорни точки</span>
+        <ul><li>точният имот, строеж, блок или обект;</li><li>издателят и участниците;</li><li>номерът, датата и действащият статус;</li><li>описаният обхват и приложените части;</li><li>измененията и връзката с останалите документи.</li></ul>
+      </aside>
+    </section>
+
+    <section class="document-process">
+      <div><span class="section-kicker">Място в процеса</span><h2>Какво идва преди и след?</h2><%= education_prose(@entry.dig("sections", "before_after")) %></div>
+      <aside><span>Договорна граница</span><h3>Може ли да е свързан с плащане?</h3><%= education_prose(@entry.dig("sections", "payment")) %><p class="scope-note">Провери точната клауза, изискуемото доказателство и начина на уведомяване в своя договор.</p></aside>
+    </section>
+
+    <section class="document-access" aria-labelledby="document-access-title">
+      <header><p class="eyebrow"><span></span>Откъде идва документът</p><h2 id="document-access-title">Намиране и проверка</h2></header>
+      <div><span>Може ли Mesto да го намери?</span><%= education_prose(@entry.dig("sections", "availability")) %></div>
+      <div><span>Къде да го провериш или поискаш?</span><%= education_prose(@entry.dig("sections", "where")) %></div>
+    </section>
+
+    <section class="professional-review-note">
+      <div><%= mesto_icon("shield", css_class: "size-6") %><span>Последна проверка преди решение</span></div>
+      <div><h2>Кога е нужен професионален преглед?</h2><%= education_prose(@entry.dig("sections", "professional_review")) %></div>
+    </section>
+  </article>
+
+  <% related = Array(@entry["related_document_keys"]) + Array(@entry["related_term_keys"]) + Array(@entry["related_stage_keys"]) %>
+  <% if related.any? %><section class="related-content"><h2>Свързани обяснения</h2><div><% related.each do |key| %><% item = @catalog.find(key) %><%= link_to education_path_for(item) do %><span><%= item["kind"] == "stage" ? "Етап" : item["kind"] == "term" ? "Термин" : "Документ" %></span><strong><%= item["title"] %></strong><% end %><% end %></div></section><% end %>
+
+  <% if current_buyer_journey %><div class="lesson-action"><div><strong>Добави към учебния си напредък</strong><p>Това не означава, че документът е намерен или проверен.</p></div><%= button_to "Отбележи като прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: @entry["key"], status: "done", content_version: @entry["content_version"] }, class: "button button--ink" %></div><% end %>
+  <%= render "sources", entry: @entry, catalog: @catalog %>
+</div>

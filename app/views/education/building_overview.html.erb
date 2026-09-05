@@ -1,0 +1,31 @@
+<% content_for :title, "Новото строителство — осем етапа | #{product_name}" %>
+<% content_for :description, "Образователна линия на новото строителство: физически процес, свързани документи, ограничения и следващи проверки." %>
+
+<div class="site-shell education-page">
+  <%= render "breadcrumbs", items: [["Ново строителство", nil]] %>
+  <header class="editorial-hero">
+    <p class="eyebrow"><span></span>Строителна линия</p>
+    <h1>От терена до предаването — без фалшив процент готовност.</h1>
+    <p>Това е образователен преглед на типичен процес. Дейностите могат да се припокриват, режимът зависи от проекта, а физическият напредък не е равнозначен на документално доказателство.</p>
+    <% if @journey&.user_reported_building_stage %>
+      <div class="context-chip">Твоят избран контекст: <strong><%= building_stage_label(@journey.user_reported_building_stage) %></strong></div>
+    <% else %>
+      <div class="context-chip context-chip--neutral">Разглеждаш процеса — не сме отбелязали етап като твой.</div>
+    <% end %>
+  </header>
+
+  <section class="timeline-panel">
+    <%= render "building_timeline", stages: @stages %>
+  </section>
+
+  <section class="separation-note">
+    <div><span>Физически процес</span><p>Изкоп, конструкция, фасада, инсталации и довършване могат да напредват паралелно.</p></div>
+    <div><span>Административно доказателство</span><p>Документът има конкретен вид, статус, дата и предмет — парцел, сграда, блок, етап или инфраструктура.</p></div>
+    <div><span>Твоят контекст</span><p>Ти избираш къде си в покупката. Разглеждането на бъдещ етап не променя избора ти.</p></div>
+  </section>
+
+  <section class="education-bottom-cta">
+    <div><h2>Искаш ли практичен план за твоя етап?</h2><p>Можеш да започнеш без имот и да добавиш идентификатор по-късно, без да губиш напредъка си.</p></div>
+    <%= link_to @journey ? "Отвори моя план" : "Подреди следващата ми стъпка", my_mesto_path, class: "button button--primary" %>
+  </section>
+</div>

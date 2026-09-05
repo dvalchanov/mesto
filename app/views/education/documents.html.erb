@@ -1,0 +1,25 @@
+<% content_for :title, "Документи за имота — обяснени ясно | #{product_name}" %>
+<% content_for :description, "Какво доказват строителните, кадастралните и сделковите документи — и какво не доказват." %>
+
+<div class="site-shell education-page library-page">
+  <%= render "breadcrumbs", items: [["Документи", nil]] %>
+  <header class="library-hero">
+    <div><p class="eyebrow"><span></span>Библиотека</p><h1>Всеки документ отговаря на различен въпрос.</h1><p>Провери предмета, издателя, датата и обхвата. „Не е намерен“ в един източник не означава „не съществува“.</p></div>
+    <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
+      <%= form.label :q, "Търси по име, съкращение или въпрос", class: "form-label" %>
+      <div><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. акт16, схема, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+    <% end %>
+  </header>
+
+  <% if @query.present? %><p class="search-summary"><strong><%= @entries.length %></strong> резултата за „<%= @query %>“</p><% end %>
+  <div class="content-index">
+    <% @entries.each do |entry| %>
+      <%= link_to education_path_for(entry) do %>
+        <span><%= entry["kind"] == "term" ? "Термин" : "Документ" %></span>
+        <h2><%= entry["title"] %></h2><p><%= entry["summary"] %></p>
+        <small>Какво е · Какво доказва · Какво не доказва</small>
+      <% end %>
+    <% end %>
+  </div>
+  <% if @entries.empty? %><div class="empty-state"><h2>Няма точен резултат</h2><p>Опитай с друго изписване или разгледай всички термини.</p><%= link_to "Виж термините", terms_path, class: "button button--ink" %></div><% end %>
+</div>

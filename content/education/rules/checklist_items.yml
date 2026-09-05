@@ -1,0 +1,146 @@
+checklist_items:
+  - key: task.define_needs
+    title: "Подреди задължителните си условия и общия бюджет"
+    reason: "Така сравняваш варианти по еднакви критерии, преди спешността на офертата да води решението."
+    relevant_stage: researching
+    responsible: "ти"
+    related_content_keys: [guide.research]
+    default_evidence: user_reported
+    question: "Кои пет условия не бихме заменили и кои разходи извън цената сме включили?"
+    content_version: 1
+  - key: task.compare_identity
+    title: "Съпостави точната идентичност на имота"
+    reason: "Адресът или рекламното име не разграничават надеждно ПИ, сграда, вход и самостоятелен обект."
+    relevant_stage: shortlisting
+    responsible: "продавач / АГКК"
+    related_content_keys: [term.cadastral_identifier, document.cadastral_sketch_scheme]
+    default_evidence: separate_official_check_needed
+    question: "Какъв е пълният кадастрален идентификатор и в кои документи можем да го сравним?"
+    content_version: 1
+  - key: task.request_document_pack
+    title: "Поискай основния документен пакет"
+    reason: "Проверката преди плащане изисква конкретни документи, а не само уверение, че всичко е наред."
+    relevant_stage: before_deposit
+    responsible: "продавач / инвеститор"
+    related_content_keys: [document.title_deed, document.building_permit, document.cadastral_sketch_scheme]
+    default_evidence: requested_from_seller
+    question: "Може ли да получим предварително титула, актуалната схема и приложимите строителни книжа с всички изменения?"
+    content_version: 1
+  - key: task.review_deposit_terms
+    title: "Прегледай условията на резервацията или капарото"
+    reason: "Името на плащането не определя автоматично кога сумата се връща или задържа."
+    relevant_stage: before_deposit
+    responsible: "независим адвокат"
+    related_content_keys: [guide.before_deposit]
+    default_evidence: professional_review_needed
+    question: "На кого плащаме, какво точно се резервира и при кои случаи сумата се връща?"
+    content_version: 1
+  - key: task.verify_seller_rights
+    title: "Провери правата и представителството на продавача"
+    reason: "Офертата и кадастралната схема не доказват самостоятелно кой може да прехвърли обещаното право."
+    relevant_stage: before_preliminary_contract
+    responsible: "адвокат / нотариус"
+    related_content_keys: [document.title_deed, term.right_to_build]
+    default_evidence: professional_review_needed
+    question: "На какво основание продавачът притежава или ще придобие правото, което ни обещава?"
+    content_version: 1
+  - key: task.review_preliminary_contract
+    title: "Прегледай договора и всички приложения"
+    reason: "Предметът, етапите, плащанията, сроковете и изходите идват от конкретния текст."
+    relevant_stage: before_preliminary_contract
+    responsible: "независим адвокат / технически специалист"
+    related_content_keys: [document.preliminary_contract, guide.before_preliminary_contract]
+    default_evidence: professional_review_needed
+    question: "Кои версии на проекта, спецификацията и схемите са неразделна част от договора?"
+    content_version: 1
+  - key: task.archive_signed_versions
+    title: "Подреди подписаните версии и доказателствата"
+    reason: "Следващите действия трябва да се сравняват с окончателния текст, приложенията и кореспонденцията."
+    relevant_stage: preliminary_contract_signed
+    responsible: "ти / адвокат"
+    related_content_keys: [guide.after_signing, document.preliminary_contract]
+    default_evidence: user_reported
+    question: "Имаме ли подписано копие на всяко приложение и проследима кореспонденция за промените?"
+    content_version: 1
+  - key: task.check_payment_clause
+    title: "Провери клаузата преди следващо плащане"
+    reason: "Намерен строителен документ не определя самостоятелно твоята сума, падеж или задължение."
+    relevant_stage: waiting_or_payment
+    responsible: "ти / независим адвокат"
+    related_content_keys: [guide.milestone_payment, document.act14, document.act15]
+    default_evidence: professional_review_needed
+    question: "Кой точен документ и процедура за уведомяване изисква нашият договор за тази вноска?"
+    content_version: 1
+  - key: task.compare_milestone_scope
+    title: "Сравни обхвата на намерения строителен документ"
+    reason: "Документ за парцел, друг блок, фаза или инфраструктура може да не се отнася до избраната сграда."
+    relevant_stage: waiting_or_payment
+    responsible: "източник / технически специалист"
+    related_content_keys: [document.act14, document.act15, document.commissioning]
+    default_evidence: separate_official_check_needed
+    question: "Кой блок, етап и строеж са описани и съвпадат ли с нашия обект?"
+    content_version: 1
+  - key: task.verify_commissioning_scope
+    title: "Провери вида и обхвата на крайния документ"
+    reason: "„Акт 16“ може да означава различни документи, а отделен блок или инфраструктурен обект има собствен обхват."
+    relevant_stage: before_notarial_transfer
+    responsible: "компетентен орган / продавач / адвокат"
+    related_content_keys: [document.commissioning, building.commissioning]
+    evidenced_milestone: commissioning
+    default_evidence: separate_official_check_needed
+    question: "Кой е издателят и включени ли са точно нашият вход, блок и фаза?"
+    content_version: 1
+  - key: task.obtain_encumbrance_check
+    title: "Организирай актуална проверка за собственост и тежести"
+    reason: "Тя има конкретни предмет, период и дата и не се заменя от кадастрална справка."
+    relevant_stage: before_notarial_transfer
+    responsible: "адвокат / нотариус / Агенция по вписванията"
+    related_content_keys: [document.encumbrance_certificate, document.title_deed]
+    default_evidence: separate_official_check_needed
+    question: "Какъв е точният обхват на удостоверението и кога ще бъде актуализирано преди сделката?"
+    content_version: 1
+  - key: task.prepare_transfer
+    title: "Съгласувай проекта на сделката и плащането"
+    reason: "Прехвърлянето, плащането, въвеждането и ключовете могат да настъпят на различни дати."
+    relevant_stage: before_notarial_transfer
+    responsible: "адвокат / нотариус"
+    related_content_keys: [guide.before_transfer, document.title_deed]
+    default_evidence: professional_review_needed
+    question: "Как са координирани актуалните проверки, подписването, плащането и предаването?"
+    content_version: 1
+  - key: task.prepare_handover
+    title: "Подготви независим оглед и протокол за предаване"
+    reason: "Конкретният запис на дефектите и предаденото състояние е по-полезен от общо „прието без възражения“."
+    relevant_stage: before_handover
+    responsible: "технически специалист / продавач"
+    related_content_keys: [document.handover_protocol, guide.handover_owner]
+    default_evidence: professional_review_needed
+    question: "Кой ще участва в огледа и как ще се записват, снимат и проследяват дефектите?"
+    content_version: 1
+  - key: task.completed_home_inspection
+    title: "Провери реалното състояние и значимите преустройства"
+    reason: "Завършеното жилище има текущи технически факти, които не се виждат от титула или обявата."
+    relevant_stage: shortlisting
+    responsible: "независим технически специалист"
+    related_content_keys: [guide.completed_home, document.cadastral_sketch_scheme]
+    default_evidence: professional_review_needed
+    question: "Съвпада ли реалното разпределение със схемата и има ли следи от проблеми или значими преустройства?"
+    content_version: 1
+  - key: task.financing_plan
+    title: "Изясни финансирането преди необратим ангажимент"
+    reason: "Сроковете, оценката, самоучастието и условията са индивидуални; рекламна оферта не е одобрение."
+    relevant_stage: before_deposit
+    responsible: "кредитор / оценител / адвокат"
+    related_content_keys: [guide.before_deposit, guide.before_preliminary_contract]
+    default_evidence: separate_official_check_needed
+    question: "Кои условия и срокове трябва да изпълним според конкретния кредитор, оценка и договор?"
+    content_version: 1
+  - key: task.house_land_specialists
+    title: "Определи специализираните проверки за къща или терен"
+    reason: "Граници, достъп, сгради, сервитути и мрежи не се покриват надеждно от списък за апартамент."
+    relevant_stage: researching
+    responsible: "геодезист / архитект / инженер / адвокат"
+    related_content_keys: [guide.house_land_limits, document.pup]
+    default_evidence: professional_review_needed
+    question: "Кои проверки за граници, достъп, строителни книжа, мрежи и ограничения са нужни за този имот?"
+    content_version: 1

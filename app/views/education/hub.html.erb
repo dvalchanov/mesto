@@ -1,0 +1,76 @@
+<% content_for :title, "Наръчник за покупка на имот — #{product_name}" %>
+<% content_for :description, "Покупката на имот, стъпка по стъпка: строителни етапи, документи, термини и личен план без задължителен имот." %>
+
+<section class="education-hero">
+  <div class="site-shell education-hero__grid">
+    <div>
+      <p class="eyebrow"><span></span>Наръчник на Mesto</p>
+      <h1>Покупката на имот, стъпка по стъпка.</h1>
+      <p>Не е нужно вече да имаш избран имот. Разбери процеса, документите и какво е важно на твоя етап.</p>
+      <div class="education-actions">
+        <%= link_to "Разгледай процеса", new_build_guide_path, class: "button button--primary" %>
+        <%= link_to "Подреди моята следваща стъпка", my_mesto_path, class: "button button--ink" %>
+        <%= link_to "Имам имот за проверка", root_path(education_entry: "guide", anchor: "property-check"), class: "text-link" %>
+      </div>
+    </div>
+    <div class="education-principle" aria-label="Подходът на Mesto">
+      <% %w[Разбери Провери Действай Следва].each_with_index do |word, index| %>
+        <span><b><%= format("%02d", index + 1) %></b><%= word %></span>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<div class="site-shell education-page">
+  <% if current_buyer_journey %>
+    <section class="resume-card">
+      <div><p class="eyebrow"><span></span>Запазен план</p><h2>Продължи от твоя контекст</h2><p><%= property_type_label(current_buyer_journey.property_type) %> · <%= buyer_stage_label(current_buyer_journey.buyer_stage) %></p></div>
+      <%= link_to "Отвори Моето място", my_mesto_path, class: "button button--primary" %>
+    </section>
+  <% end %>
+
+  <section class="education-section">
+    <div class="section-heading section-heading--split">
+      <div><p class="eyebrow"><span></span>Две независими линии</p><h2>Къде е сградата и къде си ти?</h2></div>
+      <p>Строителният етап не определя твоята покупателна ситуация. Разглеждай ги отделно и ги свързвай само с проверими факти.</p>
+    </div>
+    <div class="dual-journeys">
+      <article>
+        <span class="dual-journeys__label">01 · Сграда и проект</span>
+        <h3>Новото строителство</h3>
+        <p>Осем образователни етапа — от терена до предаването. Това не е универсален график или процент завършеност.</p>
+        <ol><% @stages.each do |stage| %><li><%= link_to stage["title"], new_build_stage_path(stage["slug"]) %></li><% end %></ol>
+        <%= link_to "Виж цялата строителна линия", new_build_guide_path, class: "text-link" %>
+      </article>
+      <article>
+        <span class="dual-journeys__label">02 · Твоето решение</span>
+        <h3>Пътят на купувача</h3>
+        <p>Контекст за следващия разговор — не правна машина от задължителни стъпки. Можеш да сменяш, пропускаш и преглеждаш назад.</p>
+        <ol><% BuyerJourney::BUYER_STAGES.first(8).each do |stage| %><li><%= link_to buyer_stage_label(stage), buying_guide_path(anchor: stage) %></li><% end %></ol>
+        <%= link_to "Разгледай пътя на купувача", buying_guide_path, class: "text-link" %>
+      </article>
+    </div>
+  </section>
+
+  <section class="education-section situations">
+    <div class="section-heading"><p class="eyebrow"><span></span>Чести отправни точки</p><h2>Започни от въпроса, който имаш сега</h2></div>
+    <div class="situation-grid">
+      <%= link_to buying_guide_path(anchor: "researching") do %><span>Само проучвам</span><strong>Тепърва започвам</strong><small>Критерии, бюджет и сравнение</small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_deposit") do %><span>Преди плащане</span><strong>Предстои ми капаро</strong><small>Получател, условия и изход</small><% end %>
+      <%= link_to new_build_stage_path("akt-14") do %><span>Разглеждам етап</span><strong>Сградата е на Акт 14</strong><small>Какво означава — и какво не</small><% end %>
+      <%= link_to new_build_stage_path("akt-15") do %><span>Разглеждам етап</span><strong>Сградата е на Акт 15</strong><small>Приемане преди финалния акт</small><% end %>
+      <%= link_to buying_guide_path(anchor: "zavarsheno-zhilishte") do %><span>Завършено жилище</span><strong>Купувам съществуващ дом</strong><small>Титул, състояние и разходи</small><% end %>
+      <%= link_to buying_guide_path(anchor: "waiting_or_payment") do %><span>След договор</span><strong>Чакам следващо плащане</strong><small>Води конкретната договорна клауза</small><% end %>
+    </div>
+    <p class="hypothesis-note">Тези карти само показват подходящи насоки. Отварянето им не заявява, че това е твоят етап.</p>
+  </section>
+
+  <section class="education-section education-search-block">
+    <div><p class="eyebrow"><span></span>Документи и понятия</p><h2>Какво точно означава това?</h2><p>Търси и по естествени варианти като „акт16“, „акт 16“ или „въвеждане в експлоатация“.</p></div>
+    <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
+      <%= form.label :q, "Търси документ или термин", class: "form-label" %>
+      <div><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: "Напр. Акт 15, УПИ, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+    <% end %>
+    <div class="library-links"><%= link_to "Всички документи", education_documents_path %><%= link_to "Всички термини", terms_path %></div>
+  </section>
+</div>

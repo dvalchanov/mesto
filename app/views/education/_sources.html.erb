@@ -1,0 +1,17 @@
+<section class="education-sources" aria-labelledby="sources-title">
+  <div>
+    <p class="eyebrow"><span></span>Източници и редакционен статус</p>
+    <h2 id="sources-title">Провери първоизточника</h2>
+    <p>Съдържанието е образователно и не замества преглед на конкретните документи от квалифициран специалист.</p>
+  </div>
+  <ul>
+    <% Array(entry["source_ids"]).each do |source_id| %>
+      <% source = catalog.source(source_id) %>
+      <li>
+        <%= link_to source["title"], source["url"], target: "_blank", rel: "noopener noreferrer" %>
+        <span><%= education_source_date(source) %> · Проверено от Mesto: <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
+      </li>
+    <% end %>
+  </ul>
+  <p class="education-sources__status">Версия <%= entry["content_version"] %> · Редакционен статус: публикувано · Професионален преглед: предстои</p>
+</section>

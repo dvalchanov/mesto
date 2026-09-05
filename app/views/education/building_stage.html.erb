@@ -1,0 +1,124 @@
+<% content_for :title, "#{@stage['title']} — какво означава | #{product_name}" %>
+<% content_for :description, @stage["summary"] %>
+
+<div class="site-shell education-page stage-page">
+  <%= render "breadcrumbs", items: [["Ново строителство", new_build_guide_path], [@stage["title"], nil]] %>
+  <header class="stage-hero">
+    <div>
+      <p class="eyebrow"><span></span>Етап <%= @stage["position"] %> от 8</p>
+      <h1><%= @stage["title"] %></h1>
+      <p class="stage-hero__answer"><%= @stage.dig("sections", "concise_answer") %></p>
+    </div>
+    <aside>
+      <span>Три неща за начало</span>
+      <ul><% @stage.dig("sections", "key_points").each do |point| %><li><%= mesto_icon("check", css_class: "size-4") %><%= point %></li><% end %></ul>
+    </aside>
+  </header>
+
+  <section class="stage-context">
+    <div><span>Разглеждаш този етап</span><strong><%= @stage["title"] %></strong></div>
+    <%= form_with url: new_build_stage_path(@stage["slug"]), method: :get do |form| %>
+      <%= form.label :buyer_stage, "А ти на какъв етап си?" %>
+      <%= form.select :buyer_stage, options_for_select(ApplicationHelper::BUYER_STAGE_LABELS.map { |key, label| [label, key] }, @buyer_stage), {}, onchange: "this.form.requestSubmit()" %>
+      <noscript><%= form.submit "Покажи насоките" %></noscript>
+    <% end %>
+    <div class="stage-context__action"><span>Най-подходящо сега</span><p><%= @stage.fetch("actions_by_buyer_stage", {}).fetch(@buyer_stage, @stage.dig("actions_by_buyer_stage", "default")) %></p></div>
+    <% unless @journey %><p class="stage-context__note">Това е временен контекст за тази страница. Няма да го запазим, докато не създадеш личен план.</p><% end %>
+  </section>
+
+  <section class="stage-position" aria-labelledby="position-title">
+    <h2 id="position-title">Място в общия процес</h2>
+    <%= render "building_timeline", stages: @stages, selected_key: @stage["key"] %>
+  </section>
+
+  <% related_documents = Array(@stage["related_document_keys"]).filter_map { |key| @catalog.find(key) } %>
+  <% related_terms = Array(@stage["related_term_keys"]).filter_map { |key| @catalog.find(key) } %>
+  <article class="stage-article">
+    <section class="stage-explainer" aria-labelledby="stage-physical-title">
+      <header class="article-section-heading">
+        <p class="eyebrow"><span></span>Как протича етапът</p>
+        <h2 id="stage-physical-title">Какво се случва физически?</h2>
+        <p>Първо отдели видимото на строежа от документите, които удостоверяват конкретни събития. Двете линии са свързани, но не са взаимозаменяеми.</p>
+      </header>
+      <div class="stage-explainer__grid">
+        <div class="stage-narrative">
+          <span class="section-kicker">На строителната площадка</span>
+          <%= education_prose(@stage.dig("sections", "physical")) %>
+        </div>
+        <aside class="stage-document-trail">
+          <span class="section-kicker">Документалната следа</span>
+          <%= education_prose(@stage.dig("sections", "documents")) %>
+          <% if related_documents.any? %>
+            <div class="inline-reading-list">
+              <% related_documents.each do |document| %>
+                <%= link_to education_document_path(document["slug"]) do %>
+                  <span>Прочети обяснението</span><strong><%= document["title"] %></strong><small><%= document["summary"] %></small>
+                <% end %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="scope-note">При този физически етап няма един универсален публичен документ. Преглеждат се приложимите строителни книжа за конкретния строеж.</p>
+          <% end %>
+        </aside>
+      </div>
+    </section>
+
+    <section class="stage-buyer-lens" aria-labelledby="stage-buyer-title">
+      <div>
+        <p class="eyebrow"><span></span>Прочит за купувача</p>
+        <h2 id="stage-buyer-title">Защо е важно за купувача?</h2>
+        <%= education_prose(@stage.dig("sections", "importance")) %>
+      </div>
+      <aside>
+        <span>Важна граница</span>
+        <h3>Какво този етап НЕ означава?</h3>
+        <%= education_prose(@stage.dig("sections", "not_meaning")) %>
+      </aside>
+    </section>
+
+    <section class="stage-support <%= 'stage-support--single' if related_terms.empty? %>">
+      <div><span class="section-kicker">Кой може да помогне?</span><%= education_prose(@stage.dig("sections", "helpers")) %></div>
+      <% if related_terms.any? %>
+        <div><span class="section-kicker">Понятия, които си струва да разграничиш</span><div class="term-pills"><% related_terms.each do |term| %><%= link_to term["title"], term_path(term["slug"]) %><% end %></div></div>
+      <% end %>
+    </section>
+
+    <section class="stage-next-step">
+      <div><p class="eyebrow eyebrow--light"><span></span>Продължи с контекст</p><h2>Какво следва?</h2></div>
+      <%= education_prose(@stage.dig("sections", "next")) %>
+    </section>
+
+    <section class="stage-investigation" aria-labelledby="stage-investigation-title">
+      <header class="article-section-heading">
+        <p class="eyebrow"><span></span>Преди да разчиташ на етапа</p>
+        <h2 id="stage-investigation-title">Какво да разбереш сега?</h2>
+        <%= education_prose(@stage.dig("sections", "discover")) %>
+      </header>
+      <div class="stage-checklist">
+        <div><span>Практичен край на статията</span><h3>Какво да поискаш или провериш?</h3><p>Използвай списъка като начало на разговор. Отметката е твоя организация, не доказателство, че проверката е приключила.</p></div>
+        <ol>
+          <% Array(@stage.dig("sections", "verify")).each_with_index do |item, index| %>
+            <li><span><%= format("%02d", index + 1) %></span><p><%= item %></p></li>
+          <% end %>
+        </ol>
+      </div>
+    </section>
+  </article>
+
+  <% if @journey %>
+    <div class="lesson-action">
+      <div><strong>Полезно ли ти беше?</strong><p>Отбелязването пази само учебния ти напредък. То не проверява документ или имот.</p></div>
+      <%= button_to "Отбележи като прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: @stage["key"], status: "done", content_version: @stage["content_version"] }, class: "button button--ink" %>
+    </div>
+  <% else %>
+    <div class="lesson-action"><div><strong>Запази това в личен план</strong><p>Напредъкът се пази в този браузър и може да бъде изтрит по всяко време.</p></div><%= link_to "Създай план", my_mesto_path, class: "button button--ink" %></div>
+  <% end %>
+
+  <nav class="stage-neighbors" aria-label="Съседни етапи">
+    <% current_index = @stages.index(@stage) %>
+    <% if current_index&.positive? %><%= link_to new_build_stage_path(@stages[current_index - 1]["slug"]) do %><span>Преди</span><strong><%= @stages[current_index - 1]["title"] %></strong><% end %><% else %><span></span><% end %>
+    <% if current_index && current_index < @stages.length - 1 %><%= link_to new_build_stage_path(@stages[current_index + 1]["slug"]) do %><span>Следва</span><strong><%= @stages[current_index + 1]["title"] %></strong><% end %><% end %>
+  </nav>
+
+  <%= render "sources", entry: @stage, catalog: @catalog %>
+</div>

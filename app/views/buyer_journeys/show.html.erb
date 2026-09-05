@@ -1,0 +1,103 @@
+<% content_for :title, "Моето място — личен план | #{product_name}" %>
+<% content_for :description, "Личен учебен план за покупка на имот, запазен в този браузър." %>
+<% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
+
+<div class="site-shell education-page journey-page">
+  <%= render "education/breadcrumbs", items: [["Моето място", nil]] %>
+
+  <% unless @journey %>
+    <header class="onboarding-hero">
+      <div><p class="eyebrow"><span></span>Личен план без задължителен имот</p><h1>Подреди следващата си стъпка.</h1><p>Три кратки въпроса са достатъчни. Можеш да пропуснеш допълнителното и да добавиш имот по-късно.</p></div>
+      <aside><strong>Поверителност</strong><p>Запазваме напредъка в този браузър за <%= Rails.application.config.x.anonymous_journey_retention_days %> дни. Няма регистрация и не обещаваме синхронизация между устройства.</p></aside>
+    </header>
+    <% if @onboarding_error %><div class="form-banner" role="alert"><%= @onboarding_error %></div><% end %>
+    <%= form_with url: buyer_journeys_path, scope: :buyer_journey, class: "onboarding-form" do |form| %>
+      <fieldset>
+        <legend><span>01</span>Какъв имот разглеждаш?</legend>
+        <div class="choice-grid"><% ApplicationHelper::PROPERTY_TYPE_LABELS.each do |key, label| %><label><%= form.radio_button :property_type, key, checked: (@form_values&.fetch("property_type", nil) || "undecided") == key %><span><strong><%= label %></strong><small><%= key == "new_build" ? "Най-пълният маршрут във v1" : key.in?(%w[house land]) ? "Общи приложими насоки" : "Практична отправна точка" %></small></span></label><% end %></div>
+      </fieldset>
+      <fieldset>
+        <legend><span>02</span>На какъв етап си ти?</legend>
+        <%= form.select :buyer_stage, options_for_select(ApplicationHelper::BUYER_STAGE_LABELS.map { |key, label| [label, key] }, @form_values&.fetch("buyer_stage", "researching") || "researching"), {}, class: "form-select" %>
+      </fieldset>
+      <fieldset>
+        <legend><span>03</span>Имаш ли конкретен имот?</legend>
+        <div class="choice-grid choice-grid--three">
+          <% [["none", "Не, още проучвам"], ["label", "Да, но нямам идентификатор"], ["identifier", "Да, имам идентификатор"]].each do |key, label| %>
+            <label><%= form.radio_button :property_presence, key, checked: (@form_values&.fetch("property_presence", nil) || "none") == key %><span><strong><%= label %></strong></span></label>
+          <% end %>
+        </div>
+        <div class="optional-fields">
+          <div><%= form.label :label, "Лично име на варианта (по избор)", class: "form-label" %><%= form.text_field :label, maxlength: 80, value: @form_values&.fetch("label", nil), placeholder: "Напр. Вариантът до парка" %><small>Това е твой етикет, не проверен адрес.</small></div>
+          <div><%= form.label :cadastral_identifier, "Кадастрален идентификатор (по избор)", class: "form-label" %><%= form.text_field :cadastral_identifier, value: @form_values&.fetch("cadastral_identifier", nil), placeholder: "68134.1609.3263.1.10" %><small>Ако го въведеш, ще стартираме съществуващата проверка и ще свържем резултата.</small></div>
+        </div>
+      </fieldset>
+      <details class="optional-context"><summary>Допълнителен контекст <span>по избор</span></summary><div>
+        <label>Познат етап на сградата<%= form.select :user_reported_building_stage, options_for_select(ApplicationHelper::BUILDING_STAGE_LABELS.map { |key, label| [label, key] }, "unknown"), {}, class: "form-select" %></label>
+        <label>Финансиране<%= form.select :financing_context, options_for_select(ApplicationHelper::FINANCING_LABELS.map { |key, label| [label, key] }, "undecided"), {}, class: "form-select" %></label>
+      </div></details>
+      <div class="onboarding-form__actions"><%= form.submit "Създай моя план", class: "button button--primary" %><%= link_to "Пропусни и разгледай наръчника", guide_path, class: "text-link" %></div>
+    <% end %>
+  <% else %>
+    <% if @journeys.size > 1 %>
+      <nav class="case-switcher" aria-label="Твои планове"><span>Твоите варианти</span><% @journeys.each do |journey| %><%= button_to journey.label.presence || (journey.property_analysis ? "Имот #{journey.property_analysis.submitted_identifier}" : property_type_label(journey.property_type)), select_buyer_journey_path, method: :patch, params: { journey: journey.public_token }, class: (journey == @journey ? "is-current" : nil) %><% end %></nav>
+    <% end %>
+
+    <header class="journey-hero">
+      <div><p class="eyebrow"><span></span>Моето място</p><h1>Твоята подготовка за покупка</h1><div class="journey-context"><span><%= property_type_label(@journey.property_type) %></span><span><%= buyer_stage_label(@journey.buyer_stage) %></span><% if @journey.financing_context %><span><%= financing_label(@journey.financing_context) %></span><% end %></div></div>
+      <aside><%= mesto_icon("shield", css_class: "size-5") %><p><strong>Запазено в този браузър</strong><br>Личният контекст не се показва в споделения отчет.</p></aside>
+    </header>
+
+    <% if @journey.property_analysis %>
+      <% analysis = @journey.property_analysis %>
+      <section class="connected-property">
+        <div><span>Свързан отчет</span><h2><%= @journey.label.presence || analysis.submitted_identifier %></h2><p>Статус на анализа: <strong><%= t("reports.statuses.#{analysis.status}") %></strong></p></div>
+        <%= link_to "Отвори отчета", report_path(analysis), class: "button button--ink" %>
+      </section>
+      <section class="evidence-comparison">
+        <div><span>Посочено от теб</span><strong><%= building_stage_label(@journey.user_reported_building_stage) %></strong><small>Личен контекст, не официално потвърждение</small></div>
+        <div><span>Последен открит документален етап</span><strong><%= @presenter.assessment&.milestone ? building_stage_label(@presenter.assessment.milestone) : "Не е установен" %></strong><small><%= @presenter.assessment&.source_checked_at ? "Източници проверени: #{l(@presenter.assessment.source_checked_at.to_date, format: :short)}" : "Няма завършена проверка на източник" %></small></div>
+      </section>
+      <% if @presenter.assessment&.conflict_flags&.include?("later_evidence_than_reported") %>
+        <section class="evidence-conflict" role="status"><h2>Има по-късен съпоставен запис</h2><p>Посочи <%= building_stage_label(@journey.user_reported_building_stage) %>. Открихме и документ за <%= building_stage_label(@presenter.assessment.milestone) %>, който изглежда свързан с тази сграда. Виж обхвата и източника.</p><div><%= link_to "Виж доказателството", report_path(analysis, anchor: "records"), class: "button button--ink" %><%= button_to "Използвай този контекст", buyer_journey_path, method: :patch, params: { buyer_journey: { user_reported_building_stage: @presenter.assessment.milestone }, suggestion_action: "accepted" }, class: "button button--primary" %><%= button_to "Запази моя избор", buyer_journey_path, method: :patch, params: { buyer_journey: { user_reported_building_stage: @journey.user_reported_building_stage }, suggestion_action: "dismissed" }, class: "button button--light" %><%= button_to "Не съм сигурен", buyer_journey_path, method: :patch, params: { buyer_journey: { user_reported_building_stage: "unknown" }, suggestion_action: "dismissed" }, class: "button button--light" %></div><small>Няма да променим твоя избор автоматично.</small></section>
+      <% end %>
+      <% @presenter.assessment&.limitations&.each do |limitation| %><p class="evidence-limit"><%= limitation %></p><% end %>
+    <% end %>
+
+    <section class="journey-section priorities">
+      <div class="journey-section__heading"><div><p class="eyebrow"><span></span>01 · Сега</p><h2>Най-важното за теб сега</h2></div><p>До пет приоритета, подбрани с ясни правила — без оценка за „безопасност“ или готовност за сделка.</p></div>
+      <div class="priority-list"><% @presenter.priority_recommendations.each_with_index do |item, index| %><article><span><%= format("%02d", index + 1) %></span><div><h3><%= link_to item["title"], education_path_for(item) %></h3><p><%= item["summary"] %></p><small>Защо виждаш това? <%= item["reason"] %></small></div><%= button_to "Прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: item["key"], status: "done", content_version: 1 }, class: "priority-list__mark" %></article><% end %></div>
+    </section>
+
+    <% if @presenter.concepts.any? %>
+      <section class="journey-section concept-section">
+        <div class="journey-section__heading"><div><p class="eyebrow"><span></span>02 · Разбери</p><h2>Разбери тези понятия</h2></div><p>Кратки обяснения за документите и термините, които са най-близо до твоя контекст.</p></div>
+        <div class="concept-grid"><% @presenter.concepts.each do |item| %><%= link_to education_path_for(item) do %><span><%= item["path_kind"] == "term" ? "Термин" : "Документ" %></span><strong><%= item["title"] %></strong><small><%= item["reason"] %></small><% end %><% end %></div>
+      </section>
+    <% end %>
+
+    <section class="journey-section checklist-section">
+      <div class="journey-section__heading"><div><p class="eyebrow"><span></span>03 · Провери и действай</p><h2>Практичен списък</h2></div><p><strong><%= @presenter.completed_task_count %> от <%= @presenter.checklist.length %></strong> задачи, отбелязани от теб. Това е личен напредък, не проверка на имота.</p></div>
+      <div class="checklist-list"><% @presenter.checklist.each do |item| %><article class="<%= 'is-done' if item['user_progress'] == 'done' %> <%= 'is-later' unless item['applicability'] == 'relevant_now' %>"><div class="checklist-list__state"><span><%= item["user_progress"] == "done" ? mesto_icon("check", css_class: "size-4") : "" %></span></div><div><h3><%= item["title"] %></h3><p><%= item["reason"] %></p><dl><div><dt>Приложимост</dt><dd><%= checklist_applicability_label(item["applicability"]) %></dd></div><div><dt>Източник / помощ</dt><dd><%= item["responsible"] %></dd></div><div><dt>Доказателство</dt><dd><%= evidence_status_label(item.dig("evidence", "status")) %></dd></div></dl></div><%= button_to(item["user_progress"] == "done" ? "Върни" : "Отбележи", buyer_journey_progress_path, method: :patch, params: { item_kind: "task", item_key: item["key"], status: (item["user_progress"] == "done" ? "not_started" : "done"), content_version: item["content_version"] }, class: "checklist-list__button") %></article><% end %></div>
+    </section>
+
+    <% if @presenter.questions.any? %><section class="journey-section questions-panel" data-controller="clipboard"><div><p class="eyebrow"><span></span>04 · Следващ разговор</p><h2>Въпроси към продавач или специалист</h2><p>Копирай ги и редактирай според конкретния случай. Mesto няма да изпраща съобщение вместо теб.</p></div><textarea readonly data-clipboard-target="source"><%= @presenter.questions.map { |question| "• #{question}" }.join("\n") %></textarea><button type="button" class="button button--ink" data-action="clipboard#copy">Копирай списъка</button><span class="copy-status" data-clipboard-target="status" aria-live="polite"></span></section><% end %>
+
+    <section class="journey-section next-view">
+      <p class="eyebrow"><span></span>05 · Ориентир</p><h2>Преди, сега, следва</h2><div><span><small>Преди</small><%= @presenter.previous_buyer_stage ? buyer_stage_label(@presenter.previous_buyer_stage) : "—" %></span><span class="is-current"><small>Сега</small><%= buyer_stage_label(@presenter.buyer_stage) %></span><span><small>Следва</small><%= @presenter.next_buyer_stage ? buyer_stage_label(@presenter.next_buyer_stage) : "—" %></span></div><p>Това е навигация, не задължителна последователност. Можеш да смениш контекста по всяко време.</p>
+    </section>
+
+    <% unless @journey.property_analysis %><section class="journey-section attach-property"><div><p class="eyebrow"><span></span>06 · Когато си готов</p><h2>Добави имот, без да започваш отначало</h2><p>Съществуващият ти учебен напредък остава. Ще добавим само приложимите предложения от наличните публични данни.</p></div><%= form_with url: property_analyses_path, method: :post do |form| %><%= hidden_field_tag :attach_to_journey, "1" %><%= form.label :cadastral_identifier, "Кадастрален идентификатор", class: "form-label" %><div><%= form.text_field :cadastral_identifier, required: true, placeholder: "68134.1609.3263.1.10" %><%= form.submit "Добави и провери", class: "button button--primary" %></div><small>Ако свържеш различен имот по-късно, ще създадем отделен вариант.</small><% end %></section><% end %>
+
+    <details class="journey-settings"><summary>Промени контекста или управлявай данните</summary><div>
+      <%= form_with model: @journey, url: buyer_journey_path, method: :patch, class: "context-form" do |form| %>
+        <label>Какъв имот?<%= form.select :property_type, options_for_select(ApplicationHelper::PROPERTY_TYPE_LABELS.map { |key, label| [label, key] }, @journey.property_type), {}, class: "form-select" %></label>
+        <label>На какъв етап си ти?<%= form.select :buyer_stage, options_for_select(ApplicationHelper::BUYER_STAGE_LABELS.map { |key, label| [label, key] }, @journey.buyer_stage), {}, class: "form-select" %></label>
+        <label>Познат етап на сградата<%= form.select :user_reported_building_stage, options_for_select(ApplicationHelper::BUILDING_STAGE_LABELS.map { |key, label| [label, key] }, @journey.user_reported_building_stage || "unknown"), {}, class: "form-select" %></label>
+        <label>Финансиране<%= form.select :financing_context, options_for_select(ApplicationHelper::FINANCING_LABELS.map { |key, label| [label, key] }, @journey.financing_context || "undecided"), {}, class: "form-select" %></label>
+        <%= form.submit "Запази контекста", class: "button button--ink" %>
+      <% end %>
+      <div class="data-actions"><%= button_to "Нулирай отметките", reset_buyer_journey_path, method: :delete, class: "text-button" %><%= button_to "Изтрий този личен план", buyer_journey_path, method: :delete, class: "text-button text-button--danger", form: { data: { turbo_confirm: "Да изтрием ли личния план и напредъка?" } } %></div>
+    </div></details>
+  <% end %>
+</div>

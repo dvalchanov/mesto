@@ -1,0 +1,56 @@
+<% content_for :title, "Пътят на купувача — според твоя етап | #{product_name}" %>
+<% content_for :description, "Практични насоки от ранното проучване до предаването, без да се предполага задължителна последователност или конкретен имот." %>
+
+<div class="site-shell education-page">
+  <%= render "breadcrumbs", items: [["Пътят на купувача", nil]] %>
+  <header class="editorial-hero">
+    <p class="eyebrow"><span></span>Твоята линия</p>
+    <h1>Следващата разумна стъпка зависи от теб, не от етапа на сградата.</h1>
+    <p>Тези контексти помагат за навигация. Те не са правна машина: можеш да пропускаш, сменяш и връщаш етапи, а конкретният договор може да предвижда различна последователност.</p>
+    <%= link_to @journey ? "Отвори моя план" : "Създай план без имот", my_mesto_path, class: "button button--primary" %>
+  </header>
+
+  <nav class="buyer-timeline" aria-label="Контексти на купувача">
+    <% BuyerJourney::BUYER_STAGES.each_with_index do |stage, index| %>
+      <a href="#<%= stage %>" class="<%= 'is-selected' if @journey&.buyer_stage == stage %>"><span><%= format("%02d", index + 1) %></span><%= buyer_stage_label(stage) %></a>
+    <% end %>
+  </nav>
+
+  <div class="buyer-guides">
+    <% @guides.each_with_index do |guide, index| %>
+      <% buyer_anchor = {
+        "guide.research" => "researching", "guide.before_deposit" => "before_deposit",
+        "guide.before_preliminary_contract" => "before_preliminary_contract", "guide.after_signing" => "preliminary_contract_signed",
+        "guide.milestone_payment" => "waiting_or_payment", "guide.before_transfer" => "before_notarial_transfer",
+        "guide.handover_owner" => "before_handover"
+      }.fetch(guide["key"], guide["slug"]) %>
+      <article id="<%= buyer_anchor %>" class="buyer-guide <%= 'buyer-guide--reverse' if index.odd? %>">
+        <header><span>Контекст за купувача</span><h2><%= guide["title"] %></h2><p><%= guide["summary"] %></p></header>
+        <div class="buyer-guide__body">
+          <section><span>Разбери ситуацията</span><%= education_prose(guide.dig("sections", "understand")) %></section>
+          <div class="buyer-guide__actions"><section><span>Преди решение</span><h3>Провери</h3><%= education_prose(guide.dig("sections", "verify")) %></section><section><span>Следваща стъпка</span><h3>Действай</h3><%= education_prose(guide.dig("sections", "act")) %></section></div>
+          <footer><span>Когато продължиш</span><%= education_prose(guide.dig("sections", "next")) %></footer>
+        </div>
+      </article>
+    <% end %>
+  </div>
+
+  <section class="roles-section">
+    <div><p class="eyebrow"><span></span>Кой какво прави?</p><h2>Участниците не са взаимозаменяеми</h2><p>Един човек рядко може независимо да потвърди правните, техническите, административните и финансовите въпроси.</p></div>
+    <dl>
+      <div><dt>Инвеститор / възложител</dt><dd>Организира инвестиционния процес и носи законови и договорни отговорности според ролята си; не е непременно строителят.</dd></div>
+      <div><dt>Строител</dt><dd>Изпълнява строежа по договора и строителните книжа; не одобрява проекта и не издава финалния административен акт.</dd></div>
+      <div><dt>Проектант</dt><dd>Разработва проектните части в своята компетентност и участва в определени строителни актове.</dd></div>
+      <div><dt>Строителен надзор</dt><dd>Упражнява регламентиран контрол и съставя/участва в документи според категорията; не е личен адвокат на купувача.</dd></div>
+      <div><dt>Община</dt><dd>Одобрява планове/проекти и издава актове в своята компетентност, включително за част от режимите по въвеждане.</dd></div>
+      <div><dt>ДНСК</dt><dd>Има контролни правомощия и издава разрешение за ползване при приложимия режим за съответните категории.</dd></div>
+      <div><dt>Продавач</dt><dd>Е насрещната страна по сделката и трябва да има право и представителство за обещаното; може да е различен от инвеститора.</dd></div>
+      <div><dt>Брокер</dt><dd>Посредничи и организира информация/огледи според възлагането; не замества независимата правна или техническа проверка.</dd></div>
+      <div><dt>Адвокат</dt><dd>Проверява правата и договорите за твоя конкретен интерес; избери независим съветник преди необратим ангажимент.</dd></div>
+      <div><dt>Нотариус</dt><dd>Извършва нотариалното производство и законовите проверки; не проектира строежа и не прави технически оглед.</dd></div>
+      <div><dt>Кредитор / оценител</dt><dd>Кредиторът решава финансирането по собствените си условия, а оценителят определя стойност за конкретна цел; нито едното е гаранция за правна или техническа безопасност.</dd></div>
+    </dl>
+  </section>
+
+  <section class="finance-intro"><div><p class="eyebrow"><span></span>Бюджет и финансиране</p><h2>Планирай общия ангажимент, не само обявената цена.</h2></div><p>Добави данъци и такси, професионални проверки, довършване/ремонт, паркиране, поддръжка и разумен резерв. При ипотека потвърди конкретните условия, оценка, срокове и самоучастие с избрания кредитор. Mesto не публикува текущи лихви, не обещава одобрение и не предполага универсални изисквания.</p></section>
+</div>
