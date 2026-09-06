@@ -23,7 +23,7 @@
       <noscript><%= form.submit "Покажи насоките" %></noscript>
     <% end %>
     <div class="stage-context__action"><span>Най-подходящо сега</span><p><%= @stage.fetch("actions_by_buyer_stage", {}).fetch(@buyer_stage, @stage.dig("actions_by_buyer_stage", "default")) %></p></div>
-    <% unless @journey %><p class="stage-context__note">Това е временен контекст за тази страница. Няма да го запазим, докато не създадеш личен план.</p><% end %>
+    <% if @journey %><p class="stage-context__note">Изборът тук променя само насоката на тази страница. Запазеният ти контекст остава „<%= buyer_stage_label(@journey.buyer_stage) %>“. <%= link_to "Промени го в Моето място", my_mesto_path %>.</p><% else %><p class="stage-context__note">Това е временен контекст за тази страница. Няма да го запазим, докато не създадеш личен план.</p><% end %>
   </section>
 
   <section class="stage-position" aria-labelledby="position-title">
@@ -121,4 +121,9 @@
   </nav>
 
   <%= render "sources", entry: @stage, catalog: @catalog %>
+
+  <section class="guide-explore-again guide-explore-again--light">
+    <div><p class="eyebrow"><span></span>Продължи да изследваш</p><h2>Върни се към линията или смени въпроса</h2><p>Можеш да отвориш друг строителен етап, своята ситуация като купувач или цялата библиотека.</p></div>
+    <nav><%= link_to "Всички строителни етапи", new_build_guide_path %><%= link_to "Пътят на купувача", buying_guide_path %><%= link_to "Начало на наръчника", guide_path %><%= link_to "Документи и термини", education_documents_path %></nav>
+  </section>
 </div>

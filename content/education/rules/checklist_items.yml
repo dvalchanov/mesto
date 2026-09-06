@@ -144,3 +144,30 @@ checklist_items:
     default_evidence: professional_review_needed
     question: "Кои проверки за граници, достъп, строителни книжа, мрежи и ограничения са нужни за този имот?"
     content_version: 1
+  - key: task.organize_owner_documents
+    title: "Подреди постоянното досие на имота"
+    reason: "Титулът, схемата, протоколът, гаранциите и договорите трябва да останат достъпни и проследими след сделката."
+    relevant_stage: owner
+    responsible: "ти / адвокат"
+    related_content_keys: [guide.owner, document.title_deed, document.warranty_documents]
+    default_evidence: user_reported
+    question: "Разполагаме ли с окончателно копие на всеки документ и ясно място за бъдещи решения, ремонти и гаранционни сигнали?"
+    content_version: 1
+  - key: task.transfer_utilities
+    title: "Уреди партидите, показанията и застраховането"
+    reason: "Началните дати и показания ограничават споровете за текущи разходи, а покритието трябва да отговаря на конкретния имот."
+    relevant_stage: owner
+    responsible: "ти / доставчици / застраховател"
+    related_content_keys: [guide.owner, term.utility_connection]
+    default_evidence: user_reported
+    question: "Кои партиди са прехвърлени, от коя дата, с какви начални показания и какво покрива избраната застраховка?"
+    content_version: 1
+  - key: task.review_condominium_documents
+    title: "Запознай се с документите на етажната собственост"
+    reason: "Решенията, бюджетът, договорите и планираните ремонти влияят върху бъдещите разходи и ползването на общите части."
+    relevant_stage: owner
+    responsible: "управител / етажна собственост / адвокат при спор"
+    related_content_keys: [guide.owner, document.condominium_documents, document.maintenance_agreement]
+    default_evidence: requested_from_seller
+    question: "Кои правила, решения, задължения, договори и планирани ремонти трябва да знаем като нов собственик?"
+    content_version: 1

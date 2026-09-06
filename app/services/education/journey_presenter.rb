@@ -62,10 +62,10 @@ module Education
     end
 
     def adjacent_buyer_stage(offset)
-      index = BuyerJourney::BUYER_STAGES.index(buyer_stage)
+      index = BuyerJourney::GUIDED_BUYER_STAGES.index(buyer_stage)
       return unless index
 
-      BuyerJourney::BUYER_STAGES[index + offset] if (index + offset).between?(0, BuyerJourney::BUYER_STAGES.length - 1)
+      BuyerJourney::GUIDED_BUYER_STAGES[index + offset] if (index + offset).between?(0, BuyerJourney::GUIDED_BUYER_STAGES.length - 1)
     end
   end
 end

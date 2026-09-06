@@ -6,10 +6,11 @@
     <div>
       <p class="eyebrow"><span></span>Наръчник на Mesto</p>
       <h1>Покупката на имот, стъпка по стъпка.</h1>
-      <p>Не е нужно вече да имаш избран имот. Разбери процеса, документите и какво е важно на твоя етап.</p>
+      <p>Не е нужно вече да имаш избран имот. Започни от своята ситуация, вида на имота или строителния етап и винаги можеш да се върнеш към общата карта.</p>
       <div class="education-actions">
-        <%= link_to "Разгледай процеса", new_build_guide_path, class: "button button--primary" %>
-        <%= link_to "Подреди моята следваща стъпка", my_mesto_path, class: "button button--ink" %>
+        <%= link_to "Избери моята ситуация", buying_guide_path(anchor: "buyer-guide-start"), class: "button button--primary" %>
+        <%= link_to "Виж строителните етапи", new_build_guide_path, class: "button button--ink" %>
+        <%= link_to "Подреди личен план", my_mesto_path, class: "text-link" %>
         <%= link_to "Имам имот за проверка", root_path(education_entry: "guide", anchor: "property-check"), class: "text-link" %>
       </div>
     </div>
@@ -46,9 +47,13 @@
         <span class="dual-journeys__label">02 · Твоето решение</span>
         <h3>Пътят на купувача</h3>
         <p>Контекст за следващия разговор — не правна машина от задължителни стъпки. Можеш да сменяш, пропускаш и преглеждаш назад.</p>
-        <ol><% BuyerJourney::BUYER_STAGES.first(8).each do |stage| %><li><%= link_to buyer_stage_label(stage), buying_guide_path(anchor: stage) %></li><% end %></ol>
+        <ol><% @buyer_guides.each do |guide| %><li><%= link_to guide["title"], buying_guide_path(anchor: guide["buyer_stage"]) %></li><% end %></ol>
         <%= link_to "Разгледай пътя на купувача", buying_guide_path, class: "text-link" %>
       </article>
+    </div>
+    <div class="property-route-preview">
+      <div><span>Имотът също променя въпросите</span><strong>Добави правилния маршрут към своя момент</strong></div>
+      <% @property_guides.each do |guide| %><%= link_to buying_guide_path(anchor: guide["slug"]) do %><span><%= Array(guide["property_types"]).map { |type| property_type_label(type) }.join(" · ") %></span><strong><%= guide["title"] %></strong><% end %><% end %>
     </div>
   </section>
 
@@ -56,13 +61,23 @@
     <div class="section-heading"><p class="eyebrow"><span></span>Чести отправни точки</p><h2>Започни от въпроса, който имаш сега</h2></div>
     <div class="situation-grid">
       <%= link_to buying_guide_path(anchor: "researching") do %><span>Само проучвам</span><strong>Тепърва започвам</strong><small>Критерии, бюджет и сравнение</small><% end %>
+      <%= link_to buying_guide_path(anchor: "shortlisting") do %><span>Сравнявам</span><strong>Имам няколко варианта</strong><small>Идентичност, състояние и общ разход</small><% end %>
       <%= link_to buying_guide_path(anchor: "before_deposit") do %><span>Преди плащане</span><strong>Предстои ми капаро</strong><small>Получател, условия и изход</small><% end %>
-      <%= link_to new_build_stage_path("akt-14") do %><span>Разглеждам етап</span><strong>Сградата е на Акт 14</strong><small>Какво означава — и какво не</small><% end %>
-      <%= link_to new_build_stage_path("akt-15") do %><span>Разглеждам етап</span><strong>Сградата е на Акт 15</strong><small>Приемане преди финалния акт</small><% end %>
-      <%= link_to buying_guide_path(anchor: "zavarsheno-zhilishte") do %><span>Завършено жилище</span><strong>Купувам съществуващ дом</strong><small>Титул, състояние и разходи</small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_preliminary_contract") do %><span>Преди договор</span><strong>Получих проект за подписване</strong><small>Предмет, приложения, срокове и изходи</small><% end %>
       <%= link_to buying_guide_path(anchor: "waiting_or_payment") do %><span>След договор</span><strong>Чакам следващо плащане</strong><small>Води конкретната договорна клауза</small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_notarial_transfer") do %><span>Преди сделка</span><strong>Подготвям нотариално прехвърляне</strong><small>Актуални проверки, акт и плащане</small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_handover") do %><span>Преди ключове</span><strong>Предстои ми предаване</strong><small>Оглед, протокол, дефекти и показания</small><% end %>
+      <%= link_to buying_guide_path(anchor: "owner") do %><span>След покупката</span><strong>Вече съм собственик</strong><small>Партиди, гаранции и общи части</small><% end %>
     </div>
-    <p class="hypothesis-note">Тези карти само показват подходящи насоки. Отварянето им не заявява, че това е твоят етап.</p>
+    <p class="hypothesis-note">Тези карти само показват подходящи насоки. Отварянето им не заявява, че това е твоят етап. Ако не си сигурен, <%= link_to "подреди личен план с три въпроса", my_mesto_path %>.</p>
+  </section>
+
+  <section class="education-section guide-library-preview">
+    <div class="section-heading section-heading--split"><div><p class="eyebrow"><span></span>Конкретният въпрос</p><h2>Продължи към доказателството или понятието</h2></div><p>Отвори отделно обяснение, когато срещнеш документ или дума, която променя решението ти. После можеш да се върнеш по навигационната пътека.</p></div>
+    <div class="guide-library-preview__grid">
+      <section><header><span>Документи</span><h3>Какво доказва този документ?</h3></header><div><% @documents.each do |document| %><%= link_to education_document_path(document["slug"]) do %><strong><%= document["title"] %></strong><small><%= document["summary"] %></small><% end %><% end %></div><%= link_to "Виж всички документи", education_documents_path, class: "text-link" %></section>
+      <section><header><span>Термини</span><h3>Какво означава тази дума?</h3></header><div><% @terms.each do |term| %><%= link_to term_path(term["slug"]) do %><strong><%= term["title"] %></strong><small><%= term["summary"] %></small><% end %><% end %></div><%= link_to "Виж всички термини", terms_path, class: "text-link" %></section>
+    </div>
   </section>
 
   <section class="education-section education-search-block">

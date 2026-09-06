@@ -4,7 +4,7 @@
 <div class="site-shell education-page article-page">
   <%= render "breadcrumbs", items: [["Документи", education_documents_path], [@entry["title"], nil]] %>
   <header class="article-hero">
-    <p class="eyebrow"><span></span>Документ · просто обяснение</p>
+    <p class="eyebrow"><span></span>Документ · <%= education_document_category_label(@entry["category"]) %></p>
     <h1><%= @entry["title"] %></h1><p><%= @entry["summary"] %></p>
     <div class="article-hero__limits"><strong>Краткият отговор</strong><span><%= @entry.dig("sections", "what") %></span></div>
   </header>
@@ -24,16 +24,12 @@
       </div>
     </section>
 
-    <section class="document-reading" aria-labelledby="document-reading-title">
+    <section class="document-reading document-reading--wide" aria-labelledby="document-reading-title">
       <div>
         <p class="eyebrow"><span></span>Прочети конкретното, не само заглавието</p>
         <h2 id="document-reading-title">Какво да сравниш?</h2>
         <%= education_prose(@entry.dig("sections", "compare")) %>
       </div>
-      <aside>
-        <span>Пет опорни точки</span>
-        <ul><li>точният имот, строеж, блок или обект;</li><li>издателят и участниците;</li><li>номерът, датата и действащият статус;</li><li>описаният обхват и приложените части;</li><li>измененията и връзката с останалите документи.</li></ul>
-      </aside>
     </section>
 
     <section class="document-process">
@@ -51,9 +47,14 @@
       <div><%= mesto_icon("shield", css_class: "size-6") %><span>Последна проверка преди решение</span></div>
       <div><h2>Кога е нужен професионален преглед?</h2><%= education_prose(@entry.dig("sections", "professional_review")) %></div>
     </section>
+
+    <section class="document-buyer-checks" aria-labelledby="document-buyer-checks-title">
+      <div><p class="eyebrow"><span></span>Практичен край на статията</p><h2 id="document-buyer-checks-title">Провери това преди следващата стъпка</h2><p>Използвай списъка като подготовка за разговор с продавача или професионалния си съветник.</p></div>
+      <ol><% Array(@entry.dig("sections", "buyer_checks")).each_with_index do |check, index| %><li><span><%= format("%02d", index + 1) %></span><p><%= check %></p></li><% end %></ol>
+    </section>
   </article>
 
-  <% related = Array(@entry["related_document_keys"]) + Array(@entry["related_term_keys"]) + Array(@entry["related_stage_keys"]) %>
+  <% related = (Array(@entry["related_document_keys"]) + Array(@entry["related_term_keys"]) + Array(@entry["related_stage_keys"])).uniq %>
   <% if related.any? %><section class="related-content"><h2>Свързани обяснения</h2><div><% related.each do |key| %><% item = @catalog.find(key) %><%= link_to education_path_for(item) do %><span><%= item["kind"] == "stage" ? "Етап" : item["kind"] == "term" ? "Термин" : "Документ" %></span><strong><%= item["title"] %></strong><% end %><% end %></div></section><% end %>
 
   <% if current_buyer_journey %><div class="lesson-action"><div><strong>Добави към учебния си напредък</strong><p>Това не означава, че документът е намерен или проверен.</p></div><%= button_to "Отбележи като прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: @entry["key"], status: "done", content_version: @entry["content_version"] }, class: "button button--ink" %></div><% end %>

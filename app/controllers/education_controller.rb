@@ -3,8 +3,20 @@ class EducationController < ApplicationController
 
   def hub
     @stages = @catalog.published("stage").sort_by { |entry| entry["position"] }
-    @documents = @catalog.published("document").first(6)
-    @terms = @catalog.published("term").first(6)
+    guides = @catalog.published("guide")
+    @buyer_guides = guides.select { |guide| guide["category"] == "buyer_journey" }.sort_by do |guide|
+      BuyerJourney::GUIDED_BUYER_STAGES.index(guide["buyer_stage"]) || BuyerJourney::GUIDED_BUYER_STAGES.length
+    end
+    @property_guides = guides.select { |guide| guide["category"] == "property_type" }
+    @documents = %w[
+      document.cadastral_sketch_scheme document.encumbrance_certificate
+      document.preliminary_contract document.building_permit
+      document.commissioning document.handover_protocol
+    ].filter_map { |key| @catalog.find(key) }
+    @terms = %w[
+      term.cadastral_identifier term.ideal_shares term.encumbrance
+      term.deposit term.off_plan term.defects
+    ].filter_map { |key| @catalog.find(key) }
     record_education_event("education_hub_viewed", mode: current_buyer_journey ? "personalized" : "anonymous")
   end
 
@@ -23,12 +35,16 @@ class EducationController < ApplicationController
 
   def buying_overview
     @guides = @catalog.published("guide")
+    @journey_guides = @guides.select { |guide| guide["category"] == "buyer_journey" }.sort_by do |guide|
+      BuyerJourney::GUIDED_BUYER_STAGES.index(guide["buyer_stage"]) || BuyerJourney::GUIDED_BUYER_STAGES.length
+    end
+    @property_guides = @guides.select { |guide| guide["category"] == "property_type" }
     @journey = current_buyer_journey
   end
 
   def documents
     @query = params[:q].to_s.first(100)
-    @entries = Education::Search.new(catalog: @catalog).call(@query, kinds: @query.present? ? %w[document term] : %w[document])
+    @entries = Education::Search.new(catalog: @catalog).call(@query, kinds: @query.present? ? %w[document term stage guide] : %w[document])
     record_education_event("education_search_performed", kind: "document", results: @entries.length) if @query.present?
   end
 

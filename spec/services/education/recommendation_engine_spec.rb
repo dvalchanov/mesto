@@ -16,6 +16,9 @@ RSpec.describe Education::RecommendationEngine do
     expect(keys.first).to eq("document.commissioning")
     expect(keys).to include("guide.before_deposit", "building.commissioning")
     expect(keys).to eq(keys.uniq)
-    expect(recommendations).to all(include("reason", "priority"))
+    expect(recommendations).to all(include("reason", "priority", "kind", "path_kind"))
+    expect(recommendations.find { |item| item["key"] == "guide.before_deposit" }).to include(
+      "kind" => "guide", "buyer_stage" => "before_deposit"
+    )
   end
 end

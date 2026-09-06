@@ -1,16 +1,32 @@
 <% content_for :title, "Имотни термини на разбираем български | #{product_name}" %>
-<% content_for :description, "Кадастрален идентификатор, УПИ, идеални части, право на строеж и други ключови понятия." %>
+<% content_for :description, "Имотни понятия за кадастър, собственост, вписвания, сделки, ново строителство и предаване — с примери и практическо значение за купувача." %>
 
 <div class="site-shell education-page library-page">
   <%= render "breadcrumbs", items: [["Термини", nil]] %>
   <header class="library-hero">
-    <div><p class="eyebrow"><span></span>Термини</p><h1>Точните думи правят по-добри въпроси.</h1><p>Кратко определение, реален пример и най-честото объркване — с връзка към документите и етапите.</p></div>
+    <div><p class="eyebrow"><span></span>Термини</p><h1>Точните думи правят по-добри въпроси.</h1><p>Ясно определение, реален пример, най-честото объркване и защо понятието може да промени решението ти като купувач.</p></div>
     <%= form_with url: terms_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси термин", class: "form-label" %>
       <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. УПИ, паркомясто…" %><%= form.submit "Търси", class: "button button--ink" %></div>
     <% end %>
   </header>
-  <div class="content-index content-index--terms">
-    <% @entries.each do |entry| %><%= link_to term_path(entry["slug"]) do %><span>Термин</span><h2><%= entry["title"] %></h2><p><%= entry["summary"] %></p><small>Определение · Пример · Често объркване</small><% end %><% end %>
-  </div>
+  <% groups = education_term_groups(@entries) %>
+  <% if groups.any? %>
+    <% if @query.present? %><p class="search-summary">Резултати за „<%= @query %>“: <%= @entries.length %></p><% end %>
+    <nav class="library-category-nav" aria-label="Групи термини">
+      <% groups.each do |group| %><a href="#terms-<%= group[:key] %>"><span><%= format("%02d", group[:entries].length) %></span><%= group[:label] %></a><% end %>
+    </nav>
+    <div class="library-groups">
+      <% groups.each do |group| %>
+        <section id="terms-<%= group[:key] %>" class="library-group">
+          <header class="library-group__heading"><div><p class="eyebrow"><span></span><%= group[:label] %></p><h2><%= group[:title] %></h2></div><p><%= group[:description] %></p></header>
+          <div class="content-index content-index--terms">
+            <% group[:entries].each do |entry| %><%= link_to term_path(entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><small>Определение · Пример · Защо е важно</small><% end %><% end %>
+          </div>
+        </section>
+      <% end %>
+    </div>
+  <% else %>
+    <section class="empty-state"><h2>Не намерихме такъв термин</h2><p>Провери изписването или потърси по по-кратка дума.</p></section>
+  <% end %>
 </div>

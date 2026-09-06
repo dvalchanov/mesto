@@ -21,8 +21,10 @@ module Education
             "summary" => entry["summary"],
             "reason" => rule.dig("then", "reason"),
             "priority" => rule.fetch("priority", 100),
+            "kind" => entry["kind"],
             "path_kind" => entry["kind"],
-            "slug" => entry["slug"]
+            "slug" => entry["slug"],
+            "buyer_stage" => entry["buyer_stage"]
           }
         end
       end.first(limit)

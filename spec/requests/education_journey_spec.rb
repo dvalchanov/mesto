@@ -4,7 +4,10 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
   it "serves the hub, a direct Act 15 answer, aliases, canonical content, and mobile navigation" do
     get guide_path
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Покупката на имот, стъпка по стъпка", "<summary>Меню</summary>")
+    expect(response.body).to include(
+      "Покупката на имот, стъпка по стъпка", "<summary>Меню</summary>",
+      "Сравняване на конкретни имоти", "Първите месеци като собственик", "Продължи към доказателството или понятието"
+    )
 
     get new_build_stage_path("akt-15")
     expect(response).to have_http_status(:ok)
@@ -15,16 +18,50 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(response.body).to include("Апартаментът може още да няма замазки", "Общото търговско название не замества конкретната клауза")
 
     get education_documents_path, params: { q: "акт16" }
-    expect(response.body).to include("„Акт 16“ и въвеждане в експлоатация")
+    expect(response.body).to include("„Акт 16“ и въвеждане в експлоатация", "Строителни етапи")
+
+    get education_documents_path, params: { q: "сравнявам варианти" }
+    expect(response.body).to include("Път на купувача", "Сравняване на конкретни имоти", "#shortlisting")
+
+    get education_documents_path, params: { q: "дефекти" }
+    defect_results = Nokogiri::HTML(response.body)
+    expect(defect_results.css('a[href="/termini/yavni-skriti-defekti"]').size).to eq(1)
+
+    get education_documents_path
+    expect(response.body).to include(
+      "Планиране и строителство", "Имот и собственост", "Договори и финансиране",
+      "Предаване и управление", "Удостоверение за степен „груб строеж“", "Пълномощно за имотна сделка"
+    )
+
+    get education_document_path("odobren-investitsionen-proekt")
+    expect(response.body).to include("Какво точно можеш да заключиш", "Провери това преди следващата стъпка", "договорните приложения")
+
+    get terms_path
+    expect(response.body).to include(
+      "Идентичност на имота", "Собственост и ползване", "Сделка и вписвания",
+      "Ново строителство", "Предаване и експлоатация", "Задатък, капаро и резервационна такса"
+    )
+
+    get terms_path, params: { q: "възбрана" }
+    expect(response.body).to include("Резултати за „възбрана“:", "Възбрана")
 
     get education_document_path("akt-15")
-    expect(response.body).to include("Какво НЕ установява?", "Пет опорни точки", "Професионален преглед: предстои")
+    expect(response.body).to include("Какво НЕ установява?", "Провери това преди следващата стъпка", "Професионален преглед: предстои")
 
     get term_path("garazh-sreshtu-parkomyasto")
     expect(response.body).to include("Често объркване", "самостоятелен недвижим имот")
 
     get buying_guide_path
-    expect(response.body).to include("Участниците не са взаимозаменяеми", "Инвеститор / възложител", "Кредитор / оценител")
+    buyer_page = Nokogiri::HTML(response.body)
+    expect(response.body).to include(
+      "Участниците не са взаимозаменяеми", "Инвеститор / възложител", "Кредитор / оценител",
+      "Провери това", "Свързани документи, термини и етапи", "Върни се към избора",
+      "Официални източници и редакционен статус", "Професионален преглед: предстои"
+    )
+    expect(buyer_page.css(".buyer-guide").size).to eq(11)
+    expect(buyer_page.at_css("#shortlisting")).to be_present
+    expect(buyer_page.at_css("#owner")).to be_present
+    expect(buyer_page.at_css('a[href="#unknown"]')).to be_nil
 
     get "/sitemap.xml"
     expect(response.body).to include(new_build_stage_path("akt-15"), education_document_path("akt-16-vavezhdane-v-eksploatatsiya"))
@@ -58,6 +95,11 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
 
     get my_mesto_path
     expect(response.body).to include("Твоята подготовка за покупка", "Преди резервация или капаро", "Прегледай условията", "Разбери тези понятия")
+    expect(response.body).to include(
+      'href="/narachnik/pokupka-na-imot#before_deposit"',
+      'href="/narachnik/novo-stroitelstvo/razreshenie-za-stroezh"',
+      'href="/dokumenti/notarialen-akt"'
+    )
     expect(response.body).to include('name="robots" content="noindex,nofollow"')
 
     patch buyer_journey_progress_path, params: { item_kind: "task", item_key: "task.review_deposit_terms", status: "done", content_version: 1 }
@@ -75,7 +117,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
 
     get new_build_stage_path("vavezhdane-v-eksploatatsiya"), params: { buyer_stage: "before_notarial_transfer" }
 
-    expect(response.body).to include("Разглеждаш този етап")
+    expect(response.body).to include("Разглеждаш този етап", "Изборът тук променя само насоката")
     expect(journey.reload.buyer_stage).to eq("researching")
   end
 

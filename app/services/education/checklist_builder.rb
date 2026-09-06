@@ -44,7 +44,7 @@ module Education
     end
 
     def next_stage_task_keys
-      stages = BuyerJourney::BUYER_STAGES
+      stages = BuyerJourney::GUIDED_BUYER_STAGES
       current_index = stages.index(@context["buyer_stage"])
       return [] if @context["buyer_stage"].in?(%w[owner unknown])
       return [] unless current_index && current_index < stages.length - 1

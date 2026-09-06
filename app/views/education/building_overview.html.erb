@@ -24,8 +24,22 @@
     <div><span>Твоят контекст</span><p>Ти избираш къде си в покупката. Разглеждането на бъдещ етап не променя избора ти.</p></div>
   </section>
 
+  <section class="building-stage-directory">
+    <header class="section-heading section-heading--split"><div><p class="eyebrow"><span></span>Осем отделни обяснения</p><h2>Отвори етапа, за който имаш въпрос</h2></div><p>Всяка страница отделя физическия напредък от документите, показва какво е важно за купувача и завършва с конкретни проверки.</p></header>
+    <div>
+      <% @stages.each do |stage| %>
+        <%= link_to new_build_stage_path(stage["slug"]) do %><span>Етап <%= format("%02d", stage["position"]) %></span><h3><%= stage["title"] %></h3><p><%= stage["summary"] %></p><small>Отвори етапа</small><% end %>
+      <% end %>
+    </div>
+  </section>
+
   <section class="education-bottom-cta">
     <div><h2>Искаш ли практичен план за твоя етап?</h2><p>Можеш да започнеш без имот и да добавиш идентификатор по-късно, без да губиш напредъка си.</p></div>
     <%= link_to @journey ? "Отвори моя план" : "Подреди следващата ми стъпка", my_mesto_path, class: "button button--primary" %>
+  </section>
+
+  <section class="guide-explore-again guide-explore-again--light">
+    <div><p class="eyebrow"><span></span>Смени гледната точка</p><h2>Строителният етап не е твоят етап като купувач</h2><p>Върни се към общата карта или отвори насоката според решението, което предстои пред теб.</p></div>
+    <nav><%= link_to "Начало на наръчника", guide_path %><%= link_to "Пътят на купувача", buying_guide_path %><%= link_to "Документи", education_documents_path %><%= link_to "Термини", terms_path %></nav>
   </section>
 </div>

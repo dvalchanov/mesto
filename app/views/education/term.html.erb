@@ -3,7 +3,7 @@
 
 <div class="site-shell education-page article-page term-page">
   <%= render "breadcrumbs", items: [["Термини", terms_path], [@entry["title"], nil]] %>
-  <header class="article-hero term-hero"><p class="eyebrow"><span></span>Термин · на човешки език</p><h1><%= @entry["title"] %></h1><p><%= @entry["summary"] %></p><div class="term-definition"><span>Кратко определение</span><%= education_prose(@entry.dig("sections", "definition")) %></div></header>
+  <header class="article-hero term-hero"><p class="eyebrow"><span></span>Термин · <%= education_term_category_label(@entry["category"]) %></p><h1><%= @entry["title"] %></h1><p><%= @entry["summary"] %></p><div class="term-definition"><span>Ясно определение</span><%= education_prose(@entry.dig("sections", "definition")) %></div></header>
   <article class="term-article">
     <section class="term-example"><div><p class="eyebrow"><span></span>В реална ситуация</p><h2>Полезен пример</h2></div><%= education_prose(@entry.dig("sections", "example")) %></section>
     <section class="term-contrast">
@@ -12,7 +12,7 @@
     </section>
     <section class="term-next"><div><p class="eyebrow"><span></span>Превърни термина във въпрос</p><h2>Какво да провериш след това?</h2></div><%= education_prose(@entry.dig("sections", "related")) %></section>
   </article>
-  <% related = Array(@entry["related_document_keys"]) + Array(@entry["related_stage_keys"]) %>
-  <% if related.any? %><section class="related-content"><h2>Свързани документи и етапи</h2><div><% related.each do |key| %><% item = @catalog.find(key) %><%= link_to education_path_for(item) do %><span><%= item["kind"] == "stage" ? "Етап" : "Документ" %></span><strong><%= item["title"] %></strong><% end %><% end %></div></section><% end %>
+  <% related = (Array(@entry["related_document_keys"]) + Array(@entry["related_stage_keys"]) + Array(@entry["related_term_keys"])).uniq %>
+  <% if related.any? %><section class="related-content"><h2>Свързани обяснения</h2><div><% related.each do |key| %><% item = @catalog.find(key) %><%= link_to education_path_for(item) do %><span><%= { "stage" => "Етап", "term" => "Термин" }.fetch(item["kind"], "Документ") %></span><strong><%= item["title"] %></strong><% end %><% end %></div></section><% end %>
   <%= render "sources", entry: @entry, catalog: @catalog %>
 </div>

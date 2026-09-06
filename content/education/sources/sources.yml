@@ -55,25 +55,139 @@ sources:
     checked_at: "2026-09-04"
   - id: zut
     title: "Закон за устройство на територията — консолидиран текст"
-    url: "https://www.lex.bg/laws/ldoc/2135163904"
-    publisher: "Държавен вестник / Lex.bg"
+    url: "https://portal.justice.government.bg/home/normdoc/2135163904"
+    publisher: "Министерство на правосъдието"
     source_updated_at:
-    checked_at: "2026-09-04"
+    checked_at: "2026-09-05"
   - id: ordinance_3
     title: "Наредба № 3 от 31.07.2003 г. за актовете и протоколите по време на строителството"
-    url: "https://lex.bg/laws/ldoc/2135470582"
-    publisher: "Държавен вестник / Lex.bg"
-    source_updated_at:
-    checked_at: "2026-09-04"
+    url: "https://www.mrrb.bg/bg/naredba-3ot-31-yuli-2003-g-za-sustavyane-na-aktove-i-protokoli-po-vreme-na-stroitelstvoto/"
+    publisher: "Министерство на регионалното развитие и благоустройството"
+    source_updated_at: "2017-07-11"
+    checked_at: "2026-09-05"
   - id: obligations_contracts
     title: "Закон за задълженията и договорите — консолидиран текст"
-    url: "https://lex.bg/laws/ldoc/2121934337"
-    publisher: "Държавен вестник / Lex.bg"
+    url: "https://justice.government.bg/home/normdoc/2121934337"
+    publisher: "Министерство на правосъдието"
     source_updated_at:
-    checked_at: "2026-09-04"
+    checked_at: "2026-09-05"
   - id: property_law
     title: "Закон за собствеността — консолидиран текст"
-    url: "https://lex.bg/laws/ldoc/2122102787"
-    publisher: "Държавен вестник / Lex.bg"
+    url: "https://justice.government.bg/home/normdoc/2122102787"
+    publisher: "Министерство на правосъдието"
     source_updated_at:
-    checked_at: "2026-09-04"
+    checked_at: "2026-09-05"
+  - id: property_registry
+    title: "Имотен регистър — обхват и справки"
+    url: "https://www.registryagency.bg/bg/registri/imoten-registar/"
+    publisher: "Агенция по вписванията"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: registration_rules
+    title: "Правилник за вписванията"
+    url: "https://justice.government.bg/home/normdoc/-25375744"
+    publisher: "Министерство на правосъдието"
+    source_updated_at: "2025-12-19"
+    checked_at: "2026-09-05"
+  - id: family_code
+    title: "Семеен кодекс — имуществени отношения между съпрузите"
+    url: "https://justice.government.bg/home/normdoc/2135637484"
+    publisher: "Министерство на правосъдието"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: condominium_law
+    title: "Закон за управление на етажната собственост"
+    url: "https://www.mrrb.bg/bg/jilistna-politika/etajna-sobstvenost/zakon-za-upravlenie-na-etajnata-sobstvenost/"
+    publisher: "Министерство на регионалното развитие и благоустройството"
+    source_updated_at: "2025-06-17"
+    checked_at: "2026-09-05"
+  - id: construction_warranties
+    title: "Наредба № 2 от 2003 г. — въвеждане в експлоатация и минимални гаранционни срокове"
+    url: "https://www.mrrb.bg/bg/naredba-2-ot-2003-g-za-vuvejdane-v-eksploataciya-na-stroejite-v-republika-bulgariya-i-minimalni-garancionni-srokove-za-izpulneni-stroitelni-i-montajni-raboti-suorujeniya-i-stroitelni-obekti/"
+    publisher: "Министерство на регионалното развитие и благоустройството"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: mrrb_rzp
+    title: "МРРБ — приложение на определението за разгъната застроена площ"
+    url: "https://www.mrrb.bg/static/media/ups/articles/attachments/%D0%92%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8%20%D0%B8%20%D0%BE%D1%82%D0%B3%D0%BE%D0%B2%D0%BE%D1%80%D0%B8%20%D0%BF%D0%BE%20%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D0%B4%D1%83%D1%80%D0%B0%20%D0%BF%D1%83%D0%B1%D0%BB%D0%B8%D1%87%D0%BD%D0%B8%20%D1%81%D0%B3%D1%80%D0%B0%D0%B4%D0%B8%20_%D0%B4%D0%BE%2007.04.2023e17f0403ec934aa82ed410a96bfd7829.pdf"
+    publisher: "Министерство на регионалното развитие и благоустройството"
+    source_updated_at: "2023-04-07"
+    checked_at: "2026-09-05"
+  - id: dnsk_construction_control
+    title: "ДНСК — контрол върху строителния процес"
+    url: "https://dnsk.bg/za-dnsk/funkczii-i-pravomosthiya/"
+    publisher: "Дирекция за национален строителен контрол"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: technical_passport_ordinance
+    title: "Наредба № 5 от 2006 г. за техническите паспорти на строежите"
+    url: "https://www.mrrb.bg/bg/naredba-5-ot-28-dekemvri-2006-g-za-tehnicheskite-pasporti-na-stroejite/"
+    publisher: "Министерство на регионалното развитие и благоустройството"
+    source_updated_at: "2021-08-17"
+    checked_at: "2026-09-05"
+  - id: energy_efficiency_documents
+    title: "АУЕР — нормативни документи и образци за енергийните характеристики на сгради"
+    url: "https://www.seea.government.bg/bg/dokumenti"
+    publisher: "Агенция за устойчиво енергийно развитие"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: energy_certificate_registry
+    title: "АУЕР — справка за енергийните характеристики на сгради"
+    url: "https://portal.seea.government.bg/bg/IndustrialSystemsReport"
+    publisher: "Агенция за устойчиво енергийно развитие"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: egov_tax_assessment
+    title: "Единен портал — удостоверение за данъчна оценка на недвижим имот"
+    url: "https://identity.egov.bg/wps/portal/egov/dostavchitsi%20na%20uslugi/obshtinski%20administratsii/unificirani%20uslugi/2396"
+    publisher: "Министерство на електронното управление"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: inheritance_law
+    title: "Закон за наследството — консолидиран текст"
+    url: "https://portal.justice.government.bg/home/normdoc/2121542657"
+    publisher: "Министерство на правосъдието"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: egov_heirs
+    title: "Единен портал — удостоверение за наследници"
+    url: "https://identity.egov.bg/wps/portal/egov/dostavchitsi%20na%20uslugi/obshtinski%20administratsii/unificirani%20uslugi/2016"
+    publisher: "Министерство на електронното управление"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: egov_family_status
+    title: "Единен портал — удостоверение за семейно положение, съпруг/а и деца"
+    url: "https://identity.egov.bg/wps/portal/egov/dostavchitsi%20na%20uslugi/obshtinski%20administratsii/unificirani%20uslugi/2075"
+    publisher: "Министерство на електронното управление"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: egov_tolerance
+    title: "Единен портал — удостоверение за търпимост на строеж"
+    url: "https://identity.egov.bg/wps/portal/egov/dostavchitsi%20na%20uslugi/obshtinski%20administratsii/unificirani%20uslugi/2084"
+    publisher: "Министерство на електронното управление"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: notaries_law
+    title: "Закон за нотариусите и нотариалната дейност — консолидиран текст"
+    url: "https://portal.justice.government.bg/home/normdoc/2133897733"
+    publisher: "Министерство на правосъдието"
+    source_updated_at: "2023-10-06"
+    checked_at: "2026-09-05"
+  - id: commercial_law
+    title: "Търговски закон — консолидиран текст"
+    url: "https://justice.government.bg/home/normdoc/-14917630"
+    publisher: "Министерство на правосъдието"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: commercial_registry
+    title: "Търговски регистър — справки за актуално състояние и представителство"
+    url: "https://www.registryagency.bg/bg/registri/targovski-registar/spravki/"
+    publisher: "Агенция по вписванията"
+    source_updated_at:
+    checked_at: "2026-09-05"
+  - id: bnb_mortgage_guide
+    title: "БНБ — кратък наръчник за кредити за недвижими имоти"
+    url: "https://www.bnb.bg/bnbweb/groups/public/documents/bnb_download/bs_cust_info_pdf_bg.pdf"
+    publisher: "Българска народна банка"
+    source_updated_at: "2024-06-01"
+    checked_at: "2026-09-05"

@@ -6,9 +6,36 @@ RSpec.describe Education::Catalog do
   it "loads and validates the complete initial Bulgarian library" do
     expect { Education::ContentValidator.new(catalog).validate! }.not_to raise_error
     expect(catalog.published("stage").size).to eq(8)
-    expect(catalog.published("document").size).to be >= 12
-    expect(catalog.published("term").size).to be >= 6
+    expect(catalog.published("document").size).to be >= 28
+    expect(catalog.published("term").size).to be >= 32
     expect(catalog.entries).to all(include("locale" => "bg", "professional_review_status" => "pending"))
+  end
+
+  it "organizes every term into the supported buyer-facing groups" do
+    categories = catalog.published("term").map { |entry| entry["category"] }
+
+    expect(categories).to all(be_in(Education::ContentValidator::TERM_CATEGORIES))
+    expect(categories.uniq).to match_array(Education::ContentValidator::TERM_CATEGORIES)
+  end
+
+  it "organizes every document into a supported group with practical buyer checks" do
+    documents = catalog.published("document")
+    categories = documents.map { |entry| entry["category"] }
+
+    expect(categories).to all(be_in(Education::ContentValidator::DOCUMENT_CATEGORIES))
+    expect(categories.uniq).to match_array(Education::ContentValidator::DOCUMENT_CATEGORIES)
+    expect(documents).to all(satisfy { |entry| entry.dig("sections", "buyer_checks").length >= 4 })
+  end
+
+  it "covers every navigable buyer stage and keeps property routes separate" do
+    guides = catalog.published("guide")
+    journey_guides = guides.select { |entry| entry["category"] == "buyer_journey" }
+    property_guides = guides.select { |entry| entry["category"] == "property_type" }
+
+    expect(guides.size).to eq(11)
+    expect(journey_guides.map { |entry| entry["buyer_stage"] }).to match_array(BuyerJourney::GUIDED_BUYER_STAGES)
+    expect(property_guides.flat_map { |entry| entry["property_types"] }).to contain_exactly("completed_home", "house", "land")
+    expect(guides).to all(satisfy { |entry| entry.dig("sections", "buyer_checks").length >= 5 })
   end
 
   it "resolves every relationship and source without executable content" do

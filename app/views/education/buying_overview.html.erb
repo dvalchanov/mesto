@@ -10,28 +10,42 @@
     <%= link_to @journey ? "Отвори моя план" : "Създай план без имот", my_mesto_path, class: "button button--primary" %>
   </header>
 
-  <nav class="buyer-timeline" aria-label="Контексти на купувача">
-    <% BuyerJourney::BUYER_STAGES.each_with_index do |stage, index| %>
+  <section id="buyer-guide-start" class="buyer-guide-start">
+    <div class="section-heading section-heading--split">
+      <div><p class="eyebrow"><span></span>Избери откъде да започнеш</p><h2>Къде си в решението?</h2></div>
+      <p>Избери най-близкия контекст. Можеш да четеш напред, назад или да смениш маршрута — това не променя автоматично личния ти план.</p>
+    </div>
+    <nav class="buyer-timeline" aria-label="Контексти на купувача">
+    <% BuyerJourney::GUIDED_BUYER_STAGES.each_with_index do |stage, index| %>
       <a href="#<%= stage %>" class="<%= 'is-selected' if @journey&.buyer_stage == stage %>"><span><%= format("%02d", index + 1) %></span><%= buyer_stage_label(stage) %></a>
     <% end %>
-  </nav>
+    </nav>
+    <p class="buyer-guide-start__note">Не си сигурен къде си? Започни с <%= link_to "проучване и сравняване", buying_guide_path(anchor: "researching") %> или <%= link_to "създай личен план с три въпроса", my_mesto_path %>.</p>
+  </section>
+
+  <section id="property-routes" class="property-routes">
+    <div><p class="eyebrow"><span></span>Отделни маршрути</p><h2>Видът на имота променя проверките</h2><p>Тези материали допълват етапа на купувача. Те не са последващи стъпки от една обща линия.</p></div>
+    <div class="property-route-grid">
+      <% @property_guides.each do |guide| %>
+        <%= link_to buying_guide_path(anchor: guide["slug"]) do %><span><%= Array(guide["property_types"]).map { |type| property_type_label(type) }.join(" · ") %></span><strong><%= guide["title"] %></strong><small><%= guide["summary"] %></small><% end %>
+      <% end %>
+    </div>
+  </section>
 
   <div class="buyer-guides">
-    <% @guides.each_with_index do |guide, index| %>
-      <% buyer_anchor = {
-        "guide.research" => "researching", "guide.before_deposit" => "before_deposit",
-        "guide.before_preliminary_contract" => "before_preliminary_contract", "guide.after_signing" => "preliminary_contract_signed",
-        "guide.milestone_payment" => "waiting_or_payment", "guide.before_transfer" => "before_notarial_transfer",
-        "guide.handover_owner" => "before_handover"
-      }.fetch(guide["key"], guide["slug"]) %>
-      <article id="<%= buyer_anchor %>" class="buyer-guide">
-        <header><span class="buyer-guide__kicker"><b><%= format("%02d", index + 1) %></b>Контекст за купувача</span><h2><%= guide["title"] %></h2><p><%= guide["summary"] %></p></header>
-        <div class="buyer-guide__body">
-          <section><span>Разбери ситуацията</span><%= education_prose(guide.dig("sections", "understand")) %></section>
-          <div class="buyer-guide__actions"><section><span>Преди решение</span><h3>Провери</h3><%= education_prose(guide.dig("sections", "verify")) %></section><section><span>Следваща стъпка</span><h3>Действай</h3><%= education_prose(guide.dig("sections", "act")) %></section></div>
-          <footer><span>Когато продължиш</span><%= education_prose(guide.dig("sections", "next")) %></footer>
-        </div>
-      </article>
+    <% @journey_guides.each_with_index do |guide, index| %>
+      <%= render "buyer_guide", guide:, index:, previous_guide: (index.positive? ? @journey_guides[index - 1] : nil), next_guide: @journey_guides[index + 1] %>
+    <% end %>
+  </div>
+
+  <section class="property-guide-heading">
+    <div><p class="eyebrow"><span></span>Избери според имота</p><h2>Допълни маршрута с правилния предмет</h2></div>
+    <p>След това се върни към момента, в който се намираш — например преди капаро или преди нотариалната сделка.</p>
+  </section>
+
+  <div class="buyer-guides buyer-guides--property">
+    <% @property_guides.each_with_index do |guide, index| %>
+      <%= render "buyer_guide", guide:, index:, previous_guide: (index.positive? ? @property_guides[index - 1] : nil), next_guide: @property_guides[index + 1] %>
     <% end %>
   </div>
 
@@ -53,4 +67,9 @@
   </section>
 
   <section class="finance-intro"><div><p class="eyebrow"><span></span>Бюджет и финансиране</p><h2>Планирай общия ангажимент, не само обявената цена.</h2></div><p>Добави данъци и такси, професионални проверки, довършване/ремонт, паркиране, поддръжка и разумен резерв. При ипотека потвърди конкретните условия, оценка, срокове и самоучастие с избрания кредитор. Mesto не публикува текущи лихви, не обещава одобрение и не предполага универсални изисквания.</p></section>
+
+  <section class="guide-explore-again">
+    <div><p class="eyebrow eyebrow--light"><span></span>Продължи без задънена улица</p><h2>Върни се към избора или отвори конкретния въпрос</h2><p>Наръчникът, документите и термините са свързани, но можеш да ги разглеждаш и самостоятелно.</p></div>
+    <nav><%= link_to "Начало на наръчника", guide_path %><%= link_to "Строителни етапи", new_build_guide_path %><%= link_to "Всички документи", education_documents_path %><%= link_to "Всички термини", terms_path %></nav>
+  </section>
 </div>

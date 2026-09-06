@@ -5,6 +5,7 @@ class BuyerJourney < ApplicationRecord
     preliminary_contract_signed waiting_or_payment before_notarial_transfer
     before_handover owner unknown
   ].freeze
+  GUIDED_BUYER_STAGES = (BUYER_STAGES - %w[unknown]).freeze
   BUILDING_STAGES = %w[
     land_planning authorization commencement act14 installations_act15
     act15 commissioning handover unknown

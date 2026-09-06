@@ -2,11 +2,19 @@ rules:
   - key: rule.research
     priority: 10
     when:
-      buyer_stage: [researching, shortlisting, unknown]
+      buyer_stage: [researching, unknown]
     then:
       lesson_keys: [guide.research, term.cadastral_identifier, document.cadastral_sketch_scheme]
       task_keys: [task.define_needs, task.compare_identity]
-      reason: "Защото още подреждаш критериите и сравняваш варианти."
+      reason: "Защото още подреждаш критериите и начина, по който ще сравняваш."
+  - key: rule.shortlisting
+    priority: 8
+    when:
+      buyer_stage: [shortlisting]
+    then:
+      lesson_keys: [guide.shortlisting, document.cadastral_sketch_scheme, term.property_areas]
+      task_keys: [task.define_needs, task.compare_identity]
+      reason: "Защото вече сравняваш конкретни имоти и трябва да подравниш фактите за тях."
   - key: rule.before_deposit
     priority: 5
     when:
@@ -50,11 +58,19 @@ rules:
   - key: rule.handover
     priority: 5
     when:
-      buyer_stage: [before_handover, owner]
+      buyer_stage: [before_handover]
     then:
-      lesson_keys: [guide.handover_owner, document.handover_protocol, term.garage_parking]
+      lesson_keys: [guide.handover_owner, document.handover_protocol, term.defects]
       task_keys: [task.prepare_handover]
-      reason: "Защото предаването и ранната собственост изискват отделна практическа подготовка."
+      reason: "Защото предаването изисква отделен оглед, протокол и проследима документална следа."
+  - key: rule.owner
+    priority: 5
+    when:
+      buyer_stage: [owner]
+    then:
+      lesson_keys: [guide.owner, document.warranty_documents, document.condominium_documents]
+      task_keys: [task.organize_owner_documents, task.transfer_utilities, task.review_condominium_documents]
+      reason: "Защото първите месеци като собственик имат отделни задачи за документи, услуги, гаранции и общи части."
   - key: rule.new_build
     priority: 20
     when:

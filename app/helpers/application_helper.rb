@@ -221,18 +221,105 @@ module ApplicationHelper
   FINANCING_LABELS = {
     "mortgage" => "Ипотечно финансиране", "own_funds" => "Собствени средства", "undecided" => "Още не съм решил"
   }.freeze
+  TERM_CATEGORY_DETAILS = {
+    "cadastre_identity" => {
+      label: "Идентичност на имота",
+      title: "Какво точно е имотът?",
+      description: "Кодове, граници, предназначение, принадлежности и площи — основата за съпоставка между оферта, проект, кадастър и сделка."
+    }.freeze,
+    "ownership_rights" => {
+      label: "Собственост и ползване",
+      title: "Кой какво притежава и използва?",
+      description: "Самостоятелното право, общите дялове и чуждите права върху имота не се виждат само от това кой държи ключовете."
+    }.freeze,
+    "transaction_risk" => {
+      label: "Сделка и вписвания",
+      title: "Какво може да засегне придобиването?",
+      description: "Плащанията, ипотеките, възбраните и другите вписвания изискват точен вид, обхват и последователност — не общо уверение."
+    }.freeze,
+    "construction" => {
+      label: "Ново строителство",
+      title: "Как да четеш строителния процес?",
+      description: "Пазарните етикети, участниците, проектите и административните етапи отговарят на различни въпроси."
+    }.freeze,
+    "handover_operation" => {
+      label: "Предаване и експлоатация",
+      title: "Какво остава след завършването?",
+      description: "Дефектите, гаранциите и реалният достъп до услуги имат собствена проверка и не приключват с получаването на ключове."
+    }.freeze
+  }.freeze
+  DOCUMENT_CATEGORY_DETAILS = {
+    "planning_construction" => {
+      label: "Планиране и строителство",
+      title: "Как проектът стига до завършена сграда?",
+      description: "Планове, проекти, разрешения и приемателни актове — всеки документ има различен издател, момент и доказателствен обхват."
+    }.freeze,
+    "property_identity" => {
+      label: "Имот и собственост",
+      title: "Какво се продава и кой може да го прехвърли?",
+      description: "Идентичността, титулът, вписванията и представителството трябва да се съпоставят; един документ рядко отговаря на всички въпроси."
+    }.freeze,
+    "agreements_finance" => {
+      label: "Договори и финансиране",
+      title: "Какви задължения поемаш преди сделката?",
+      description: "Резервацията, посредничеството, предварителният договор и банковата оценка имат различни цели и не се заместват взаимно."
+    }.freeze,
+    "handover_operation" => {
+      label: "Предаване и управление",
+      title: "Какво трябва да остане проверимо след ключовете?",
+      description: "Състоянието, дефектите, гаранциите, таксите и управлението на сградата имат собствена документална следа."
+    }.freeze
+  }.freeze
 
   def buyer_stage_label(key) = BUYER_STAGE_LABELS[key.to_s] || BUYER_STAGE_LABELS["unknown"]
   def property_type_label(key) = PROPERTY_TYPE_LABELS[key.to_s] || PROPERTY_TYPE_LABELS["undecided"]
   def building_stage_label(key) = BUILDING_STAGE_LABELS[key.to_s] || BUILDING_STAGE_LABELS["unknown"]
   def financing_label(key) = FINANCING_LABELS[key.to_s] || FINANCING_LABELS["undecided"]
 
+  def education_term_groups(entries)
+    grouped_entries = entries.group_by { |entry| entry["category"] }
+    TERM_CATEGORY_DETAILS.filter_map do |key, details|
+      next if grouped_entries[key].blank?
+
+      details.merge(key:, entries: grouped_entries[key])
+    end
+  end
+
+  def education_term_category_label(key)
+    TERM_CATEGORY_DETAILS.dig(key.to_s, :label) || "Имотно понятие"
+  end
+
+  def education_document_groups(entries)
+    grouped_entries = entries.select { |entry| entry["kind"] == "document" }.group_by { |entry| entry["category"] }
+    groups = DOCUMENT_CATEGORY_DETAILS.filter_map do |key, details|
+      next if grouped_entries[key].blank?
+
+      details.merge(key:, entries: grouped_entries[key])
+    end
+    supplemental_groups = [
+      [ "stage", "related_stages", "Строителни етапи", "Търсиш място в строителния процес?", "Тези етапи обясняват физическия напредък, документалната следа и границите на всеки момент." ],
+      [ "guide", "buyer_guides", "Път на купувача", "Търсиш какво да направиш в своята ситуация?", "Тези насоки подреждат решенията, документите и следващите проверки според момента на купувача." ],
+      [ "term", "related_terms", "Свързани термини", "Търсиш понятие, а не документ?", "Тези обяснения дават контекста зад думите, които се срещат в документите." ]
+    ].filter_map do |kind, key, label, title, description|
+      related_entries = entries.select { |entry| entry["kind"] == kind }
+      next if related_entries.blank?
+
+      { key:, label:, title:, description:, entries: related_entries }
+    end
+
+    groups + supplemental_groups
+  end
+
+  def education_document_category_label(key)
+    DOCUMENT_CATEGORY_DETAILS.dig(key.to_s, :label) || "Имотен документ"
+  end
+
   def education_path_for(entry)
-    case entry["kind"]
+    case entry["kind"] || entry["path_kind"]
     when "stage" then new_build_stage_path(entry["slug"])
     when "document" then education_document_path(entry["slug"])
     when "term" then term_path(entry["slug"])
-    when "guide" then buying_guide_path(anchor: entry["slug"])
+    when "guide" then buying_guide_path(anchor: entry["buyer_stage"].presence || entry["slug"])
     else guide_path
     end
   end
