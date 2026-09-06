@@ -1,21 +1,21 @@
 checklist_items:
   - key: task.define_needs
     title: "Подреди задължителните си условия и общия бюджет"
-    reason: "Така сравняваш варианти по еднакви критерии, преди спешността на офертата да води решението."
+    reason: "Така сравняваш всички варианти по едни и същи критерии и не оставяш натиска около конкретна оферта да решава вместо теб."
     relevant_stage: researching
     responsible: "ти"
     related_content_keys: [guide.research]
     default_evidence: user_reported
-    question: "Кои пет условия не бихме заменили и кои разходи извън цената сме включили?"
+    question: "Кои пет условия са задължителни за мен и кои разходи извън цената съм включил в бюджета?"
     content_version: 1
   - key: task.compare_identity
-    title: "Съпостави точната идентичност на имота"
+    title: "Провери точно кой имот се продава"
     reason: "Адресът или рекламното име не разграничават надеждно ПИ, сграда, вход и самостоятелен обект."
     relevant_stage: shortlisting
     responsible: "продавач / АГКК"
     related_content_keys: [term.cadastral_identifier, document.cadastral_sketch_scheme]
     default_evidence: separate_official_check_needed
-    question: "Какъв е пълният кадастрален идентификатор и в кои документи можем да го сравним?"
+    question: "Какъв е пълният кадастрален идентификатор и в кои документи мога да го проверя?"
     content_version: 1
   - key: task.request_document_pack
     title: "Поискай основния документен пакет"
@@ -24,7 +24,7 @@ checklist_items:
     responsible: "продавач / инвеститор"
     related_content_keys: [document.title_deed, document.building_permit, document.cadastral_sketch_scheme]
     default_evidence: requested_from_seller
-    question: "Може ли да получим предварително титула, актуалната схема и приложимите строителни книжа с всички изменения?"
+    question: "Може ли да получа предварително документа за собственост, актуалната схема и относимите строителни книжа с всички изменения?"
     content_version: 1
   - key: task.review_deposit_terms
     title: "Прегледай условията на резервацията или капарото"
@@ -33,7 +33,7 @@ checklist_items:
     responsible: "независим адвокат"
     related_content_keys: [guide.before_deposit]
     default_evidence: professional_review_needed
-    question: "На кого плащаме, какво точно се резервира и при кои случаи сумата се връща?"
+    question: "На кого плащам, какво точно се резервира и в кои случаи сумата се връща?"
     content_version: 1
   - key: task.verify_seller_rights
     title: "Провери правата и представителството на продавача"
@@ -42,11 +42,11 @@ checklist_items:
     responsible: "адвокат / нотариус"
     related_content_keys: [document.title_deed, term.right_to_build]
     default_evidence: professional_review_needed
-    question: "На какво основание продавачът притежава или ще придобие правото, което ни обещава?"
+    question: "На какво основание продавачът притежава или ще придобие правото, което ми обещава?"
     content_version: 1
   - key: task.review_preliminary_contract
     title: "Прегледай договора и всички приложения"
-    reason: "Предметът, етапите, плащанията, сроковете и изходите идват от конкретния текст."
+    reason: "Точният имот, етапите, плащанията, сроковете и условията за прекратяване зависят от конкретния текст."
     relevant_stage: before_preliminary_contract
     responsible: "независим адвокат / технически специалист"
     related_content_keys: [document.preliminary_contract, guide.before_preliminary_contract]
@@ -60,7 +60,7 @@ checklist_items:
     responsible: "ти / адвокат"
     related_content_keys: [guide.after_signing, document.preliminary_contract]
     default_evidence: user_reported
-    question: "Имаме ли подписано копие на всяко приложение и проследима кореспонденция за промените?"
+    question: "Имам ли подписано копие на всяко приложение и запазена кореспонденция за промените?"
     content_version: 1
   - key: task.check_payment_clause
     title: "Провери клаузата преди следващо плащане"
@@ -69,7 +69,7 @@ checklist_items:
     responsible: "ти / независим адвокат"
     related_content_keys: [guide.milestone_payment, document.act14, document.act15]
     default_evidence: professional_review_needed
-    question: "Кой точен документ и процедура за уведомяване изисква нашият договор за тази вноска?"
+    question: "Кой точно документ и какъв начин на уведомяване изисква моят договор за тази вноска?"
     content_version: 1
   - key: task.compare_milestone_scope
     title: "Сравни обхвата на намерения строителен документ"
@@ -78,7 +78,7 @@ checklist_items:
     responsible: "източник / технически специалист"
     related_content_keys: [document.act14, document.act15, document.commissioning]
     default_evidence: separate_official_check_needed
-    question: "Кой блок, етап и строеж са описани и съвпадат ли с нашия обект?"
+    question: "Кой блок, етап и строеж са описани и съвпадат ли с моя обект?"
     content_version: 1
   - key: task.verify_commissioning_scope
     title: "Провери вида и обхвата на крайния документ"
@@ -88,7 +88,7 @@ checklist_items:
     related_content_keys: [document.commissioning, building.commissioning]
     evidenced_milestone: commissioning
     default_evidence: separate_official_check_needed
-    question: "Кой е издателят и включени ли са точно нашият вход, блок и фаза?"
+    question: "Кой е издателят и включени ли са точно моят вход, блок и фаза?"
     content_version: 1
   - key: task.obtain_encumbrance_check
     title: "Организирай актуална проверка за собственост и тежести"
@@ -106,7 +106,7 @@ checklist_items:
     responsible: "адвокат / нотариус"
     related_content_keys: [guide.before_transfer, document.title_deed]
     default_evidence: professional_review_needed
-    question: "Как са координирани актуалните проверки, подписването, плащането и предаването?"
+    question: "Как са подредени актуалните проверки, подписването, плащането и предаването?"
     content_version: 1
   - key: task.prepare_handover
     title: "Подготви независим оглед и протокол за предаване"
@@ -133,7 +133,7 @@ checklist_items:
     responsible: "кредитор / оценител / адвокат"
     related_content_keys: [guide.before_deposit, guide.before_preliminary_contract]
     default_evidence: separate_official_check_needed
-    question: "Кои условия и срокове трябва да изпълним според конкретния кредитор, оценка и договор?"
+    question: "Кои условия и срокове трябва да изпълня според конкретния кредитор, оценката и договора?"
     content_version: 1
   - key: task.house_land_specialists
     title: "Определи специализираните проверки за къща или терен"
@@ -151,7 +151,7 @@ checklist_items:
     responsible: "ти / адвокат"
     related_content_keys: [guide.owner, document.title_deed, document.warranty_documents]
     default_evidence: user_reported
-    question: "Разполагаме ли с окончателно копие на всеки документ и ясно място за бъдещи решения, ремонти и гаранционни сигнали?"
+    question: "Разполагам ли с окончателно копие на всеки документ и с подредено място за бъдещи решения, ремонти и гаранционни сигнали?"
     content_version: 1
   - key: task.transfer_utilities
     title: "Уреди партидите, показанията и застраховането"
@@ -160,7 +160,7 @@ checklist_items:
     responsible: "ти / доставчици / застраховател"
     related_content_keys: [guide.owner, term.utility_connection]
     default_evidence: user_reported
-    question: "Кои партиди са прехвърлени, от коя дата, с какви начални показания и какво покрива избраната застраховка?"
+    question: "Кои партиди са прехвърлени, от коя дата и с какви начални показания? Какво покрива избраната застраховка?"
     content_version: 1
   - key: task.review_condominium_documents
     title: "Запознай се с документите на етажната собственост"
@@ -169,5 +169,5 @@ checklist_items:
     responsible: "управител / етажна собственост / адвокат при спор"
     related_content_keys: [guide.owner, document.condominium_documents, document.maintenance_agreement]
     default_evidence: requested_from_seller
-    question: "Кои правила, решения, задължения, договори и планирани ремонти трябва да знаем като нов собственик?"
+    question: "Кои правила, решения, задължения, договори и планирани ремонти трябва да познавам като нов собственик?"
     content_version: 1

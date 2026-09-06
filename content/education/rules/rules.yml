@@ -14,7 +14,7 @@ rules:
     then:
       lesson_keys: [guide.shortlisting, document.cadastral_sketch_scheme, term.property_areas]
       task_keys: [task.define_needs, task.compare_identity]
-      reason: "Защото вече сравняваш конкретни имоти и трябва да подравниш фактите за тях."
+      reason: "Защото вече сравняваш конкретни имоти и трябва да провериш едни и същи факти за всеки от тях."
   - key: rule.before_deposit
     priority: 5
     when:
@@ -62,7 +62,7 @@ rules:
     then:
       lesson_keys: [guide.handover_owner, document.handover_protocol, term.defects]
       task_keys: [task.prepare_handover]
-      reason: "Защото предаването изисква отделен оглед, протокол и проследима документална следа."
+      reason: "Защото предаването изисква отделен оглед, подробен протокол и ясен начин за проследяване на дефектите."
   - key: rule.owner
     priority: 5
     when:
@@ -94,7 +94,7 @@ rules:
     then:
       lesson_keys: [guide.house_land_limits, document.pup, term.upi]
       task_keys: [task.house_land_specialists, task.compare_identity]
-      reason: "Защото къщите и терените имат проверки извън маршрута за апартамент."
+      reason: "Защото при къща или терен са нужни проверки, които не се прилагат по същия начин при апартамент."
   - key: rule.financing
     priority: 15
     when:
@@ -111,7 +111,7 @@ rules:
     then:
       lesson_keys: [document.commissioning, building.commissioning]
       task_keys: [task.verify_commissioning_scope]
-      reason: "Защото е намерен точно съпоставен запис за въвеждане в експлоатация; обхватът му още трябва да се прочете."
+      reason: "Защото е намерен запис за въвеждане в експлоатация, който изглежда свързан с имота, но точният му обхват още трябва да се провери."
   - key: rule.no_evidence
     priority: 30
     when:

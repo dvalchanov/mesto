@@ -1,4 +1,4 @@
-<% content_for :title, "#{t('reports.title', identifier: @analysis.submitted_identifier)} — #{product_name}" %>
+<% content_for :title, "#{t('reports.title', identifier: @analysis.submitted_identifier)} - #{product_name}" %>
 <%= turbo_stream_from @analysis, I18n.locale %>
 
 <section class="site-shell report-page">

@@ -5,7 +5,7 @@ RSpec.describe "Property report journey", type: :request do
     get root_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("<title>Mesto —")
+    expect(response.body).to include("<title>Mesto -")
     expect(response.body).to include('property="og:site_name" content="Mesto"')
     expect(response.body).to include('/favicon.ico', '/apple-touch-icon.png', pwa_manifest_path)
   end
@@ -212,7 +212,7 @@ RSpec.describe "Property report journey", type: :request do
     get report_path(analysis)
 
     card = Nokogiri::HTML5(response.body).at_css('[data-testid="amenity-kindergartens"]')
-    expect(card.at_css("p").text.strip).to eq("—")
+    expect(card.at_css("p").text.strip).to eq("-")
     expect(card.text).to include("Данни към 08.08.2018", "0 записа", "Това не е текущ брой")
     expect(card["class"]).to include("border-slate-200", "bg-slate-50")
     expect(response.body).to include(I18n.t("reports.neighborhood.dataset_scope_note"))

@@ -4,14 +4,14 @@
 
 <article id="<%= anchor %>" class="buyer-guide">
   <header>
-    <span class="buyer-guide__kicker"><b><%= format("%02d", index + 1) %></b><%= guide["category"] == "property_type" ? "Маршрут според имота" : "Контекст за купувача" %></span>
+    <span class="buyer-guide__kicker"><b><%= format("%02d", index + 1) %></b><%= guide["category"] == "property_type" ? "Според вида на имота" : "Етап от покупката" %></span>
     <h2><%= guide["title"] %></h2>
     <p><%= guide["summary"] %></p>
   </header>
 
   <div class="buyer-guide__body">
     <section class="buyer-guide__opening">
-      <span>Как да прочетеш ситуацията</span>
+      <span>Какво означава това за теб</span>
       <%= education_prose(guide.dig("sections", "understand")) %>
     </section>
 
@@ -23,18 +23,18 @@
       </section>
       <section>
         <span>Какво да събереш</span>
-        <h3>Документи и следа</h3>
+        <h3>Документи, които да събереш</h3>
         <%= education_prose(guide.dig("sections", "documents")) %>
       </section>
     </div>
 
     <section class="buyer-guide__money">
-      <div><span>Бюджет и договорна граница</span><h3>Какво може да промени общия ангажимент?</h3></div>
+      <div><span>Разходи и договорени условия</span><h3>Какво може да промени крайната цена?</h3></div>
       <div class="buyer-guide__prose"><%= education_prose(guide.dig("sections", "money")) %></div>
     </section>
 
     <section class="buyer-guide__risk">
-      <div><span>Сигнали за внимание</span><h3>Къде да забавиш решението?</h3></div>
+      <div><span>Сигнали за внимание</span><h3>Кога да не бързаш?</h3></div>
       <div class="buyer-guide__prose"><%= education_prose(guide.dig("sections", "risks")) %></div>
     </section>
 
@@ -45,10 +45,10 @@
 
     <% if related.any? %>
       <section class="buyer-guide__related">
-        <div><span>Отвори само когато ти трябва</span><h3>Свързани документи, термини и етапи</h3></div>
+        <div><span>Полезно за тази стъпка</span><h3>Свързани документи, термини и етапи</h3></div>
         <div>
           <% related.each do |item| %>
-            <%= link_to education_path_for(item) do %>
+            <%= link_to education_path_for(item), target: "_blank", rel: "noopener noreferrer" do %>
               <small><%= { "document" => "Документ", "term" => "Термин", "stage" => "Строителен етап" }.fetch(item["kind"], "Насока") %></small>
               <strong><%= item["title"] %></strong>
             <% end %>
@@ -58,7 +58,7 @@
     <% end %>
 
     <section class="buyer-guide__next">
-      <div><span>Когато продължиш</span><h3>Какво следва оттук?</h3></div>
+      <div><span>Следваща стъпка</span><h3>Какво следва оттук?</h3></div>
       <div class="buyer-guide__prose"><%= education_prose(guide.dig("sections", "next")) %></div>
     </section>
 
@@ -74,12 +74,12 @@
             </li>
           <% end %>
         </ul>
-        <p class="buyer-guide__sources-status">Версия <%= guide["content_version"] %> · Редакционен статус: публикувано · Професионален преглед: предстои</p>
+        <p class="buyer-guide__sources-status">Версия <%= guide["content_version"] %> · Съдържанието е публикувано · Предстои преглед от специалист</p>
       </div>
     </details>
 
     <section class="buyer-guide__checks">
-      <div><span>Преди следващата стъпка</span><h3>Провери това</h3><p>Това е подготовка за решение и разговор със специалист, не автоматично потвърждение за имота.</p></div>
+      <div><span>Преди следващата стъпка</span><h3>Провери, преди да продължиш</h3><p>Списъкът ще ти помогне да се подготвиш за решение или разговор със специалист. Самото отбелязване не потвърждава състоянието на имота.</p></div>
       <ol>
         <% Array(guide.dig("sections", "buyer_checks")).each_with_index do |check, check_index| %>
           <li><span><%= format("%02d", check_index + 1) %></span><p><%= check %></p></li>
@@ -88,8 +88,8 @@
     </section>
 
     <nav class="buyer-guide__navigation" aria-label="Навигация от <%= guide['title'] %>">
-      <% if previous_guide %><%= link_to buying_guide_path(anchor: previous_guide["buyer_stage"].presence || previous_guide["slug"]) do %><span>Назад</span><strong><%= previous_guide["title"] %></strong><% end %><% else %><%= link_to buying_guide_path(anchor: "buyer-guide-start") do %><span>Назад</span><strong>Избери отправна точка</strong><% end %><% end %>
-      <%= link_to buying_guide_path(anchor: "buyer-guide-start"), class: "buyer-guide__all" do %><span>Всички маршрути</span><strong>Върни се към избора</strong><% end %>
+      <% if previous_guide %><%= link_to buying_guide_path(anchor: previous_guide["buyer_stage"].presence || previous_guide["slug"]) do %><span>Назад</span><strong><%= previous_guide["title"] %></strong><% end %><% else %><%= link_to buying_guide_path(anchor: "buyer-guide-start") do %><span>Назад</span><strong>Избери етап</strong><% end %><% end %>
+      <%= link_to buying_guide_path(anchor: "buyer-guide-start"), class: "buyer-guide__all" do %><span>Всички етапи</span><strong>Избери друга ситуация</strong><% end %>
       <% if next_guide %><%= link_to buying_guide_path(anchor: next_guide["buyer_stage"].presence || next_guide["slug"]) do %><span>Напред</span><strong><%= next_guide["title"] %></strong><% end %><% else %><%= link_to guide_path do %><span>Разгледай отново</span><strong>Начало на наръчника</strong><% end %><% end %>
     </nav>
   </div>

@@ -1,10 +1,10 @@
-<% content_for :title, "Документи за имота — обяснени ясно | #{product_name}" %>
-<% content_for :description, "Подробен наръчник за строителните, кадастралните и сделковите документи — какво доказват, какво да сравниш и защо са важни за купувача." %>
+<% content_for :title, "Документи за имота - обяснени ясно | #{product_name}" %>
+<% content_for :description, "Подробен наръчник за строителните, кадастралните и сделковите документи - какво доказват, какво да сравниш и защо са важни за купувача." %>
 
 <div class="site-shell education-page library-page">
   <%= render "breadcrumbs", items: [["Документи", nil]] %>
   <header class="library-hero">
-    <div><p class="eyebrow"><span></span>Библиотека</p><h1>Всеки документ отговаря на различен въпрос.</h1><p>Разбери какво установява, какво остава непроверено и коя подробност може да промени решението ти като купувач.</p></div>
+    <div><p class="eyebrow"><span></span>Документи</p><h1>Разбери какво доказва всеки документ</h1><p>Виж кога се използва, кои данни трябва да сравниш и какво не можеш да заключиш само от него.</p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси по име, съкращение или въпрос", class: "form-label" %>
       <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. акт16, схема, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
@@ -13,7 +13,7 @@
 
   <% groups = education_document_groups(@entries) %>
   <% if groups.any? %>
-    <% if @query.present? %><p class="search-summary"><strong><%= @entries.length %></strong> резултата за „<%= @query %>“</p><% end %>
+    <% if @query.present? %><p class="search-summary">Намерени резултати за „<%= @query %>“: <strong><%= @entries.length %></strong></p><% end %>
     <nav class="library-category-nav" aria-label="Групи документи">
       <% groups.each do |group| %><a href="#documents-<%= group[:key] %>"><span><%= format("%02d", group[:entries].length) %></span><%= group[:label] %></a><% end %>
     </nav>
@@ -26,7 +26,7 @@
               <%= link_to education_path_for(entry) do %>
                 <span><%= { "term" => "Термин", "stage" => "Строителен етап", "guide" => "Насока за купувача" }.fetch(entry["kind"], group[:label]) %></span>
                 <h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p>
-                <small><%= { "term" => "Определение · Пример · Защо е важно", "stage" => "Процес · Документи · Проверки", "guide" => "Ситуация · Рискове · Следващ ход" }.fetch(entry["kind"], "Обхват · Проверка · Следващ ход") %></small>
+                <small><%= { "term" => "Определение · Пример", "stage" => "Какво се случва · Какво да провериш", "guide" => "Какво да направиш · Какво следва" }.fetch(entry["kind"], "Какво доказва · Какво да провериш") %></small>
               <% end %>
             <% end %>
           </div>
@@ -34,6 +34,6 @@
       <% end %>
     </div>
   <% else %>
-    <div class="empty-state"><h2>Няма точен резултат</h2><p>Опитай с друго изписване или разгледай свързаните имотни термини.</p><%= link_to "Виж термините", terms_path, class: "button button--ink" %></div>
+    <div class="empty-state"><h2>Не намерихме такъв документ</h2><p>Опитай с друго изписване, съкращение или дума от въпроса, който искаш да изясниш.</p><%= link_to "Виж термините", terms_path, class: "button button--ink" %></div>
   <% end %>
 </div>
