@@ -47,6 +47,7 @@ module Mesto
     )
     config.x.map_style_url = ENV["MAP_STYLE_URL"].presence || "https://tiles.openfreemap.org/styles/liberty"
     config.x.development_pressure_years = ENV.fetch("DEVELOPMENT_PRESSURE_YEARS", 5).to_i
+    config.x.anonymous_journey_retention_days = ENV.fetch("ANONYMOUS_JOURNEY_RETENTION_DAYS", 180).to_i
 
     # Configuration for the application, engines, and railties goes here.
     #

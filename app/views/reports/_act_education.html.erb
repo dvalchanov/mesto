@@ -1,0 +1,12 @@
+<% content_key = Education::ReportEvidenceAdapter.document_key_for(act) %>
+<% if content_key && (entry = Education::Catalog.instance.find(content_key)) %>
+  <details class="act-education" data-controller="product-event" data-action="toggle->product-event#recordOnce" data-product-event-name-value="contextual_explanation_opened" data-product-event-content-key-value="<%= content_key %>" data-product-event-mode-value="property_connected">
+    <summary>Разбери този вид документ <span>+</span></summary>
+    <div>
+      <article><strong>Какво означава?</strong><p><%= entry.dig("sections", "what") %></p></article>
+      <article><strong>Защо е важно?</strong><p><%= entry.dig("sections", "why") %></p></article>
+      <article><strong>Какво да проверя?</strong><p><%= entry.dig("sections", "compare") %></p></article>
+      <%= link_to "Прочети пълното обяснение", education_document_path(entry["slug"]), class: "text-link" %>
+    </div>
+  </details>
+<% end %>

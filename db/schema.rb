@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_31_222000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_04_183000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_222000) do
     t.bigint "administrative_act_id", null: false
     t.string "cadastral_identifier", null: false
     t.datetime "created_at", null: false
+    t.string "match_basis"
     t.string "reference_level", null: false
     t.datetime "updated_at", null: false
     t.index ["administrative_act_id", "cadastral_identifier"], name: "idx_act_refs_on_act_and_identifier", unique: true
@@ -51,6 +52,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_222000) do
     t.string "upi"
     t.index ["geometry"], name: "index_administrative_acts_on_geometry", using: :gist
     t.index ["registry_kind", "external_key"], name: "index_administrative_acts_on_registry_kind_and_external_key", unique: true
+  end
+
+  create_table "buyer_journeys", force: :cascade do |t|
+    t.string "buyer_stage", default: "researching", null: false
+    t.datetime "created_at", null: false
+    t.string "financing_context"
+    t.string "guest_identity_digest", null: false
+    t.string "label"
+    t.datetime "last_active_at", null: false
+    t.datetime "onboarding_completed_at"
+    t.bigint "property_analysis_id"
+    t.string "property_type", default: "undecided", null: false
+    t.uuid "public_token", default: -> { "gen_random_uuid()" }, null: false
+    t.datetime "updated_at", null: false
+    t.string "user_reported_building_stage"
+    t.index ["guest_identity_digest", "last_active_at"], name: "idx_on_guest_identity_digest_last_active_at_59d85c6739"
+    t.index ["property_analysis_id"], name: "index_buyer_journeys_on_property_analysis_id"
+    t.index ["public_token"], name: "index_buyer_journeys_on_public_token", unique: true
   end
 
   create_table "cadastral_properties", force: :cascade do |t|
@@ -135,6 +154,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_222000) do
     t.string "status", default: "running", null: false
     t.datetime "updated_at", null: false
     t.index ["spatial_dataset_id"], name: "index_dataset_imports_on_spatial_dataset_id"
+  end
+
+  create_table "journey_item_progresses", force: :cascade do |t|
+    t.bigint "buyer_journey_id", null: false
+    t.integer "content_version", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.string "item_key", null: false
+    t.string "item_kind", null: false
+    t.datetime "marked_at"
+    t.string "status", default: "not_started", null: false
+    t.datetime "updated_at", null: false
+    t.index ["buyer_journey_id", "item_key", "item_kind"], name: "idx_journey_progress_unique_item", unique: true
+    t.index ["buyer_journey_id"], name: "index_journey_item_progresses_on_buyer_journey_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -248,7 +280,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_222000) do
   end
 
   add_foreign_key "administrative_act_references", "administrative_acts"
+  add_foreign_key "buyer_journeys", "property_analyses"
   add_foreign_key "dataset_imports", "spatial_datasets"
+  add_foreign_key "journey_item_progresses", "buyer_journeys"
   add_foreign_key "orders", "property_analyses"
   add_foreign_key "product_events", "orders"
   add_foreign_key "product_events", "property_analyses"

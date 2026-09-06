@@ -149,3 +149,23 @@ Coverage includes identifier parsing, source clients/parsers, automatic GeoJSON 
 - Reports are link-based and have no accounts, emails, PDF export, document uploads, valuation, listing imports, or LLM-generated conclusions.
 
 The highest-value next step is scheduling archive refreshes for all launch districts and importing fresher municipal amenity datasets, while preserving the same exact-identifier and per-source provenance rules.
+
+## Education catalog and anonymous journeys
+
+Bulgarian educational content, source metadata, deterministic recommendation rules, and checklist definitions live in `content/education`. Validate keys, slugs, required sections, source references, and allowlisted rule conditions with:
+
+```sh
+bin/rails education:validate
+```
+
+Personal learning plans do not require an account. A random guest identity is stored in a signed, HTTP-only, same-site cookie; only its SHA-256 digest is stored with server-side journey rows. Public report tokens do not authorize access to a journey. Private buyer stage, financing context, labels, and progress are never rendered into shared reports.
+
+Anonymous journeys default to 180 days from last activity. Configure `ANONYMOUS_JOURNEY_RETENTION_DAYS` and schedule:
+
+```sh
+bin/rails education:prune_anonymous_journeys
+```
+
+Professional review metadata remains `pending` until a real qualified review is recorded. Educational pages explain current source coverage and never treat a missing public result as proof that a document does not exist.
+
+Administrative-act references now distinguish an identifier printed in the record (`document`) from the identifier merely used to query a registry (`search_query`). Only the former can support a building milestone. Pre-existing references are deliberately left unclassified and therefore do not support milestone inference until the relevant analysis is refreshed.

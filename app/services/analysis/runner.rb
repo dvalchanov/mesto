@@ -192,15 +192,18 @@ module Analysis
       )
       act.assign_attributes(attributes)
       act.save!
-      identifiers = Array(record["cadastral_identifiers"])
-      identifiers << record["matched_identifier"] if record["matched_identifier"].present?
-      identifiers.uniq.each do |identifier|
+      document_identifiers = Array(record["cadastral_identifiers"])
+      references = document_identifiers.index_with { "document" }
+      references[record["matched_identifier"]] ||= "search_query" if record["matched_identifier"].present?
+      references.each do |identifier, match_basis|
         parsed = CadastralIdentifier.new(identifier)
         next unless parsed.valid?
 
-        act.administrative_act_references.find_or_create_by!(cadastral_identifier: parsed.to_s) do |reference|
-          reference.reference_level = parsed.level.to_s
-        end
+        reference = act.administrative_act_references.find_or_initialize_by(cadastral_identifier: parsed.to_s)
+        reference.reference_level = parsed.level.to_s
+        reference.match_basis = "document" if match_basis == "document"
+        reference.match_basis ||= match_basis
+        reference.save!
       end
     end
 

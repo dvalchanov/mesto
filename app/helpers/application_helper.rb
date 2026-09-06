@@ -157,7 +157,7 @@ module ApplicationHelper
   end
 
   def progress_icon(status)
-    { "completed" => "✓", "active" => "•", "failed" => "!", "unavailable" => "—", "pending" => "·" }.fetch(status, "·")
+    { "completed" => "✓", "active" => "•", "failed" => "!", "unavailable" => "-", "pending" => "·" }.fetch(status, "·")
   end
 
   def formatted_price(amount_cents, currency)
@@ -199,6 +199,157 @@ module ApplicationHelper
 
   def report_map_payload(analysis, acts: AdministrativeAct.none)
     Analysis::ReportMapBuilder.new(analysis:, acts:).call
+  end
+
+  BUYER_STAGE_LABELS = {
+    "researching" => "Само разглеждам и се подготвям", "shortlisting" => "Сравнявам варианти",
+    "before_deposit" => "Преди резервация или капаро", "before_preliminary_contract" => "Преди предварителен договор",
+    "preliminary_contract_signed" => "Имам подписан предварителен договор", "waiting_or_payment" => "Чакам следващ строителен етап или плащане",
+    "before_notarial_transfer" => "Подготвям нотариалната сделка", "before_handover" => "Предстои ми предаване на имота",
+    "owner" => "Вече съм собственик", "unknown" => "Не съм сигурен"
+  }.freeze
+  PROPERTY_TYPE_LABELS = {
+    "new_build" => "Ново строителство", "completed_home" => "Завършено жилище", "house" => "Къща",
+    "land" => "Парцел", "undecided" => "Още не съм решил"
+  }.freeze
+  BUILDING_STAGE_LABELS = {
+    "land_planning" => "Терен, планиране и проект", "authorization" => "Разрешение за строеж",
+    "commencement" => "Начало и основи", "act14" => "Конструкция и Акт 14",
+    "installations_act15" => "Инсталации и довършване", "act15" => "Подготовка за приемане и Акт 15",
+    "commissioning" => "Въвеждане в експлоатация", "handover" => "Предаване и поддръжка", "unknown" => "Не знам"
+  }.freeze
+  FINANCING_LABELS = {
+    "mortgage" => "Ипотечно финансиране", "own_funds" => "Собствени средства", "undecided" => "Още не съм решил"
+  }.freeze
+  TERM_CATEGORY_DETAILS = {
+    "cadastre_identity" => {
+      label: "Идентичност на имота",
+      title: "Какво точно е имотът?",
+      description: "Понятията, с които проверяваш дали обявата, кадастърът, проектът и договорът описват един и същ имот."
+    }.freeze,
+    "ownership_rights" => {
+      label: "Собственост и ползване",
+      title: "Кой какво притежава и използва?",
+      description: "Как се различават собствеността, владението, общите части и правата на други лица върху имота."
+    }.freeze,
+    "transaction_risk" => {
+      label: "Сделка и вписвания",
+      title: "Какво може да засегне придобиването?",
+      description: "Как плащанията, ипотеките, възбраните и другите вписвания могат да повлияят на сделката."
+    }.freeze,
+    "construction" => {
+      label: "Ново строителство",
+      title: "Какво означават строителните етапи?",
+      description: "Разликите между търговските названия, строителните документи, участниците и реалното изпълнение."
+    }.freeze,
+    "handover_operation" => {
+      label: "Предаване и експлоатация",
+      title: "Какво да провериш при предаването?",
+      description: "Дефекти, гаранции, партиди и управление на сградата - въпроси, които не приключват с получаването на ключовете."
+    }.freeze
+  }.freeze
+  DOCUMENT_CATEGORY_DETAILS = {
+    "planning_construction" => {
+      label: "Планиране и строителство",
+      title: "Как се планира, разрешава и приема строежът?",
+      description: "Планове, проекти, разрешения и приемателни актове - какво доказва всеки от тях и кога е необходим."
+    }.freeze,
+    "property_identity" => {
+      label: "Имот и собственост",
+      title: "Какво се продава и кой може да го прехвърли?",
+      description: "Сравни точното описание на имота, документите за собственост, вписванията и правото на продавача да сключи сделката. Един документ рядко отговаря на всички въпроси."
+    }.freeze,
+    "agreements_finance" => {
+      label: "Договори и финансиране",
+      title: "Какви задължения поемаш преди сделката?",
+      description: "Резервацията, посредничеството, предварителният договор и банковата оценка имат различни цели и не се заместват взаимно."
+    }.freeze,
+    "handover_operation" => {
+      label: "Предаване и управление",
+      title: "Какво следва след получаването на ключовете?",
+      description: "Документите за състоянието, дефектите, гаранциите, таксите и управлението на сградата."
+    }.freeze
+  }.freeze
+
+  def buyer_stage_label(key) = BUYER_STAGE_LABELS[key.to_s] || BUYER_STAGE_LABELS["unknown"]
+  def property_type_label(key) = PROPERTY_TYPE_LABELS[key.to_s] || PROPERTY_TYPE_LABELS["undecided"]
+  def building_stage_label(key) = BUILDING_STAGE_LABELS[key.to_s] || BUILDING_STAGE_LABELS["unknown"]
+  def financing_label(key) = FINANCING_LABELS[key.to_s] || FINANCING_LABELS["undecided"]
+
+  def education_term_groups(entries)
+    grouped_entries = entries.group_by { |entry| entry["category"] }
+    TERM_CATEGORY_DETAILS.filter_map do |key, details|
+      next if grouped_entries[key].blank?
+
+      details.merge(key:, entries: grouped_entries[key])
+    end
+  end
+
+  def education_term_category_label(key)
+    TERM_CATEGORY_DETAILS.dig(key.to_s, :label) || "Имотно понятие"
+  end
+
+  def education_document_groups(entries)
+    grouped_entries = entries.select { |entry| entry["kind"] == "document" }.group_by { |entry| entry["category"] }
+    groups = DOCUMENT_CATEGORY_DETAILS.filter_map do |key, details|
+      next if grouped_entries[key].blank?
+
+      details.merge(key:, entries: grouped_entries[key])
+    end
+    supplemental_groups = [
+      [ "stage", "related_stages", "Строителни етапи", "На кой етап е строежът?", "Виж какво обикновено се изпълнява, кои документи са свързани с етапа и какво още остава непроверено." ],
+      [ "guide", "buyer_guides", "Път на купувача", "Какво да направиш на своя етап?", "Насоки за решенията, документите и проверките, които са важни за теб в момента." ],
+      [ "term", "related_terms", "Свързани термини", "Търсиш значението на понятие?", "Кратки определения и примери за думите, които най-често ще срещнеш в документите." ]
+    ].filter_map do |kind, key, label, title, description|
+      related_entries = entries.select { |entry| entry["kind"] == kind }
+      next if related_entries.blank?
+
+      { key:, label:, title:, description:, entries: related_entries }
+    end
+
+    groups + supplemental_groups
+  end
+
+  def education_document_category_label(key)
+    DOCUMENT_CATEGORY_DETAILS.dig(key.to_s, :label) || "Имотен документ"
+  end
+
+  def education_path_for(entry)
+    case entry["kind"] || entry["path_kind"]
+    when "stage" then new_build_stage_path(entry["slug"])
+    when "document" then education_document_path(entry["slug"])
+    when "term" then term_path(entry["slug"])
+    when "guide" then buying_guide_path(anchor: entry["buyer_stage"].presence || entry["slug"])
+    else guide_path
+    end
+  end
+
+  def education_source_date(source)
+    date = source["source_updated_at"].presence
+    date ? "Последна актуализация на източника: #{l(Date.iso8601(date), format: :short)}" : "Източникът не посочва дата на актуализация"
+  end
+
+  def education_prose(value, css_class: nil)
+    paragraphs = value.to_s.split(/\n{2,}/).map(&:strip).reject(&:blank?)
+    classes = [ "prose-p", css_class ].compact.join(" ")
+    safe_join(paragraphs.map { |paragraph| content_tag(:p, paragraph, class: classes) })
+  end
+
+  def evidence_status_label(status)
+    {
+      "directly_found" => "Открит е пряк запис", "referenced_indirectly" => "Открита е косвена препратка",
+      "user_reported" => "Посочено от теб", "requested_from_seller" => "Поискай от продавача",
+      "separate_official_check_needed" => "Нужна е отделна официална проверка",
+      "professional_review_needed" => "Нужен е професионален преглед",
+      "no_matching_record_found" => "Не открихме съвпадащ запис", "source_unavailable" => "Източникът не е достъпен"
+    }.fetch(status.to_s, "Предстои проверка")
+  end
+
+  def checklist_applicability_label(status)
+    {
+      "relevant_now" => "Важно сега", "later" => "По-късно",
+      "conditional" => "При определени условия", "not_applicable" => "Вече не е приложимо"
+    }.fetch(status.to_s, "За преглед")
   end
 
   private

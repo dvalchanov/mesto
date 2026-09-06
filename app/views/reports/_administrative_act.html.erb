@@ -33,6 +33,8 @@
       <%= t("reports.findings.meaning.#{act.registry_kind}") %>
     </div>
 
+    <%= render "act_education", act: %>
+
     <% references = act.administrative_act_references.map(&:cadastral_identifier).uniq %>
     <% if references.any? %>
       <div class="mt-4">

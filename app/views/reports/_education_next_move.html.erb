@@ -1,0 +1,19 @@
+<section class="report-education" id="education-next-move">
+  <div class="report-education__heading">
+    <div><p class="report-section-label">Наръчник на Mesto</p><h2>Твоят следващ ход</h2><p>Строителното доказателство и твоят етап са показани отделно. Общите обяснения са безплатни.</p></div>
+    <%= link_to "Отвори наръчника", guide_path, class: "text-link" %>
+  </div>
+  <div class="report-education__context">
+    <div><span>Твоят етап</span><strong><%= journey ? buyer_stage_label(journey.buyer_stage) : "Още не е избран" %></strong><small><%= journey ? "Посочен от теб" : "Няма да го предполагаме от отчета" %></small></div>
+    <div><span>Последен открит документален етап</span><strong><%= presenter.assessment&.milestone ? building_stage_label(presenter.assessment.milestone) : "Не е установен" %></strong><small><%= presenter.assessment&.source_checked_at ? "Проверка: #{l(presenter.assessment.source_checked_at.to_date, format: :short)}" : "Източниците още не са проверени" %></small></div>
+    <div><span>Ключова неизвестност</span><strong><%= presenter.assessment&.limitations&.first || "Прочети обхвата на видимите записи." %></strong><small>„Не е намерено“ не означава „не съществува“.</small></div>
+  </div>
+  <div class="report-education__actions">
+    <% presenter.recommendations.first(3).each do |item| %><%= link_to education_path_for(item) do %><span>Какво означава?</span><strong><%= item["title"] %></strong><small><%= item["reason"] %></small><% end %><% end %>
+  </div>
+  <% if journey %>
+    <%= link_to "Виж личния ми план", my_mesto_path, class: "button button--ink" %>
+  <% else %>
+    <div class="report-education__connect"><p>Искаш ли да подредим информацията за твоя етап? Свързването пази личния контекст отделно от споделения отчет.</p><%= button_to "Свържи с личен план", attach_report_to_journey_path(analysis), method: :post, class: "button button--primary" %></div>
+  <% end %>
+</section>

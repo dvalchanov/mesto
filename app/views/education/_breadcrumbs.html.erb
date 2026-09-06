@@ -1,0 +1,8 @@
+<nav class="breadcrumbs" aria-label="Навигационна пътека">
+  <%= link_to "Начало", root_path %><span aria-hidden="true">/</span>
+  <%= link_to "Наръчник", guide_path %>
+  <% Array(items).each do |label, path| %>
+    <span aria-hidden="true">/</span>
+    <% if path %><%= link_to label, path %><% else %><span aria-current="page"><%= label %></span><% end %>
+  <% end %>
+</nav>

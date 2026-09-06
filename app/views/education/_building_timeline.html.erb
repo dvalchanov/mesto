@@ -1,0 +1,11 @@
+<ol class="building-timeline" aria-label="Осем етапа на новото строителство">
+  <% stages.each do |stage| %>
+    <% selected = local_assigns[:selected_key] == stage["key"] %>
+    <li class="<%= 'is-selected' if selected %>">
+      <%= link_to new_build_stage_path(stage["slug"]), aria: { current: (selected ? "step" : nil) } do %>
+        <span class="building-timeline__number"><%= format("%02d", stage["position"]) %></span>
+        <span><strong><%= stage["title"] %></strong><small><%= stage["summary"] %></small></span>
+      <% end %>
+    </li>
+  <% end %>
+</ol>
