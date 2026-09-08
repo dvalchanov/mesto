@@ -48,15 +48,19 @@ RSpec.describe Analysis::MetricsBuilder do
   end
 
   it "prefers current bounded OpenStreetMap places over historical amenity snapshots" do
-    analysis.update!(centroid: point_factory.point(23.3460262, 42.6394047))
-    result = DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: analysis.centroid)
+    analysis.update!(
+      centroid: point_factory.point(23.3460262, 42.6394047),
+      coverage_profile_key: DataCoverage.profile.key
+    )
+    import = DataSources::OpenStreetMap::DatasetSynchronizer.new.sync
+    dataset = import.spatial_dataset
     analysis.source_runs.create!(
       source_key: "openstreetmap_nearby_amenities",
       status: "succeeded",
-      parsed_payload: result.data,
-      source_url: result.source_url,
-      fetched_at: result.fetched_at,
-      relevant_at: result.relevant_at
+      parsed_payload: { "feature_count" => dataset.spatial_features.count, "coverage_status" => "complete" },
+      source_url: dataset.source_url,
+      fetched_at: dataset.last_imported_at,
+      relevant_at: dataset.relevant_at
     )
 
     metrics = described_class.new(analysis:).call
@@ -67,14 +71,14 @@ RSpec.describe Analysis::MetricsBuilder do
     expect(metrics.dig("amenities", "nearest_kindergarten", "name")).to eq("ДГ №190")
   end
 
-  it "does not calculate nearby activity or development pressure from identifier-only searches" do
+  it "does not calculate nearby activity or development pressure from partial area coverage" do
     metrics = described_class.new(analysis:).call
 
     expect(metrics.fetch("nearby_activity")).to eq(
-      "available" => false, "reason" => "identifier_search_only"
+      "available" => false, "reason" => "partial_area_coverage"
     )
     expect(metrics.fetch("development_pressure")).to eq(
-      "level" => "unavailable", "reason" => "identifier_search_only"
+      "level" => "unavailable", "reason" => "partial_area_coverage"
     )
   end
 

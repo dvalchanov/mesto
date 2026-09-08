@@ -36,6 +36,27 @@ module DataSources
         Result.unavailable(source_url: @endpoint, error:)
       end
 
+      def fetch_coverage(bounds:)
+        body = if DataSources.fixture?
+          FixtureLoader.read("openstreetmap_nearby_amenities.json")
+        else
+          @http_client.get(@endpoint, data: coverage_query(bounds)).body
+        end
+        payload = JSON.parse(body)
+        relevant_at = parse_timestamp(payload.dig("osm3s", "timestamp_osm_base"))
+        features = payload.fetch("elements", []).filter_map { |element| coverage_feature(element) }
+        Result.success(
+          data: { "type" => "FeatureCollection", "features" => features },
+          source_url: @endpoint,
+          relevant_at:,
+          raw_response: body
+        )
+      rescue JSON::ParserError, KeyError => error
+        Result.failure(source_url: @endpoint, error:)
+      rescue StandardError => error
+        Result.unavailable(source_url: @endpoint, error:)
+      end
+
       private
 
       def query(centroid)
@@ -46,6 +67,38 @@ module DataSources
           nw["amenity"~"^(school|kindergarten)$"](around:#{RADIUS_METRES},#{latitude},#{longitude});
           out center tags qt;
         OVERPASS
+      end
+
+      def coverage_query(bounds)
+        box = %i[south west north east].map { |key| format("%.7f", bounds.fetch(key)) }.join(",")
+        <<~OVERPASS.squish
+          [out:json][timeout:#{QUERY_TIMEOUT_SECONDS}][maxsize:8388608];
+          nw["amenity"~"^(school|kindergarten)$"](#{box});
+          out center tags qt;
+        OVERPASS
+      end
+
+      def coverage_feature(element)
+        tags = element.fetch("tags", {})
+        category = CATEGORY_BY_AMENITY[tags["amenity"]]
+        coordinates = coordinates_for(element)
+        return unless category && coordinates
+
+        {
+          "type" => "Feature",
+          "id" => "#{element.fetch('type')}/#{element.fetch('id')}",
+          "geometry" => {
+            "type" => "Point",
+            "coordinates" => [ coordinates.fetch(:longitude), coordinates.fetch(:latitude) ]
+          },
+          "properties" => {
+            "_mesto_category" => category,
+            "name" => tags["name:bg"].presence || tags["name"].presence || tags["official_name"].presence,
+            "address" => address(tags),
+            "operator" => tags["operator"].presence,
+            "source_url" => "https://www.openstreetmap.org/#{element.fetch('type')}/#{element.fetch('id')}"
+          }.compact
+        }
       end
 
       def normalize_features(elements, centroid)

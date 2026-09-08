@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_08_150200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -52,6 +52,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
     t.string "upi"
     t.index ["geometry"], name: "index_administrative_acts_on_geometry", using: :gist
     t.index ["registry_kind", "external_key"], name: "index_administrative_acts_on_registry_kind_and_external_key", unique: true
+  end
+
+  create_table "analysis_revisions", force: :cascade do |t|
+    t.integer "calculation_version", default: 1, null: false
+    t.datetime "completed_at"
+    t.string "coverage_profile_key", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "dataset_revisions", default: {}, null: false
+    t.text "error_message"
+    t.jsonb "geometry_bases", default: {}, null: false
+    t.integer "number", null: false
+    t.bigint "property_analysis_id", null: false
+    t.jsonb "report_snapshot", default: {}, null: false
+    t.datetime "started_at"
+    t.string "status", default: "running", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_analysis_id", "number"], name: "index_analysis_revisions_on_property_analysis_id_and_number", unique: true
+    t.index ["property_analysis_id"], name: "index_analysis_revisions_on_property_analysis_id"
   end
 
   create_table "budget_scenarios", force: :cascade do |t|
@@ -146,34 +164,72 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
   create_table "cadastre_imports", force: :cascade do |t|
     t.string "checksum"
     t.datetime "completed_at"
+    t.string "coverage_profile_key", default: "legacy", null: false
     t.datetime "created_at", null: false
     t.text "error_message"
     t.integer "importer_version", default: 1, null: false
+    t.jsonb "outcome_counts", default: {}, null: false
     t.integer "records_imported", default: 0, null: false
     t.integer "records_seen", default: 0, null: false
     t.datetime "relevant_at"
+    t.string "scope_digest", default: "unscoped", null: false
     t.string "source_archive_key", null: false
+    t.datetime "source_checked_at"
+    t.string "source_checksum"
+    t.string "source_etag"
+    t.datetime "source_last_modified_at"
     t.string "source_url", null: false
     t.datetime "started_at"
     t.string "status", default: "running", null: false
     t.datetime "updated_at", null: false
-    t.index ["source_archive_key", "checksum"], name: "index_cadastre_imports_on_source_archive_key_and_checksum", unique: true
+    t.jsonb "validation_errors", default: {}, null: false
+    t.index ["source_archive_key", "source_checksum", "importer_version", "scope_digest"], name: "idx_cadastre_imports_source_version_scope", unique: true, where: "(source_checksum IS NOT NULL)"
     t.index ["source_archive_key", "status"], name: "index_cadastre_imports_on_source_archive_key_and_status"
+  end
+
+  create_table "cadastre_source_archives", force: :cascade do |t|
+    t.text "attribution"
+    t.geometry "coverage_geometry", limit: {srid: 4326, type: "geometry"}
+    t.string "coverage_profile_key", null: false
+    t.datetime "created_at", null: false
+    t.datetime "discovered_at"
+    t.string "district", null: false
+    t.boolean "enabled", default: false, null: false
+    t.datetime "last_checked_at"
+    t.bigint "latest_successful_import_id"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "object_kind", null: false
+    t.text "permission_reference"
+    t.string "permission_status", default: "review_required", null: false
+    t.string "source_archive_key", null: false
+    t.string "source_url", null: false
+    t.string "status", default: "configured", null: false
+    t.datetime "updated_at", null: false
+    t.index ["coverage_geometry"], name: "index_cadastre_source_archives_on_coverage_geometry", using: :gist
+    t.index ["coverage_profile_key", "enabled"], name: "idx_on_coverage_profile_key_enabled_9e640abb04"
+    t.index ["latest_successful_import_id"], name: "index_cadastre_source_archives_on_latest_successful_import_id"
+    t.index ["source_archive_key", "coverage_profile_key"], name: "idx_cadastre_archives_key_profile", unique: true
   end
 
   create_table "dataset_imports", force: :cascade do |t|
     t.string "checksum"
     t.datetime "completed_at"
+    t.string "coverage_profile_key"
     t.datetime "created_at", null: false
     t.text "error_message"
+    t.integer "importer_version", default: 1, null: false
+    t.jsonb "outcome_counts", default: {}, null: false
     t.integer "records_created", default: 0, null: false
     t.integer "records_removed", default: 0, null: false
     t.integer "records_seen", default: 0, null: false
     t.integer "records_updated", default: 0, null: false
+    t.datetime "relevant_at"
+    t.string "scope_digest", default: "unscoped", null: false
     t.bigint "spatial_dataset_id", null: false
     t.datetime "started_at"
     t.string "status", default: "running", null: false
     t.datetime "updated_at", null: false
+    t.index ["spatial_dataset_id", "checksum", "importer_version", "scope_digest"], name: "idx_dataset_imports_source_version_scope"
     t.index ["spatial_dataset_id"], name: "index_dataset_imports_on_spatial_dataset_id"
   end
 
@@ -225,13 +281,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
   end
 
   create_table "property_analyses", force: :cascade do |t|
+    t.geography "analysis_point", limit: {srid: 4326, type: "st_point", geographic: true}
+    t.string "analysis_scope_status", default: "unknown", null: false
+    t.geometry "building_geometry", limit: {srid: 4326, type: "geometry"}
     t.string "building_identifier"
     t.geography "centroid", limit: {srid: 4326, type: "st_point", geographic: true}
     t.datetime "completed_at"
+    t.string "coverage_profile_key"
     t.string "coverage_status", default: "limited", null: false
     t.datetime "created_at", null: false
     t.datetime "failed_at"
     t.text "failure_message"
+    t.jsonb "geometry_bases", default: {}, null: false
     t.string "identifier_level", null: false
     t.string "individual_object_identifier"
     t.string "location_precision", default: "unavailable", null: false
@@ -242,16 +303,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
     t.string "settlement_code", null: false
     t.datetime "started_at"
     t.string "status", default: "queued", null: false
+    t.geometry "subject_geometry", limit: {srid: 4326, type: "geometry"}
     t.string "submitted_identifier", null: false
     t.jsonb "summary", default: {}, null: false
     t.datetime "updated_at", null: false
+    t.index ["analysis_point"], name: "index_property_analyses_on_analysis_point", using: :gist
+    t.index ["building_geometry"], name: "index_property_analyses_on_building_geometry", using: :gist
     t.index ["centroid"], name: "index_property_analyses_on_centroid", using: :gist
     t.index ["parcel_geometry"], name: "index_property_analyses_on_parcel_geometry", using: :gist
     t.index ["public_token"], name: "index_property_analyses_on_public_token", unique: true
+    t.index ["subject_geometry"], name: "index_property_analyses_on_subject_geometry", using: :gist
     t.index ["submitted_identifier", "completed_at"], name: "idx_on_submitted_identifier_completed_at_29246503d7"
   end
 
+  create_table "shared_spatial_calculations", force: :cascade do |t|
+    t.datetime "calculated_at", null: false
+    t.string "calculation_kind", null: false
+    t.string "coverage_profile_key", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "dataset_revisions", default: {}, null: false
+    t.string "fingerprint", null: false
+    t.string "geometry_basis", null: false
+    t.jsonb "result", default: {}, null: false
+    t.string "subject_key", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fingerprint"], name: "index_shared_spatial_calculations_on_fingerprint", unique: true
+    t.index ["subject_key", "calculation_kind"], name: "idx_shared_calculations_subject_kind"
+  end
+
   create_table "source_runs", force: :cascade do |t|
+    t.bigint "analysis_revision_id"
     t.string "checksum"
     t.datetime "created_at", null: false
     t.string "error_class"
@@ -266,21 +347,53 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
     t.string "source_url"
     t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
+    t.index ["analysis_revision_id"], name: "index_source_runs_on_analysis_revision_id"
     t.index ["property_analysis_id", "source_key"], name: "index_source_runs_on_property_analysis_id_and_source_key"
     t.index ["property_analysis_id"], name: "index_source_runs_on_property_analysis_id"
   end
 
+  create_table "source_snapshots", force: :cascade do |t|
+    t.text "attribution"
+    t.string "checksum"
+    t.string "coverage_profile_key", null: false
+    t.string "coverage_status", default: "partial", null: false
+    t.datetime "created_at", null: false
+    t.datetime "fetched_at"
+    t.jsonb "metadata", default: {}, null: false
+    t.text "permission_reference"
+    t.string "permission_status", default: "review_required", null: false
+    t.string "provider", null: false
+    t.integer "record_count", default: 0, null: false
+    t.datetime "relevant_at"
+    t.string "revision"
+    t.string "source_key", null: false
+    t.string "source_url", null: false
+    t.string "status", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source_key", "coverage_profile_key", "created_at"], name: "idx_source_snapshots_key_profile_created"
+  end
+
   create_table "spatial_datasets", force: :cascade do |t|
+    t.text "attribution"
+    t.geometry "coverage_geometry", limit: {srid: 4326, type: "geometry"}
+    t.string "coverage_profile_key"
+    t.string "coverage_status", default: "partial", null: false
     t.datetime "created_at", null: false
     t.string "external_dataset_id"
+    t.integer "importer_version", default: 1, null: false
     t.string "key", null: false
     t.datetime "last_imported_at"
     t.jsonb "metadata", default: {}, null: false
     t.string "name", null: false
+    t.text "permission_reference"
+    t.string "permission_status", default: "review_required", null: false
     t.string "provider", null: false
     t.datetime "relevant_at"
+    t.string "source_checksum"
+    t.string "source_revision"
     t.string "source_url", null: false
     t.datetime "updated_at", null: false
+    t.index ["coverage_geometry"], name: "index_spatial_datasets_on_coverage_geometry", using: :gist
     t.index ["key"], name: "index_spatial_datasets_on_key", unique: true
   end
 
@@ -301,14 +414,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
   end
 
   add_foreign_key "administrative_act_references", "administrative_acts"
+  add_foreign_key "analysis_revisions", "property_analyses"
   add_foreign_key "budget_scenarios", "buyer_journeys"
   add_foreign_key "budget_scenarios", "property_analyses"
   add_foreign_key "buyer_journeys", "property_analyses"
+  add_foreign_key "cadastre_source_archives", "cadastre_imports", column: "latest_successful_import_id"
   add_foreign_key "dataset_imports", "spatial_datasets"
   add_foreign_key "journey_item_progresses", "buyer_journeys"
   add_foreign_key "orders", "property_analyses"
   add_foreign_key "product_events", "orders"
   add_foreign_key "product_events", "property_analyses"
+  add_foreign_key "source_runs", "analysis_revisions"
   add_foreign_key "source_runs", "property_analyses"
   add_foreign_key "spatial_features", "spatial_datasets"
 end

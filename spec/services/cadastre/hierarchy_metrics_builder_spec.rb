@@ -29,7 +29,7 @@ RSpec.describe Cadastre::HierarchyMetricsBuilder do
     %w[district/buildings.zip district/objects.zip].each_with_index do |archive_key, index|
       CadastreImport.create!(
         source_archive_key: archive_key, source_url: source.fetch(:source_url), status: "succeeded",
-        checksum: "checksum-#{index}", importer_version: 2
+        checksum: "checksum-#{index}", importer_version: DataSources::CadastreOpenData::PropertyArchiveImporter::IMPORTER_VERSION
       )
     end
 

@@ -21,12 +21,12 @@ module Education
     end
 
     def source_checked_at
-      runs = @analysis.source_runs.where("source_key LIKE ?", "nag_%")
+      runs = @analysis.current_source_runs.where("source_key LIKE ?", "nag_%")
       runs.maximum(:fetched_at) || runs.maximum(:created_at)
     end
 
     def source_coverage
-      runs = @analysis.source_runs.where("source_key LIKE ?", "nag_%")
+      runs = @analysis.current_source_runs.where("source_key LIKE ?", "nag_%")
       return "unavailable" if runs.empty? || runs.where(status: "succeeded").none?
       return "partial" if runs.where(status: %w[failed unavailable]).exists?
 

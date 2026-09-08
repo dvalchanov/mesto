@@ -1,24 +1,32 @@
 module Analysis
   class Runner
-    STAGES = %w[identifier municipal location spatial metrics report].freeze
+    STAGES = %w[identifier location municipal spatial metrics report].freeze
+    CALCULATION_VERSION = 2
 
-    def initialize(analysis, cadastre_provider: Cadastre::Provider.configured)
+    def initialize(
+      analysis,
+      cadastre_provider: Cadastre::Provider.configured,
+      coverage_profile: DataCoverage.profile
+    )
       @analysis = analysis
       @cadastre_provider = cadastre_provider
-      @nag_records = []
+      @coverage_profile = coverage_profile
     end
 
     def call
       start_analysis
       return complete_non_sofia unless @analysis.sofia?
 
-      run_nag_sources
       resolve_location
-      run_spatial_sources
+      return complete_outside_coverage if @analysis.analysis_scope_status == "outside"
+
+      track_nag_sources
+      track_spatial_sources
       build_report
       finish_analysis
     rescue StandardError => error
       Rails.logger.error("Property analysis #{@analysis.id} failed: #{error.class}: #{error.message}")
+      @revision&.update!(status: "failed", completed_at: Time.current, error_message: error.message.truncate(500))
       @analysis.update!(status: "failed", failed_at: Time.current, failure_message: error.message.truncate(500))
       @analysis.update_progress!(current_stage || "report", "failed")
       @analysis
@@ -27,99 +35,228 @@ module Analysis
     private
 
     def start_analysis
-      @analysis.update!(status: "running", started_at: Time.current, failed_at: nil, failure_message: nil)
+      @analysis.with_lock do
+        @revision = @analysis.analysis_revisions.create!(
+          number: @analysis.next_revision_number,
+          status: "running",
+          coverage_profile_key: @coverage_profile.key,
+          calculation_version: CALCULATION_VERSION,
+          started_at: Time.current
+        )
+        @analysis.update!(
+          status: "running",
+          started_at: Time.current,
+          failed_at: nil,
+          failure_message: nil,
+          coverage_profile_key: @coverage_profile.key,
+          analysis_scope_status: "unknown"
+        )
+      end
       STAGES.each do |stage|
         @analysis.update_progress!(stage, stage == "identifier" ? "completed" : "pending", broadcast: false)
       end
       @analysis.broadcast_progress!
-      ProductEvent.record("analysis_started", property_analysis: @analysis)
+      ProductEvent.record("analysis_started", property_analysis: @analysis, metadata: { revision: @revision.number })
     end
 
     def complete_non_sofia
+      set_stage("location", "unavailable")
       set_stage("municipal", "active")
       nag_config.each do |key, config|
-        record_result(key, DataSources::Result.unavailable(source_url: config.fetch("url"), error: StandardError.new("Sofia municipal source does not cover this settlement")))
+        record_result(key_for_nag(key), DataSources::Result.unavailable(
+          source_url: config.fetch("url"),
+          error: StandardError.new("Sofia municipal source does not cover this settlement")
+        ))
       end
       set_stage("municipal", "unavailable")
-      %w[location spatial metrics].each { |stage| set_stage(stage, "unavailable") }
+      %w[spatial metrics].each { |stage| set_stage(stage, "unavailable") }
       set_stage("report", "active")
-      coverage = CoverageBuilder.new(@analysis.source_runs, analysis: @analysis).call
+      coverage = CoverageBuilder.new(runs, analysis: @analysis).call
       metrics = MetricsBuilder.new(analysis: @analysis).call
       summary = ReportBuilder.new(analysis: @analysis, metrics:, coverage:).call.merge("outside_sofia" => true)
-      @analysis.update!(status: "partial", coverage_status: "limited", metrics:, summary:, completed_at: Time.current)
+      complete_revision(status: "partial", metrics:, summary:, coverage_status: "limited")
       set_stage("report", "completed")
       ProductEvent.record("analysis_partial", property_analysis: @analysis)
       @analysis
     end
 
-    def run_nag_sources
-      set_stage("municipal", "active")
-      nag_config.each do |key, config|
-        result = DataSources::Nag::RegistryClient.new(registry_kind: key, config:).search(
-          identifiers: @analysis.identifiers_for_matching
-        )
-        record_result("nag_#{key}", result, request_metadata: { identifiers: @analysis.identifiers_for_matching })
-        next unless result.success?
-
-        @nag_records.concat(result.data)
-        result.data.each { |record| persist_act(record) }
-      end
-      status = @analysis.source_runs.where("source_key LIKE 'nag_%'").succeeded.exists? ? "completed" : "failed"
-      set_stage("municipal", status)
+    def complete_outside_coverage
+      set_stage("municipal", "unavailable")
+      set_stage("spatial", "unavailable")
+      set_stage("metrics", "active")
+      metrics = MetricsBuilder.new(analysis: @analysis).call
+      @analysis.update!(metrics:)
+      set_stage("metrics", "completed")
+      set_stage("report", "active")
+      coverage = CoverageBuilder.new(runs, analysis: @analysis).call
+      summary = ReportBuilder.new(analysis: @analysis, metrics:, coverage:).call.merge(
+        "outside_development_dataset" => true,
+        "coverage_profile" => profile_payload
+      )
+      complete_revision(status: "partial", metrics:, summary:, coverage_status: "limited")
+      set_stage("report", "completed")
+      ProductEvent.record("analysis_outside_coverage", property_analysis: @analysis)
+      @analysis
     end
 
     def resolve_location
       set_stage("location", "active")
-      result = @cadastre_provider.locate(
+      result = @cadastre_provider.locate(identifier: @analysis.submitted_identifier, hints: {})
+      record_result("cadastre", result, request_metadata: {
         identifier: @analysis.submitted_identifier,
-        hints: { district: cadastre_district_hint }
-      )
-      record_result("cadastre", result, request_metadata: { identifier: @analysis.submitted_identifier })
-      location = LocationResolver.new(analysis: @analysis, cadastre_result: result, nag_records: @nag_records).call
+        coverage_profile: @coverage_profile.key,
+        access: "prepared_database"
+      })
+
+      if result.error.is_a?(DataCoverage::OutsideSearchCoverage)
+        @analysis.update!(analysis_scope_status: "outside", location_precision: "unavailable")
+        set_stage("location", "unavailable")
+        return
+      end
+
+      location = LocationResolver.new(analysis: @analysis, cadastre_result: result, nag_records: []).call
+      bases = location.fetch(:geometry_bases, {})
       @analysis.update!(
-        centroid: location[:centroid], parcel_geometry: location[:geometry],
+        centroid: location[:analysis_point] || location[:centroid],
+        analysis_point: location[:analysis_point] || location[:centroid],
+        subject_geometry: location[:subject_geometry],
+        building_geometry: location[:building_geometry],
+        parcel_geometry: location[:parcel_geometry] || location[:geometry],
+        geometry_bases: bases,
+        analysis_scope_status: location[:analysis_point] ? "covered" : "data_unavailable",
         location_precision: location.fetch(:precision, "unavailable")
       )
-      set_stage("location", @analysis.centroid ? "completed" : "unavailable")
+      set_stage("location", @analysis.location_point ? "completed" : "unavailable")
     end
 
-    def run_spatial_sources
-      set_stage("spatial", "active")
-      if @analysis.centroid
-        arcgis_config.each do |key, config|
-          result = DataSources::ArcGis::FeatureLayerClient.new(layer_url: config.fetch("url")).query(geometry: @analysis.centroid)
-          record_result("arcgis_#{key}", result, request_metadata: { precision: @analysis.location_precision })
+    def track_nag_sources
+      set_stage("municipal", "active")
+      nag_config.each do |key, config|
+        source_key = key_for_nag(key)
+        snapshot = SourceSnapshot.latest(source_key, profile: @coverage_profile)
+        result = if snapshot&.status == "succeeded"
+          DataSources::Result.success(
+            data: {
+              "record_count" => snapshot.record_count,
+              "coverage_status" => snapshot.coverage_status,
+              "access" => "prepared_database"
+            },
+            source_url: snapshot.source_url,
+            fetched_at: snapshot.fetched_at || snapshot.created_at,
+            relevant_at: snapshot.relevant_at
+          )
+        else
+          DataSources::Result.unavailable(
+            source_url: snapshot&.source_url || config.fetch("url"),
+            error: DataCoverage::DatasetNotPrepared.new("Prepared #{source_key} data is not available")
+          )
         end
-      else
-        arcgis_config.each do |key, config|
-          record_result("arcgis_#{key}", DataSources::Result.unavailable(
-            source_url: config.fetch("url"), error: StandardError.new("A reliable location is required")
-          ))
-        end
+        record_result(source_key, result, request_metadata: { access: "prepared_database" })
       end
-      run_current_nearby_amenities
-      import_missing_spatial_datasets if @analysis.centroid
-      track_spatial_datasets
-      spatial_success = @analysis.source_runs
-        .where("source_key LIKE 'arcgis_%' OR source_key LIKE 'sofiaplan_dataset_%' OR source_key LIKE 'openstreetmap_%'")
-        .succeeded.exists?
-      set_stage("spatial", spatial_success ? "completed" : "unavailable")
+      status = runs.where("source_key LIKE 'nag_%'").failed_or_unavailable.exists? ? "unavailable" : "completed"
+      set_stage("municipal", status)
     end
 
-    def run_current_nearby_amenities
-      result = if @analysis.centroid
-        DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: @analysis.centroid)
+    def track_spatial_sources
+      set_stage("spatial", "active")
+      track_planning_datasets
+      track_sofiaplan_datasets
+      track_openstreetmap_dataset
+      spatial_runs = runs.where(
+        "source_key LIKE 'arcgis_%' OR source_key LIKE 'sofiaplan_dataset_%' OR source_key LIKE 'openstreetmap_%'"
+      )
+      set_stage("spatial", spatial_runs.succeeded.exists? ? "completed" : "unavailable")
+    end
+
+    def track_planning_datasets
+      arcgis_config.each do |key, config|
+        source_key = "arcgis_#{key}"
+        dataset = SpatialDataset.prepared.find_by(key: source_key, coverage_profile_key: @coverage_profile.key)
+        result = prepared_planning_result(dataset, config)
+        record_result(source_key, result, request_metadata: {
+          access: "prepared_database",
+          geometry_basis: @analysis.parcel_geometry ? "parcel_polygon" : "unavailable"
+        })
+      end
+    end
+
+    def prepared_planning_result(dataset, config)
+      return dataset_unavailable(config.fetch("url"), "Prepared planning dataset has not been imported") unless dataset
+      return dataset_unavailable(dataset.source_url, "A cadastral parcel polygon is required") unless @analysis.parcel_geometry
+
+      features = dataset.spatial_features.intersecting(@analysis.parcel_geometry).map do |feature|
+        {
+          "type" => "Feature",
+          "geometry" => RGeo::GeoJSON.encode(feature.geometry),
+          "properties" => feature.properties
+        }
+      end
+      DataSources::Result.success(
+        data: {
+          "type" => "FeatureCollection",
+          "features" => features,
+          "coverage_status" => dataset.coverage_status,
+          "access" => "prepared_database"
+        },
+        source_url: dataset.source_url,
+        fetched_at: dataset.last_imported_at,
+        relevant_at: dataset.relevant_at
+      )
+    end
+
+    def track_sofiaplan_datasets
+      DataSources.config.dig("sofiaplan", "datasets").each do |key, config|
+        dataset = SpatialDataset.prepared.find_by(key:, coverage_profile_key: @coverage_profile.key)
+        result = if dataset && @analysis.location_point
+          DataSources::Result.success(
+            data: {
+              "category" => key,
+              "feature_count" => dataset.spatial_features.count,
+              "coverage_status" => dataset.coverage_status,
+              "access" => "prepared_database"
+            },
+            source_url: dataset.source_url,
+            fetched_at: dataset.last_imported_at,
+            relevant_at: dataset.relevant_at
+          )
+        else
+          dataset_unavailable(
+            dataset&.source_url || "#{DataSources.config.dig('sofiaplan', 'base_url')}/datasets/#{config.fetch('id')}",
+            dataset ? "A reliable location is required" : "Configured dataset has not been imported"
+          )
+        end
+        record_result("sofiaplan_dataset_#{key}", result, request_metadata: { access: "prepared_database" })
+      end
+    end
+
+    def track_openstreetmap_dataset
+      config = DataSources.config.fetch("openstreetmap")
+      dataset = SpatialDataset.prepared.find_by(
+        key: config.fetch("dataset_key"),
+        coverage_profile_key: @coverage_profile.key
+      )
+      result = if dataset && @analysis.location_point
+        DataSources::Result.success(
+          data: {
+            "feature_count" => dataset.spatial_features.count,
+            "coverage_status" => dataset.coverage_status,
+            "access" => "prepared_database"
+          },
+          source_url: dataset.source_url,
+          fetched_at: dataset.last_imported_at,
+          relevant_at: dataset.relevant_at
+        )
       else
-        DataSources::Result.unavailable(
-          source_url: DataSources.config.dig("openstreetmap", "overpass_url"),
-          error: StandardError.new("A reliable property location is required")
+        dataset_unavailable(
+          dataset&.source_url || config.fetch("overpass_url"),
+          dataset ? "A reliable location is required" : "Prepared OpenStreetMap amenities have not been imported"
         )
       end
-      record_result(
-        "openstreetmap_nearby_amenities",
-        result,
-        request_metadata: { precision: @analysis.location_precision, radius_m: DataSources::OpenStreetMap::NearbyAmenitiesClient::RADIUS_METRES }
-      )
+      record_result("openstreetmap_nearby_amenities", result, request_metadata: {
+        access: "prepared_database",
+        radius_m: DataSources::OpenStreetMap::NearbyAmenitiesClient::RADIUS_METRES,
+        geometry_basis: @analysis.geometry_bases["amenity_proximity"]
+      })
     end
 
     def build_report
@@ -129,93 +266,53 @@ module Analysis
       set_stage("metrics", "completed")
 
       set_stage("report", "active")
-      coverage = CoverageBuilder.new(@analysis.source_runs, analysis: @analysis).call
-      summary = ReportBuilder.new(analysis: @analysis, metrics:, coverage:).call
+      coverage = CoverageBuilder.new(runs, analysis: @analysis).call
+      summary = ReportBuilder.new(analysis: @analysis, metrics:, coverage:).call.merge(
+        "coverage_profile" => profile_payload
+      )
       @analysis.update!(coverage_status: coverage.fetch("status"), summary:)
       set_stage("report", "completed")
     end
 
     def finish_analysis
-      partial = @analysis.source_runs.failed_or_unavailable.exists?
-      status = partial ? "partial" : "ready"
-      @analysis.update!(status:, completed_at: Time.current)
-      ProductEvent.record(partial ? "analysis_partial" : "analysis_completed", property_analysis: @analysis)
+      status = if runs.failed_or_unavailable.exists? || @analysis.coverage_status != "complete"
+        "partial"
+      else
+        "ready"
+      end
+      complete_revision(
+        status:,
+        metrics: @analysis.metrics,
+        summary: @analysis.summary,
+        coverage_status: @analysis.coverage_status
+      )
+      ProductEvent.record(status == "partial" ? "analysis_partial" : "analysis_completed", property_analysis: @analysis)
       @analysis
     end
 
-    def track_spatial_datasets
-      DataSources.config.dig("sofiaplan", "datasets").each do |key, config|
-        dataset = SpatialDataset.find_by(key:)
-        result = if !@analysis.centroid
-          DataSources::Result.unavailable(
-            source_url: dataset&.source_url || "#{DataSources.config.dig('sofiaplan', 'base_url')}/datasets/#{config.fetch('id')}",
-            error: StandardError.new("A reliable property location is required before this dataset can be applied")
-          )
-        elsif dataset&.last_imported_at
-          DataSources::Result.success(
-            data: { "category" => key, "feature_count" => dataset.spatial_features.count },
-            source_url: dataset.source_url, fetched_at: dataset.last_imported_at, relevant_at: dataset.relevant_at
-          )
-        elsif @spatial_sync_results&.key?(key)
-          @spatial_sync_results.fetch(key)
-        else
-          DataSources::Result.unavailable(
-            source_url: "#{DataSources.config.dig("sofiaplan", "base_url")}/datasets/#{config.fetch("id")}",
-            error: StandardError.new("Configured dataset has not been imported")
-          )
-        end
-        record_result("sofiaplan_dataset_#{key}", result)
-      end
-    end
-
-    def import_missing_spatial_datasets
-      missing_keys = DataSources.config.dig("sofiaplan", "datasets").keys.reject do |key|
-        SpatialDataset.where(key:).where.not(last_imported_at: nil).exists?
-      end
-      return if missing_keys.empty?
-
-      synchronizer = DataSources::Sofiaplan::DatasetSynchronizer.new
-      @spatial_sync_results = missing_keys.each_with_object({}) do |key, results|
-        results.merge!(synchronizer.sync(key))
-      end
-    end
-
-    def persist_act(record)
-      attributes = record.slice(
-        "act_number", "title", "status", "issued_on", "effective_on", "issuer", "district", "locality",
-        "upi", "address", "object_description", "construction_category", "built_up_area", "gross_floor_area",
-        "source_url", "document_url", "properties"
+    def complete_revision(status:, metrics:, summary:, coverage_status:)
+      completed_at = Time.current
+      @analysis.update!(status:, coverage_status:, metrics:, summary:, completed_at:)
+      @revision.update!(
+        status:,
+        completed_at:,
+        geometry_bases: @analysis.geometry_bases,
+        dataset_revisions: dataset_revisions,
+        report_snapshot: { "summary" => summary, "metrics" => metrics }
       )
-      attributes["geometry"] = point_from(record)
-      act = AdministrativeAct.find_or_initialize_by(
-        registry_kind: record.fetch("registry_kind"), external_key: record.fetch("external_key")
-      )
-      act.assign_attributes(attributes)
-      act.save!
-      document_identifiers = Array(record["cadastral_identifiers"])
-      references = document_identifiers.index_with { "document" }
-      references[record["matched_identifier"]] ||= "search_query" if record["matched_identifier"].present?
-      references.each do |identifier, match_basis|
-        parsed = CadastralIdentifier.new(identifier)
-        next unless parsed.valid?
-
-        reference = act.administrative_act_references.find_or_initialize_by(cadastral_identifier: parsed.to_s)
-        reference.reference_level = parsed.level.to_s
-        reference.match_basis = "document" if match_basis == "document"
-        reference.match_basis ||= match_basis
-        reference.save!
-      end
     end
 
-    def point_from(record)
-      return unless record["longitude"] && record["latitude"]
-
-      RGeo::Geographic.spherical_factory(srid: 4326).point(record["longitude"].to_f, record["latitude"].to_f)
+    def dataset_revisions
+      PreparedDataRevisionSet.call(
+        profile: @coverage_profile,
+        identifiers: @analysis.identifiers_for_matching
+      )
     end
 
     def record_result(source_key, result, request_metadata: {})
       payload = serializable_payload(result.data)
       @analysis.source_runs.create!(
+        analysis_revision: @revision,
         source_key:,
         status: result.success? ? "succeeded" : result.unavailable? ? "unavailable" : "failed",
         request_metadata:,
@@ -247,17 +344,29 @@ module Analysis
       end
     end
 
+    def dataset_unavailable(source_url, message)
+      DataSources::Result.unavailable(
+        source_url:,
+        error: DataCoverage::DatasetNotPrepared.new(message)
+      )
+    end
+
+    def profile_payload
+      {
+        "key" => @coverage_profile.key,
+        "label" => @coverage_profile.label,
+        "search_boundary" => RGeo::GeoJSON.encode(@coverage_profile.search_geometry),
+        "supporting_buffer_metres" => @coverage_profile.supporting_buffer_metres
+      }
+    end
+
+    def runs = @revision.source_runs
     def set_stage(key, status)
       @current_stage = key
       @analysis.update_progress!(key, status)
     end
-
     def current_stage = @current_stage
-    def cadastre_district_hint
-      @nag_records.lazy.map do |record|
-        record["district"].presence || record.dig("properties", "RegionName").presence
-      end.find(&:present?)
-    end
+    def key_for_nag(key) = "nag_#{key}"
     def nag_config = DataSources.config.dig("nag", "registers")
     def arcgis_config = DataSources.config.fetch("arcgis")
   end

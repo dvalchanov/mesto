@@ -13,8 +13,9 @@ module Analysis
     private
 
     def reusable
-      PropertyAnalysis.completed.where(submitted_identifier: @identifier.to_s)
-        .where(completed_at: REUSE_WINDOW.ago..).order(completed_at: :desc).first
+      candidates = PropertyAnalysis.completed.where(submitted_identifier: @identifier.to_s)
+        .where(completed_at: REUSE_WINDOW.ago..).order(completed_at: :desc)
+      candidates.find { |analysis| current_revision?(analysis) }
     end
 
     def create
@@ -27,6 +28,17 @@ module Analysis
         identifier_level: @identifier.level.to_s,
         status: "queued"
       ).tap { |analysis| AnalyzePropertyJob.perform_later(analysis.id) }
+    end
+
+    def current_revision?(analysis)
+      revision = analysis.current_revision
+      return false unless revision&.coverage_profile_key == DataCoverage.profile.key
+
+      expected = PreparedDataRevisionSet.call(
+        profile: DataCoverage.profile,
+        identifiers: analysis.identifiers_for_matching
+      )
+      revision.dataset_revisions == expected
     end
   end
 end

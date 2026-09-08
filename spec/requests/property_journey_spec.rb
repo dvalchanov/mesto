@@ -59,6 +59,7 @@ RSpec.describe "Property report journey", type: :request do
     expect(response.body).to include(I18n.t("reports.progress.title"))
     expect(response.body).to include("report-progress__grid-loader")
 
+    prepare_complete_sources
     Analysis::Runner.new(analysis, cadastre_provider: successful_cadastre_provider).call
     expect(analysis.reload.status).to eq("ready")
     get report_path(analysis)
@@ -232,16 +233,18 @@ RSpec.describe "Property report journey", type: :request do
       status: "ready",
       centroid: point,
       completed_at: Time.zone.parse("2026-09-02"),
-      location_precision: "cadastral_geometry"
+      location_precision: "cadastral_geometry",
+      coverage_profile_key: DataCoverage.profile.key
     )
-    result = DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: point)
+    import = DataSources::OpenStreetMap::DatasetSynchronizer.new.sync
+    dataset = import.spatial_dataset
     analysis.source_runs.create!(
       source_key: "openstreetmap_nearby_amenities",
       status: "succeeded",
-      parsed_payload: result.data,
-      source_url: result.source_url,
-      fetched_at: result.fetched_at,
-      relevant_at: result.relevant_at
+      parsed_payload: { "feature_count" => dataset.spatial_features.count, "coverage_status" => "complete" },
+      source_url: dataset.source_url,
+      fetched_at: dataset.last_imported_at,
+      relevant_at: dataset.relevant_at
     )
     analysis.update!(metrics: Analysis::MetricsBuilder.new(analysis:).call)
 
@@ -266,11 +269,46 @@ RSpec.describe "Property report journey", type: :request do
 
   def successful_cadastre_provider
     point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3205, 42.6905)
+    factory = RGeo::Cartesian.preferred_factory(srid: 4326)
+    ring = factory.linear_ring([
+      factory.point(23.319, 42.689), factory.point(23.322, 42.689),
+      factory.point(23.322, 42.692), factory.point(23.319, 42.692),
+      factory.point(23.319, 42.689)
+    ])
+    parcel = factory.multi_polygon([ factory.polygon(ring) ])
     result = DataSources::Result.success(
-      data: { "centroid" => point, "precision" => "cadastral_geometry" },
+      data: {
+        "analysis_point" => point,
+        "parcel_geometry" => parcel,
+        "precision" => "cadastral_geometry",
+        "geometry_bases" => {
+          "amenity_proximity" => "selected_building_representative_point",
+          "parcel_planning" => "parcel_polygon"
+        }
+      },
       source_url: "https://kais.cadastre.bg/bg/OpenData",
       relevant_at: Time.zone.parse("2026-08-05")
     )
     instance_double(Cadastre::Provider, locate: result)
+  end
+
+  def prepare_complete_sources
+    profile = DataCoverage.profile
+    DataSources::Sofiaplan::DatasetSynchronizer.new(coverage_profile: profile).sync
+    DataSources::ArcGis::DatasetSynchronizer.new(coverage_profile: profile).sync
+    DataSources::OpenStreetMap::DatasetSynchronizer.new(coverage_profile: profile).sync
+      .spatial_dataset.update!(coverage_status: "complete")
+    DataSources.config.dig("nag", "registers").each_key do |key|
+      SourceSnapshot.create!(
+        source_key: "nag_#{key}",
+        provider: "NAG",
+        source_url: "https://nag.sofia.bg/#{key}",
+        coverage_profile_key: profile.key,
+        status: "succeeded",
+        coverage_status: "complete",
+        fetched_at: Time.current,
+        permission_status: "approved"
+      )
+    end
   end
 end

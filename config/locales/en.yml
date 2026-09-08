@@ -183,10 +183,12 @@ en:
       partial: "Partial"
       limited: "Limited"
       checked: "We checked %{succeeded} of %{checked} sources successfully."
+      geographic_title: "Geographic coverage"
+      geographic: { complete: "Prepared for this area", partial: "Partial area/history", unknown: "Unknown", outside: "Outside dataset" }
     progress:
       title: "Building the public data trail"
       description: "This page refreshes automatically. We show real stages rather than a made-up percentage."
-      location_wait: "The first check in a district may take several minutes while official cadastral archives are imported. Later checks reuse the imported data."
+      location_wait: "Reports use datasets prepared by background ingestion. A public lookup never starts a district download."
       identifier: "Checking the identifier"
       municipal: "Searching municipal registers"
       location: "Trying to resolve the location"
@@ -197,6 +199,9 @@ en:
     outside_sofia:
       title: "Valid identifier outside current municipal coverage"
       body: "The identifier is structurally valid, but this prototype currently has its richest coverage for Sofia Municipality. We keep it valid and show which sources do not apply."
+    outside_dataset:
+      title: "Outside this development dataset"
+      body: "The cadastral object exists in locally imported data, but it is outside the %{profile} search boundary. No additional district import was started."
     failed: { title: "The analysis could not be completed", body: "The public sources did not return enough reliable information. Please try again later." }
     no_data:
       title: "Not enough data for a full analysis"
@@ -224,6 +229,13 @@ en:
     sources:
       eyebrow: "Method and evidence"
       title: "Checked public sources"
+      geometry_basis: "Calculation basis: %{basis}"
+      geometry_bases:
+        parcel_polygon: "the complete cadastral parcel polygon"
+        selected_building_representative_point: "a representative point inside the selected building"
+        selected_subject_representative_point: "a representative point inside the selected cadastral object"
+        parcel_representative_point: "a representative point inside the cadastral parcel"
+        unavailable: "unavailable"
       empty: "No checks have been recorded yet."
       summary: "%{succeeded} of %{checked} applicable checks returned a usable response. Open for details."
       method_note: "‘No match found’ only means that the checked public records returned no result for the identifier used. It does not prove that a document does not exist. Spatial datasets are marked as used only when the property has a reliable location."
@@ -231,6 +243,8 @@ en:
         needs_location: "This source could not be applied because the property location was not resolved reliably. No count or distance was calculated."
         cadastre_archive_unavailable: "AGKK's official open-data archive for this Sofia district is not currently published. Without it we cannot confirm the cadastral location, so location-based checks were skipped. Try this report again after AGKK republishes the district archive."
         spatial_dataset: "The dataset could not be loaded for this analysis. No count or distance was calculated; the missing result is not a zero."
+        dataset_not_prepared: "This shared dataset has not been prepared for the configured coverage profile. The report did not contact the source or start an import."
+        outside_dataset: "The property is outside the configured search boundary. This does not mean that the cadastral object does not exist."
         unavailable: "The public source was unavailable, so this topic was not verified and no conclusion was calculated from it."
         failed: "The public-source check failed, so this topic was not verified and no conclusion was calculated from it."
       statuses: { pending: "Pending", running: "In progress", succeeded: "Succeeded", unavailable: "Unavailable", failed: "Failed" }
@@ -691,7 +705,7 @@ en:
           other: "%{count} floors"
         data_date: "Data date: %{date}"
         issued_on: "Issued: %{date}"
-        distance: "%{distance} m from the property"
+        distance: "%{distance} m straight-line from the selected building/location point"
     locked:
       eyebrow: "Full report"
       title: "See the complete records, nearby places, and evidence"

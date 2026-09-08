@@ -7,7 +7,7 @@ class ReportsController < ApplicationController
     @all_acts = @analysis.administrative_acts.includes(:administrative_act_references).chronological
     @preview_acts = @all_acts.limit(2)
     @acts = @analysis.full_report_unlocked? ? @all_acts : AdministrativeAct.none
-    @source_runs = @analysis.source_runs.order(:created_at)
+    @source_runs = @analysis.current_source_runs.order(:created_at)
     @property_facts = Analysis::PropertyFactsBuilder.new(analysis: @analysis).call
     @buyer_checklist = Analysis::BuyerChecklistBuilder.new(analysis: @analysis, facts: @property_facts).call
     @due_diligence = Analysis::DueDiligenceBuilder.new(analysis: @analysis, facts: @property_facts).call
@@ -34,8 +34,7 @@ class ReportsController < ApplicationController
     elsif @analysis.completed_at && @analysis.completed_at > 15.minutes.ago
       redirect_to report_path(@analysis), alert: t("reports.refresh.too_soon")
     else
-      @analysis.source_runs.delete_all
-      @analysis.update!(status: "queued", summary: {}, metrics: {}, completed_at: nil, failed_at: nil, failure_message: nil)
+      @analysis.update!(status: "queued", failed_at: nil, failure_message: nil)
       AnalyzePropertyJob.perform_later(@analysis.id)
       redirect_to report_path(@analysis), notice: t("reports.refresh.started")
     end

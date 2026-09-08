@@ -19,7 +19,20 @@ module Analysis
       else
         "limited"
       end
-      { "status" => level, "succeeded" => succeeded, "checked" => checked }
+      geographic_status = geographic_coverage_status(runs)
+      honest_level = if geographic_status != "complete" && level.in?(%w[complete good])
+        "partial"
+      else
+        level
+      end
+      {
+        "status" => honest_level,
+        "task_completion_status" => level,
+        "geographic_coverage_status" => geographic_status,
+        "succeeded" => succeeded,
+        "checked" => checked,
+        "coverage_profile_key" => @analysis&.coverage_profile_key
+      }.compact
     end
 
     private
@@ -31,6 +44,17 @@ module Analysis
         "source_key LIKE ? OR source_key LIKE ? OR source_key LIKE ?",
         "sofiaplan_dataset_%", "arcgis_%", "openstreetmap_%"
       )
+    end
+
+    def geographic_coverage_status(runs)
+      return "unknown" unless @analysis
+      return "outside" if @analysis.analysis_scope_status == "outside"
+      return "unknown" unless @analysis.analysis_scope_status == "covered"
+
+      declared = runs.where(status: "succeeded").filter_map do |run|
+        run.parsed_payload["coverage_status"]
+      end
+      declared.any? && declared.all? { |status| status == "complete" } ? "complete" : "partial"
     end
   end
 end

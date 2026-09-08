@@ -11,7 +11,7 @@ RSpec.describe DataSources::CadastreOpenData::IndividualObjectsImporter do
     result = described_class.new(
       archive_path: archive.path, source_archive_key: "district/objects.zip",
       source_url: "https://kais.cadastre.bg/bg/OpenData/Download?path=objects",
-      relevant_at: Time.zone.parse("2026-08-05")
+      relevant_at: Time.zone.parse("2026-08-05"), coverage_profile: nil
     ).call
     property = CadastralProperty.find_by!(cadastral_identifier: "68134.1609.3263.1.10")
 
