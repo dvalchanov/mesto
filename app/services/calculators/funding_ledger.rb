@@ -113,10 +113,10 @@ module Calculators
 
     def ledger_warnings(timing_unknown:, unscheduled_costs:)
       warnings = []
-      warnings << "Не е посочено кога ипотечните средства стават достъпни; не са използвани като налични пари." if timing_unknown
+      warnings << "Не си посочил от кой момент можеш да използваш ипотечните средства, затова не сме ги включили като налични." if timing_unknown
       warnings << "Сборът на планираните ипотечни усвоявания е над размера на кредита; използването е ограничено до главницата." if mortgage_sources.sum { _1["amount_cents"].to_i } > mortgage_principal_cents
       warnings << "Има разходи без съвпадащо събитие в графика." if unscheduled_costs.positive?
-      warnings << "Отрицателното салдо е липсващо финансиране, а не автоматично получен овърдрафт." if warnings.empty? || rows_negative?
+      warnings << "Отрицателното салдо показва недостиг на средства. То не означава, че разполагаш с овърдрафт." if warnings.empty? || rows_negative?
       warnings
     end
 

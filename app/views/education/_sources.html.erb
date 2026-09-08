@@ -9,9 +9,9 @@
       <% source = catalog.source(source_id) %>
       <li>
         <%= link_to source["title"], source["url"], target: "_blank", rel: "noopener noreferrer" %>
-        <span><%= education_source_date(source) %> · Проверено от Mesto: <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
+        <span><%= education_source_date(source) %> · Проверено от Mesto на <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
       </li>
     <% end %>
   </ul>
-  <p class="education-sources__status">Версия <%= entry["content_version"] %> · Съдържанието е публикувано · Предстои преглед от специалист</p>
+  <p class="education-sources__status">Версия <%= entry["content_version"] %> · Съдържанието е публикувано, но все още не е прегледано от специалист.</p>
 </section>

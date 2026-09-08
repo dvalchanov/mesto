@@ -6,16 +6,16 @@
   <div class="site-shell calculator-hero__inner">
     <div class="calculator-hero__copy">
       <p class="eyebrow">Калкулатор за покупка на имот</p>
-      <h1>Колко ще ти струва покупката - и кога ще ти трябват парите?</h1>
-      <p>Сметни разходите, собствените средства и плащанията по твоя сценарий. Можеш да започнеш и без избран имот.</p>
+      <h1>Колко ще ти струва покупката — и кога ще ти трябват парите?</h1>
+      <p>Сметни разходите, нужните собствени средства и плащанията за своята покупка. Можеш да започнеш и без избран имот.</p>
       <div class="calculator-hero__actions">
         <%= link_to "Започни сметката", "#purchase-calculator", class: "button button--primary" %>
-        <%= link_to purchase_calculator_path(example: 1), class: "text-link" do %>Виж примерен сценарий<%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
+        <%= link_to purchase_calculator_path(example: 1), class: "text-link" do %>Виж примерна сметка<%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
       </div>
     </div>
     <div class="calculator-hero__aside">
       <div class="calculator-plan-visual" aria-hidden="true">
-        <div class="calculator-plan-visual__heading"><span>Парите във времето</span><b>EUR</b></div>
+        <div class="calculator-plan-visual__heading"><span>Плащанията във времето</span><b>EUR</b></div>
         <div class="calculator-plan-visual__canvas">
           <svg viewBox="0 0 260 142" fill="none">
             <g class="calculator-plan-visual__grid">
@@ -32,24 +32,24 @@
         <div class="calculator-plan-visual__steps">
           <span><b>01</b>Цена</span>
           <span><b>02</b>Средства</span>
-          <span><b>03</b>Моменти</span>
+          <span><b>03</b>Плащания</span>
         </div>
       </div>
       <div class="calculator-hero__benefits" aria-label="Предимства на калкулатора">
         <span>Безплатно</span>
         <span>Без регистрация</span>
-        <span>Без банкова оферта</span>
+        <span>Работи и без банкова оферта</span>
       </div>
     </div>
   </div>
 </section>
 
 <% if @scenario %>
-  <section class="site-shell saved-scenario-bar" aria-label="Запазен сценарий">
+  <section class="site-shell saved-scenario-bar" aria-label="Запазена сметка">
     <div>
       <span>Запазена сметка</span>
       <strong><%= @scenario.title %></strong>
-      <small>Изчислена <%= l(@scenario.calculated_at, format: :short) %> · двигател <%= @scenario.engine_version %></small>
+      <small>Изчислена на <%= l(@scenario.calculated_at, format: :short) %> · версия <%= @scenario.engine_version %></small>
       <% if @scenario.buyer_journey %><small>Свързан личен план: <%= @scenario.buyer_journey.label.presence || "без име" %></small><% end %>
     </div>
     <div class="saved-scenario-bar__actions">
@@ -62,7 +62,7 @@
       <%= button_to "Изтрий", budget_scenario_path(@scenario), method: :delete, class: "button button--small button--danger", data: { turbo_confirm: "Да изтрия ли тази сметка?" } %>
     </div>
     <% if @scenario.stale_rules? %>
-      <div class="calculator-warning">Има различни версии на правилата. Запазеният резултат не е променен автоматично. <%= button_to "Преизчисли изрично", recalculate_budget_scenario_path(@scenario), class: "text-link" %></div>
+      <div class="calculator-warning">Правилата са обновени след тази сметка. Запазеният резултат не е променян. <%= button_to "Преизчисли по новите правила", recalculate_budget_scenario_path(@scenario), class: "text-link" %></div>
     <% end %>
   </section>
 <% end %>
@@ -85,14 +85,14 @@
     <section class="calculator-panel" data-calculator-tabs-target="panel" data-section="costs" role="tabpanel">
       <div class="calculator-panel__heading">
         <div><span>01</span><h2>Цена и разходи</h2></div>
-        <p>Автоматичните пера използват проверени правила само там, където имаме надежден източник.</p>
+        <p>Изчисляваме автоматично само онези разходи, за които разполагаме с надежден източник.</p>
       </div>
 
       <div class="calculator-fields calculator-fields--two">
         <div class="calculator-field calculator-field--strong">
           <%= form.label :property_price, "Цена по сделката" %>
           <div class="money-field"><%= form.text_field :property_price, value: money_input_value(calculator_input("property_price_cents")), inputmode: "decimal", placeholder: "300 000,00", aria: { describedby: "price-hint" } %><span>€</span></div>
-          <small id="price-hint">Въведи общата цена, освен ако маркираш част като допълнителна.</small>
+          <small id="price-hint">Въведи общата цена. Ако гараж, паркомясто или друга част се плаща отделно, отбележи го в разбивката по-долу.</small>
           <%= calculator_error(@normalizer&.errors, "property_price") %>
         </div>
         <div class="calculator-field">
@@ -103,12 +103,12 @@
         <div class="calculator-field" data-calculator-form-target="manualMunicipality" <%= 'hidden' unless calculator_input("municipality") == "other" %>>
           <%= form.label :manual_local_tax_rate, "Ръчно въведена местна ставка" %>
           <div class="money-field"><%= form.text_field :manual_local_tax_rate, value: calculator_input("manual_local_tax_rate"), inputmode: "decimal", placeholder: "напр. 2,5" %><span>%</span></div>
-          <small>Непроверено потребителско допускане - не се прилага софийската ставка.</small>
+          <small>Това е въведена от теб ставка и не е проверена от Mesto. Ставката за София няма да се приложи.</small>
         </div>
         <div class="calculator-field">
           <%= form.label :transaction_date, "Дата на сделката (по избор)" %>
           <%= form.date_field :transaction_date, value: calculator_input("transaction_date") %>
-          <small>За бъдеща дата непроменените правила са допускане.</small>
+          <small>За бъдеща дата приемаме, че правилата ще останат без промяна.</small>
         </div>
         <div class="calculator-field">
           <%= form.label :tax_assessment, "Данъчна оценка (по избор)" %>
@@ -118,10 +118,10 @@
         <div class="calculator-field">
           <%= form.label :transaction_cost_share, "Твой планиран дял от автоматичните разходи" %>
           <div class="money-field"><%= form.text_field :transaction_cost_share, value: calculator_input("transaction_cost_share_percent", "100"), inputmode: "decimal" %><span>%</span></div>
-          <small>Видимо допускане за планиране, не универсално правило за отговорността между страните.</small>
+          <small>Използва се само за твоята сметка. Кой действително поема разхода зависи от закона и уговореното между страните.</small>
         </div>
         <fieldset class="calculator-field calculator-field--wide">
-          <legend>Как е цитирана цената?</legend>
+          <legend>Как е посочена цената?</legend>
           <div class="segmented-options">
             <% [["Крайна цена за плащане", "final"], ["Изрично без ДДС", "net"], ["Не е ясно", "uncertain"]].each do |label, value| %>
               <label><%= form.radio_button :price_vat_treatment, value, checked: calculator_input("price_vat_treatment", "final") == value, data: { action: "change->calculator-form#togglePropertyVat" } %><span><%= label %></span></label>
@@ -155,7 +155,7 @@
         <div class="cost-editor" data-controller="cost-editor">
           <div class="cost-editor__intro">
             <strong>Какво вече е включено?</strong>
-            <p>Местният данък, таксата за вписване на покупката и основната нотариална такса се изчисляват автоматично. Тук добавяш само останалите разходи: отметни перо и избери дали имаш точна сума, процент, приблизителна сума или все още не знаеш.</p>
+            <p>Местният данък, таксата за вписване и основната нотариална такса се изчисляват автоматично. Тук добави останалите разходи по твоята покупка. Отбележи перо и посочи с каква информация разполагаш — точна сума, процент или приблизителна оценка.</p>
           </div>
           <% CalculatorsHelper::CALCULATOR_COSTS.group_by { _1[:category] }.each do |category, costs| %>
             <% category_meta = CalculatorsHelper::COST_CATEGORIES.fetch(category) %>
@@ -175,7 +175,7 @@
     <section class="calculator-panel" data-calculator-tabs-target="panel" data-section="financing" role="tabpanel" hidden>
       <div class="calculator-panel__heading">
         <div><span>02</span><h2>Финансиране</h2></div>
-        <p>Ипотеката е източник на средства, не допълнителен разход по покупката.</p>
+        <p>Тук посочи откъде ще дойдат средствата. Разходите по самия кредит се добавят отделно.</p>
       </div>
       <fieldset class="calculator-field calculator-field--wide">
         <legend>Как ще финансираш покупката?</legend>
@@ -187,7 +187,7 @@
       <div class="calculator-financing-details" data-calculator-form-target="mortgageFields" <%= 'hidden' unless calculator_input("financing_mode") == "mortgage" %>>
         <div class="calculator-fields calculator-fields--two">
           <fieldset class="calculator-field calculator-field--wide">
-            <legend>Кое число искаш да зададеш?</legend>
+            <legend>Как искаш да изчислим кредита?</legend>
             <div class="segmented-options">
               <label><%= form.radio_button :loan_primary_input, "principal", checked: calculator_input(["loan", "primary_input"], "principal") == "principal" %><span>Размер на кредита</span></label>
               <label><%= form.radio_button :loan_primary_input, "own_contribution", checked: calculator_input(["loan", "primary_input"]) == "own_contribution" %><span>Самоучастие към цената</span></label>
@@ -195,18 +195,18 @@
           </fieldset>
           <div class="calculator-field"><%= form.label :loan_principal, "Размер на кредита" %><div class="money-field"><%= form.text_field :loan_principal, value: money_input_value(calculator_input(["loan", "principal_cents"])), inputmode: "decimal", placeholder: "240 000,00" %><span>€</span></div></div>
           <div class="calculator-field"><%= form.label :own_contribution, "Самоучастие към цената" %><div class="money-field"><%= form.text_field :own_contribution, value: money_input_value(calculator_input(["loan", "own_contribution_cents"])), inputmode: "decimal", placeholder: "60 000,00" %><span>€</span></div><small>Не включва данъци, такси и други разходи.</small></div>
-          <div class="calculator-field"><%= form.label :annual_interest_rate, "Годишна номинална лихва" %><div class="money-field"><%= form.text_field :annual_interest_rate, value: calculator_input(["loan", "annual_interest_rate"]), inputmode: "decimal", placeholder: "Без предварително зададена ставка" %><span>%</span></div><small>Примерна лихва - не е банкова оферта. Това не е ГПР. <%= education_link("term.mortgage", "За ипотеката") %></small></div>
+          <div class="calculator-field"><%= form.label :annual_interest_rate, "Годишна номинална лихва" %><div class="money-field"><%= form.text_field :annual_interest_rate, value: calculator_input(["loan", "annual_interest_rate"]), inputmode: "decimal", placeholder: "Няма зададена стойност" %><span>%</span></div><small>Използвай примерна или предложена от банка лихва. Това не е ГПР или банкова оферта. <%= education_link("term.mortgage", "За ипотеката") %></small></div>
           <div class="calculator-field"><%= form.label :term_years, "Срок" %><div class="money-field money-field--unit"><%= form.number_field :term_years, value: calculator_input(["loan", "term_months"]).to_i.positive? ? calculator_input(["loan", "term_months"]).to_i / 12 : nil, min: 1, max: 50 %><span>години</span></div></div>
           <div class="calculator-field"><%= form.label :monthly_charges, "Други месечни такси по кредита" %><div class="money-field"><%= form.text_field :monthly_charges, value: money_input_value(calculator_input(["loan", "monthly_charges_cents"])), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div></div>
-          <div class="calculator-field"><%= form.label :bank_valuation, "Банкова оценка (по избор)" %><div class="money-field"><%= form.text_field :bank_valuation, value: money_input_value(calculator_input(["loan", "bank_valuation_cents"])), inputmode: "decimal", placeholder: "Не е равна автоматично на цената" %><span>€</span></div></div>
-          <div class="calculator-field"><%= form.label :assumed_financing_percentage, "Хипотетичен процент финансиране" %><div class="money-field"><%= form.text_field :assumed_financing_percentage, value: calculator_input(["loan", "assumed_financing_percentage"]), inputmode: "decimal", placeholder: "без предварителна стойност" %><span>%</span></div><small>Използва се върху оценката само ако няма въведен размер на кредита.</small></div>
+          <div class="calculator-field"><%= form.label :bank_valuation, "Банкова оценка (по избор)" %><div class="money-field"><%= form.text_field :bank_valuation, value: money_input_value(calculator_input(["loan", "bank_valuation_cents"])), inputmode: "decimal", placeholder: "Може да се различава от цената" %><span>€</span></div></div>
+          <div class="calculator-field"><%= form.label :assumed_financing_percentage, "Ориентировъчен процент финансиране" %><div class="money-field"><%= form.text_field :assumed_financing_percentage, value: calculator_input(["loan", "assumed_financing_percentage"]), inputmode: "decimal", placeholder: "Няма зададена стойност" %><span>%</span></div><small>Прилагаме го върху банковата оценка само ако не си въвел размер на кредита.</small></div>
         </div>
       </div>
       <div class="calculator-fields calculator-fields--two calculator-fields--spaced calculator-fields--funding-basics">
-        <div class="calculator-field calculator-field--strong"><%= form.label :starting_cash, "С колко собствени средства разполагаш към началото на този план?" %><div class="money-field"><%= form.text_field :starting_cash, value: money_input_value(calculator_input(["funding", "starting_cash_cents"])), inputmode: "decimal", placeholder: "Налични днес" %><span>€</span></div><small>Плащанията преди тази начална точка не се изваждат повторно.</small></div>
-        <div class="calculator-field"><%= form.label :reserve, "Желан резерв след плащанията" %><div class="money-field"><%= form.text_field :reserve, value: money_input_value(calculator_input(["funding", "reserve_cents"])), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div><small>Резервът е запазена наличност, не разход.</small></div>
+        <div class="calculator-field calculator-field--strong"><%= form.label :starting_cash, "С колко собствени средства разполагаш към началото на този план?" %><div class="money-field"><%= form.text_field :starting_cash, value: money_input_value(calculator_input(["funding", "starting_cash_cents"])), inputmode: "decimal", placeholder: "Налични днес" %><span>€</span></div><small>Вече направените плащания няма да се приспадат втори път.</small></div>
+        <div class="calculator-field"><%= form.label :reserve, "Желан резерв след плащанията" %><div class="money-field"><%= form.text_field :reserve, value: money_input_value(calculator_input(["funding", "reserve_cents"])), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div><small>Това са средствата, които искаш да ти останат; не ги броим като разход.</small></div>
       </div>
-      <p class="calculator-financing-note" data-calculator-form-target="mortgageNote" <%= "hidden" unless calculator_input("financing_mode") == "mortgage" %>><strong>Сценарий, не банкова оферта.</strong> Одобрението не гарантира, че средствата са достъпни веднага.</p>
+      <p class="calculator-financing-note" data-calculator-form-target="mortgageNote" <%= "hidden" unless calculator_input("financing_mode") == "mortgage" %>><strong>Примерна сметка, не банкова оферта.</strong> Одобрението не гарантира, че средствата са достъпни веднага.</p>
     </section>
 
     <section class="calculator-panel" data-calculator-tabs-target="panel" data-section="schedule" role="tabpanel" hidden>
@@ -216,12 +216,12 @@
       </div>
       <div class="template-picker">
         <div class="calculator-field">
-          <label for="schedule-template">Хипотетичен шаблон</label>
+          <label for="schedule-template">Примерен график</label>
           <select id="schedule-template" data-schedule-editor-target="template" data-action="change->schedule-editor#applyTemplate">
-            <option value="">Избери умишлено…</option>
+            <option value="">Избери график…</option>
             <option value="10-10-80">10% / 10% / 80%</option>
             <option value="20-80">20% / 80%</option>
-            <option value="custom">Празен персонален график</option>
+            <option value="custom">Създай собствен график</option>
           </select>
           <small>Шаблоните не са законово изискване или препоръка.</small>
         </div>
@@ -237,21 +237,21 @@
       </div>
 
       <details class="calculator-disclosure" open>
-        <summary><span>Резервационно плащане / капаро</span><small>Посочи изрично как го третираш в този сценарий.</small></summary>
+        <summary><span>Резервационно плащане или капаро</span><small>Посочи как да го отчетем в тази сметка.</small></summary>
         <div class="calculator-fields calculator-fields--two">
           <div class="calculator-field"><label for="reservation-amount">Реално платена сума</label><div class="money-field"><%= text_field_tag "calculator[reservation][amount]", money_input_value(calculator_input(["reservation", "amount_cents"])), id: "reservation-amount", inputmode: "decimal" %><span>€</span></div></div>
-          <div class="calculator-field"><label for="reservation-treatment">Третиране</label><%= select_tag "calculator[reservation][treatment]", options_for_select([["Не е приложимо", "not_applicable"], ["Приспада се от цената", "credited"], ["Отделна такса", "separate_fee"], ["Не е ясно", "uncertain"]], calculator_input(["reservation", "treatment"], "not_applicable")), id: "reservation-treatment" %></div>
+          <div class="calculator-field"><label for="reservation-treatment">Как се отчита сумата?</label><%= select_tag "calculator[reservation][treatment]", options_for_select([["Не е приложимо", "not_applicable"], ["Приспада се от цената", "credited"], ["Отделна такса", "separate_fee"], ["Не е ясно", "uncertain"]], calculator_input(["reservation", "treatment"], "not_applicable")), id: "reservation-treatment" %></div>
           <div class="calculator-field"><label for="reservation-credit-event">Към кое плащане се приспада?</label><%= select_tag "calculator[reservation][credit_event_key]", options_for_select([["Избери събитие…", ""]] + schedule_event_options, calculator_input(["reservation", "credit_event_key"])), id: "reservation-credit-event", data: { schedule_editor_target: "eventSelect" } %><small><%= education_link("document.reservation_agreement", "За резервационните споразумения") %></small></div>
           <label class="check-field"><%= check_box_tag "calculator[reservation][paid_before_start]", "1", calculator_input(["reservation", "paid_before_start"]) %><span>Платено е преди началната точка на този план</span></label>
         </div>
       </details>
 
       <div class="calculator-fields calculator-fields--two calculator-fields--spaced">
-        <div class="calculator-field"><%= form.label :mortgage_availability_event_key, "При кое плащане ипотеката става достъпна?" %><%= form.select :mortgage_availability_event_key, schedule_event_options, { include_blank: "Избери плащане…", selected: calculator_input(["funding", "mortgage_availability_event_key"]) }, data: { schedule_editor_target: "eventSelect" } %><small>Средствата по кредита се използват само за допустими плащания към продавача.</small></div>
-        <div class="calculator-field"><%= form.label :mortgage_confidence, "Сигурност на усвояването" %><%= form.select :mortgage_confidence, [["Хипотетично", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено от теб", "confirmed"]], { selected: calculator_input(["funding", "mortgage_confidence"], "hypothetical") } %></div>
+        <div class="calculator-field"><%= form.label :mortgage_availability_event_key, "От кой момент можеш да използваш ипотечния кредит?" %><%= form.select :mortgage_availability_event_key, schedule_event_options, { include_blank: "Избери плащане…", selected: calculator_input(["funding", "mortgage_availability_event_key"]) }, data: { schedule_editor_target: "eventSelect" } %><small>Средствата по кредита се използват само за допустими плащания към продавача.</small></div>
+        <div class="calculator-field"><%= form.label :mortgage_confidence, "Колко сигурно е усвояването?" %><%= form.select :mortgage_confidence, [["Само допускане", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено", "confirmed"]], { selected: calculator_input(["funding", "mortgage_confidence"], "hypothetical") } %></div>
       </div>
       <details class="calculator-disclosure">
-        <summary><span>Поетапни ипотечни усвоявания</span><small>По избор; ако ги попълниш, заменят еднократната наличност по-горе.</small></summary>
+        <summary><span>Усвояване на кредита на части</span><small>По избор — въведените тук суми заменят еднократното усвояване по-горе.</small></summary>
         <div class="calculator-fields calculator-fields--two">
           <% ["draw_1", "draw_2"].each do |draw_key| %>
             <% draw = Array(calculator_input(["funding", "mortgage_disbursements"], [])).find { _1["key"] == draw_key } || {} %>
@@ -259,15 +259,15 @@
               <strong>Ипотечно усвояване</strong>
               <div class="money-field"><%= text_field_tag "calculator[mortgage_disbursements][#{draw_key}][amount]", money_input_value(draw["amount_cents"]), inputmode: "decimal", placeholder: "0,00", aria: { label: "Размер на ипотечно усвояване" } %><span>€</span></div>
               <%= select_tag "calculator[mortgage_disbursements][#{draw_key}][event_key]", options_for_select([["Избери плащане…", ""]] + schedule_event_options, draw["event_key"]), aria: { label: "Събитие за ипотечно усвояване" }, data: { schedule_editor_target: "eventSelect" } %>
-              <%= select_tag "calculator[mortgage_disbursements][#{draw_key}][confidence]", options_for_select([["Хипотетично", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено от теб", "confirmed"]], draw["confidence"] || "hypothetical"), aria: { label: "Сигурност на ипотечното усвояване" } %>
+              <%= select_tag "calculator[mortgage_disbursements][#{draw_key}][confidence]", options_for_select([["Само допускане", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено", "confirmed"]], draw["confidence"] || "hypothetical"), aria: { label: "Сигурност на ипотечното усвояване" } %>
             </div>
           <% end %>
         </div>
       </details>
-      <p class="calculator-inline-warning">Одобрен кредит не се третира като налични пари преди избраното събитие. Плащания в един ден следват въведения ред.</p>
+      <p class="calculator-inline-warning">Не отчитаме одобрения кредит като налични пари преди избрания момент. Ако има няколко плащания в един ден, следваме реда, който си задал.</p>
 
       <details class="calculator-disclosure">
-        <summary><span>Бъдещи собствени постъпления</span><small>Не се извеждат от доход; въвеждаш ги изрично.</small></summary>
+        <summary><span>Бъдещи постъпления от собствени средства</span><small>Добави ги ръчно — калкулаторът не ги изчислява от доходите ти.</small></summary>
         <div class="calculator-fields calculator-fields--two">
           <% ["future_1", "future_2"].each do |inflow_key| %>
             <% inflow = Array(calculator_input(["funding", "own_inflows"], [])).find { _1["key"] == inflow_key } || {} %>
@@ -275,28 +275,28 @@
               <strong>Постъпление</strong>
               <div class="money-field"><%= text_field_tag "calculator[own_inflows][#{inflow_key}][amount]", money_input_value(inflow["amount_cents"]), inputmode: "decimal", placeholder: "0,00", aria: { label: "Размер на бъдещо постъпление" } %><span>€</span></div>
               <%= select_tag "calculator[own_inflows][#{inflow_key}][event_key]", options_for_select([["Избери плащане…", ""]] + schedule_event_options, inflow["event_key"]), aria: { label: "Събитие за бъдещо постъпление" }, data: { schedule_editor_target: "eventSelect" } %>
-              <%= select_tag "calculator[own_inflows][#{inflow_key}][confidence]", options_for_select([["Хипотетично", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено от теб", "confirmed"]], inflow["confidence"] || "expected"), aria: { label: "Сигурност на бъдещото постъпление" } %>
+              <%= select_tag "calculator[own_inflows][#{inflow_key}][confidence]", options_for_select([["Само допускане", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено", "confirmed"]], inflow["confidence"] || "expected"), aria: { label: "Сигурност на бъдещото постъпление" } %>
             </div>
           <% end %>
         </div>
       </details>
 
       <details class="calculator-disclosure">
-        <summary><span>Запази сценария</span><small>По избор; именувана сметка за повторно отваряне и сравнение.</small></summary>
+        <summary><span>Запази сметката</span><small>Дай ѝ име, за да я отвориш отново или да я сравниш с друг вариант.</small></summary>
         <div class="calculator-save-grid">
           <div class="calculator-field"><%= form.label :title, "Име на сметката" %><%= form.text_field :title, value: calculator_input("title"), maxlength: 80, placeholder: "напр. Апартамент А" %></div>
           <% if guest_journeys.any? %>
             <div class="calculator-field"><%= form.label :buyer_journey_id, "Свържи с личен план (по избор)" %><%= form.select :buyer_journey_id, guest_journeys.map { |journey| [journey.label.presence || "План от #{l(journey.created_at.to_date)}", journey.id] }, { include_blank: "Без връзка", selected: calculator_input("buyer_journey_id") } %><small>Връзката не отбелязва урок или задача като завършени.</small></div>
           <% end %>
           <button type="submit" formaction="<%= @scenario ? save_budget_scenario_path(@scenario) : budget_scenarios_path %>" formtarget="_top" data-turbo="false" class="button button--secondary"><%= @scenario ? "Запази промените" : "Запази тази сметка" %></button>
-          <p class="calculator-privacy">Временната чернова е само за текущия раздел. Запазената сметка остава достъпна в този браузър до <%= Rails.application.config.x.anonymous_journey_retention_days %> дни и може да се отвори, дублира и сравнява. Не се синхронизира между устройства и не се показва публично.</p>
+          <p class="calculator-privacy">Черновата се пази само в текущия раздел. Ако запазиш сметката, ще можеш да я отваряш, дублираш и сравняваш в този браузър до <%= Rails.application.config.x.anonymous_journey_retention_days %> дни. Тя не се синхронизира между устройства и не се публикува.</p>
         </div>
       </details>
     </section>
 
     <div class="calculator-form__footer">
       <button type="submit" class="button button--secondary">Преизчисли</button>
-      <%= link_to "Зареди ясно означен пример", purchase_calculator_path(example: 1), class: "button button--outline button--small" %>
+      <%= link_to "Зареди примерните данни", purchase_calculator_path(example: 1), class: "button button--outline button--small" %>
       <% if @scenarios&.any? %><%= link_to "Запазени сметки (#{@scenarios.size})", budget_scenarios_path, class: "text-link" %><% end %>
     </div>
   <% end %>

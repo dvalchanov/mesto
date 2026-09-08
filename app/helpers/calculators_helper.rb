@@ -1,13 +1,13 @@
 module CalculatorsHelper
   CALCULATOR_COSTS = [
     { key: "additional_notarial", label: "Допълнителни нотариални и документни услуги", description: "Допълнителни удостоверявания, преписи или услуги извън автоматично изчислената основна такса.", category: "acquisition", event: "notarial_transfer" },
-    { key: "notary_actual_quote", label: "Обща оферта за основната нотариална услуга", description: "Използвай само ако имаш обща оферта от нотариус. Тя ще замени автоматично изчислената основна нотариална такса.", category: "acquisition", event: "notarial_transfer", replaces: [ "main_notarial_fee" ] },
-    { key: "buyer_broker", label: "Комисиона на брокер за купувача", description: "Комисионата, която ти плащаш според договора с брокера - като сума или процент.", category: "acquisition", event: "notarial_transfer", percentage: true },
+    { key: "notary_actual_quote", label: "Оферта за основната нотариална услуга", description: "Използвай това перо само ако имаш обща оферта от нотариус. Тя ще замени автоматично изчислената основна нотариална такса.", category: "acquisition", event: "notarial_transfer", replaces: [ "main_notarial_fee" ] },
+    { key: "buyer_broker", label: "Комисиона на брокер за купувача", description: "Комисионата, която плащаш според договора с брокера — като сума или процент.", category: "acquisition", event: "notarial_transfer", percentage: true },
     { key: "lawyer", label: "Адвокат", description: "Договорена сума за правен преглед или съдействие по сделката.", category: "acquisition", event: "notarial_transfer" },
     { key: "technical_inspection", label: "Технически оглед", description: "Оглед от инженер или технически специалист преди покупката.", category: "acquisition", event: "first" },
     { key: "certificates", label: "Удостоверения и документи", description: "Платени удостоверения, скици, схеми, преписи и други документи.", category: "acquisition", event: "notarial_transfer" },
     { key: "bank_valuation", label: "Банкова оценка", description: "Таксата за оценка на имота, поискана от банката.", category: "financing", event: "first" },
-    { key: "lender_setup", label: "Банкови такси за учредяване", description: "Еднократни банкови такси за разглеждане и учредяване на кредита.", category: "financing", event: "notarial_transfer" },
+    { key: "lender_setup", label: "Банкови такси по кредита", description: "Еднократни банкови такси за разглеждане, договаряне и отпускане на кредита.", category: "financing", event: "notarial_transfer" },
     { key: "mortgage_notary", label: "Нотариални разходи за ипотеката", description: "Нотариални такси, свързани с договора и акта за ипотека.", category: "financing", event: "notarial_transfer" },
     { key: "mortgage_registration", label: "Вписване на ипотеката", description: "Таксата за вписване на ипотеката в Имотния регистър.", category: "financing", event: "notarial_transfer" },
     { key: "other_financing", label: "Друг разход по финансирането", description: "Друг еднократен разход по кредита, който не е включен по-горе.", category: "financing", event: "notarial_transfer" },
@@ -117,7 +117,7 @@ module CalculatorsHelper
       "user_confirmed_final_price" => "Потвърдена крайна цена",
       "user_confirmed_exclusive_vat" => "Потвърдена нетна оферта",
       "user_reported" => "Отбелязано от теб",
-      "explicit_estimate" => "Изрична приблизителна оценка",
+      "explicit_estimate" => "Въведена приблизителна сума",
       "unknown" => "Неизвестно"
     }.fetch(value.to_s, "Оценка")
   end

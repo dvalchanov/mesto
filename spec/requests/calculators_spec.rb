@@ -18,7 +18,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
   it "serves the free standalone routes with distinct server-rendered content" do
     get calculators_path
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("От цена на имота до реален план за плащане")
+    expect(response.body).to include("От цената на имота до ясен план за плащане")
 
     get purchase_calculator_path
     expect(response).to have_http_status(:ok)
@@ -37,7 +37,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
 
     post calculate_purchase_calculator_path, params: { calculator: { property_price: "1.234" } }
     expect(response).to have_http_status(:unprocessable_content)
-    expect(response.body).to include("Въведи еднозначно положително число")
+    expect(response.body).to include("Въведи положително число")
   end
 
   it "uses the same mortgage engine on the focused entry point" do
@@ -63,7 +63,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
 
     get budget_scenarios_path
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Запазени сметки", "Апартамент А", "Сравни избраните две", "noindex,nofollow")
+    expect(response.body).to include("Запазени сметки", "Апартамент А", "Сравни двете сметки", "noindex,nofollow")
 
     patch budget_scenario_path(scenario), params: { budget_scenario: { title: "Вариант Б" } }
     expect(scenario.reload.title).to eq("Вариант Б")
@@ -74,7 +74,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
 
     post compare_budget_scenarios_path, params: { scenario_tokens: [ scenario.public_token, copy.public_token ] }
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Сравнение без победител", "Моделирана лихва")
+    expect(response.body).to include("Само ти можеш да прецениш", "Обща лихва")
 
     expect {
       post save_budget_scenario_path(scenario), params: { calculator: complete_params.merge(property_price: "310000", title: "Обновен вариант") }

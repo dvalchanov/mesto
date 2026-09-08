@@ -103,7 +103,7 @@ module Calculators
     def capture(key, value)
       yield(value)
     rescue ArgumentError
-      errors[key] = "Въведи еднозначно положително число, например 300 000,50."
+      errors[key] = "Въведи положително число, например 300 000,50."
       nil
     end
 

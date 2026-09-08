@@ -23,7 +23,7 @@
       </section>
       <section>
         <span>Какво да събереш</span>
-        <h3>Документи, които да събереш</h3>
+        <h3>Подготви нужните документи</h3>
         <%= education_prose(guide.dig("sections", "documents")) %>
       </section>
     </div>
@@ -65,21 +65,21 @@
     <details class="buyer-guide__sources">
       <summary>Официални източници и редакционен статус</summary>
       <div>
-        <p>Насоката е образователна. Преди плащане или подписване приложимостта към конкретния имот и договор трябва да бъде прегледана от квалифициран специалист.</p>
+        <p>Насоката е с образователна цел. Преди плащане или подписване потвърди със специалист как се прилага към конкретния имот и договор.</p>
         <ul>
           <% guide_sources.each do |source| %>
             <li>
               <%= link_to source["title"], source["url"], target: "_blank", rel: "noopener noreferrer" %>
-              <span><%= education_source_date(source) %> · Проверено от Mesto: <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
+              <span><%= education_source_date(source) %> · Проверено от Mesto на <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
             </li>
           <% end %>
         </ul>
-        <p class="buyer-guide__sources-status">Версия <%= guide["content_version"] %> · Съдържанието е публикувано · Предстои преглед от специалист</p>
+        <p class="buyer-guide__sources-status">Версия <%= guide["content_version"] %> · Съдържанието е публикувано, но все още не е прегледано от специалист.</p>
       </div>
     </details>
 
     <section class="buyer-guide__checks">
-      <div><span>Преди следващата стъпка</span><h3>Провери, преди да продължиш</h3><p>Списъкът ще ти помогне да се подготвиш за решение или разговор със специалист. Самото отбелязване не потвърждава състоянието на имота.</p></div>
+      <div><span>Преди следващата стъпка</span><h3>Провери, преди да продължиш</h3><p>Използвай списъка, за да се подготвиш за решение или разговор със специалист. Отметките показват напредъка ти, но не удостоверяват състоянието на имота.</p></div>
       <ol>
         <% Array(guide.dig("sections", "buyer_checks")).each_with_index do |check, check_index| %>
           <li><span><%= format("%02d", check_index + 1) %></span><p><%= check %></p></li>

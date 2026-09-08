@@ -12,7 +12,7 @@ module Calculators
 
     def call
       return incomplete("Въведи цена на имота.") unless property_price_cents
-      return incomplete("Избери хипотетичен шаблон или добави свой график.") if events.empty?
+      return incomplete("Избери примерен график или добави свой.") if events.empty?
 
       remaining_rows = events.count { |event| event["amount_type"] == "remaining" }
       errors = []

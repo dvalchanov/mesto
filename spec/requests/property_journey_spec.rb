@@ -5,7 +5,7 @@ RSpec.describe "Property report journey", type: :request do
     get root_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("<title>Mesto -")
+    expect(response.body).to include("<title>Mesto —")
     expect(response.body).to include('property="og:site_name" content="Mesto"')
     expect(response.body).to include('/favicon.ico', '/apple-touch-icon.png', pwa_manifest_path)
   end

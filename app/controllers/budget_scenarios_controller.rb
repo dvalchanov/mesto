@@ -18,7 +18,7 @@ class BudgetScenariosController < ApplicationController
     )
     if normalizer.errors.empty? && scenario.save
       ProductEvent.record("scenario_saved", property_analysis: scenario.property_analysis, metadata: { attached_to_journey: journey.present? })
-      redirect_to budget_scenario_path(scenario), notice: "Сметката е запазена само за този гост в този браузър."
+      redirect_to budget_scenario_path(scenario), notice: "Сметката е запазена само в този браузър."
     else
       @inputs = inputs
       @result = result
@@ -46,7 +46,7 @@ class BudgetScenariosController < ApplicationController
   def duplicate
     copy = @scenario.duplicate!
     ProductEvent.record("scenario_saved", property_analysis: copy.property_analysis, metadata: { duplicated: true })
-    redirect_to budget_scenario_path(copy), notice: "Създадено е независимо копие на сценария."
+    redirect_to budget_scenario_path(copy), notice: "Създадено е копие на сметката."
   end
 
   def destroy
@@ -58,7 +58,7 @@ class BudgetScenariosController < ApplicationController
     result = Calculators::PurchasePlan.new(@scenario.validated_inputs).call
     @scenario.update!(calculation_snapshot: result, engine_version: result["engine_version"],
       financial_rule_versions: result["rule_versions"], calculated_at: Time.current)
-    redirect_to budget_scenario_path(@scenario), notice: "Сценарият е преизчислен изрично с текущите правила."
+    redirect_to budget_scenario_path(@scenario), notice: "Сметката е преизчислена по текущите правила."
   end
 
   def save

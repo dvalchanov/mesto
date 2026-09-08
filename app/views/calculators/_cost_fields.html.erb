@@ -1,18 +1,18 @@
 <% included = cost_input(cost, "included") == true %>
 <% method = cost_input(cost, "method") || (cost[:percentage] ? "percentage" : "fixed_quote") %>
 <% method_help = {
-  "fixed_quote" => "Въведи крайната сума от оферта, договор или фактура.",
+  "fixed_quote" => "Въведи крайната сума от офертата, договора или фактурата.",
   "percentage" => "Въведи процента и върху коя сума се изчислява.",
   "estimate" => "Въведи ориентировъчна сума за собственото си планиране.",
   "unknown" => "Можеш да продължиш без сума; ще я покажем като неизвестна, а не като нула."
-}.fetch(method, "Избери начина, по който разполагаш със стойността.") %>
+}.fetch(method, "Избери с каква информация разполагаш.") %>
 <% field_prefix = "cost_#{cost[:key]}" %>
 <% event_value = cost_input(cost, "payment_event_key").presence || cost[:event] %>
-<% event_options = [["Обичайно - #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}", cost[:event]]] %>
+<% event_options = [["Обичайно — #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}", cost[:event]]] %>
 <% schedule_event_options.each do |label, value| %>
   <% event_options << [label, value] unless event_options.any? { _1.last == value } %>
 <% end %>
-<% event_options << ["Запазен момент", event_value] unless event_options.any? { _1.last == event_value } %>
+<% event_options << ["Запазено по-рано", event_value] unless event_options.any? { _1.last == event_value } %>
 
 <article class="cost-editor__item" data-cost-editor-target="row">
   <%= hidden_field_tag "calculator[costs][#{cost[:key]}][key]", cost[:key] %>
@@ -58,12 +58,12 @@
 
       <div class="cost-editor__unknown" data-cost-method-field="unknown" <%= "hidden" unless method == "unknown" %>>
         <strong>Оставяме сумата неизвестна</strong>
-        <p>Разходът ще остане видим като липсваща стойност и няма да бъде третиран като 0 €.</p>
+        <p>Разходът ще остане видим с липсваща стойност и няма да бъде отчетен като 0 €.</p>
       </div>
     </div>
 
     <details class="cost-editor__advanced">
-      <summary><span>Допълнителни настройки</span><small>Повечето хора могат да ги пропуснат</small></summary>
+      <summary><span>Допълнителни настройки</span><small>Попълни ги само ако са нужни за твоя случай</small></summary>
       <div class="cost-editor__advanced-grid">
         <div class="cost-editor__field">
           <%= label_tag "#{field_prefix}_vat", "Как е посочена сумата спрямо ДДС?" %>
@@ -77,7 +77,7 @@
         </div>
         <div class="cost-editor__field">
           <%= label_tag "#{field_prefix}_event", "Кога ще го платиш?" %>
-          <%= select_tag "calculator[costs][#{cost[:key]}][payment_event_key]", options_for_select(event_options, event_value), id: "#{field_prefix}_event", data: { schedule_editor_target: "eventSelect", schedule_editor_fallback_key: cost[:event], schedule_editor_fallback_label: "Обичайно - #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}" } %>
+          <%= select_tag "calculator[costs][#{cost[:key]}][payment_event_key]", options_for_select(event_options, event_value), id: "#{field_prefix}_event", data: { schedule_editor_target: "eventSelect", schedule_editor_fallback_key: cost[:event], schedule_editor_fallback_label: "Обичайно — #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}" } %>
           <small>Това поставя разхода в графика на плащанията.</small>
         </div>
         <div class="cost-editor__field">

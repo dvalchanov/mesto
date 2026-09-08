@@ -20,10 +20,10 @@ RSpec.describe "Standalone calculators", type: :system do
 
   it "supports a visitor with no property and an explicit example scenario" do
     visit purchase_calculator_path
-    expect(page).to have_css("h1", text: "Колко ще ти струва покупката - и кога ще ти трябват парите?")
+    expect(page).to have_css("h1", text: "Колко ще ти струва покупката — и кога ще ти трябват парите?")
     expect(page).to have_css(".calculator-plan-visual")
     expect(page).to have_link("Започни сметката", href: "#purchase-calculator")
-    expect(page).to have_link("Виж примерен сценарий", href: purchase_calculator_path(example: 1))
+    expect(page).to have_link("Виж примерна сметка", href: purchase_calculator_path(example: 1))
     expect(page.evaluate_script("getComputedStyle(document.querySelector('.calculator-hero')).backgroundImage")).to eq("none")
     select_style = page.evaluate_script(<<~JS)
       (() => {
@@ -39,13 +39,13 @@ RSpec.describe "Standalone calculators", type: :system do
     find(".summary-warnings > summary").click
     expect(page).to have_text("Въведи цена, за да започне изчислението")
 
-    example_action = find_link("Зареди ясно означен пример")
+    example_action = find_link("Зареди примерните данни")
     expect(example_action[:class]).to include("button--outline", "button--small")
     example_action.click
     expect(page).to have_field("Цена по сделката", with: "300000")
     expect(page).to have_button("Започни отначало")
     expect(find_button("Започни отначало")).to have_css("svg")
-    expect(page).to have_text("Общо включено плащане")
+    expect(page).to have_text("Общо планирани плащания")
   end
 
   it "calculates a cash-only purchase without an account" do
@@ -62,14 +62,14 @@ RSpec.describe "Standalone calculators", type: :system do
   it "uses the focused mortgage entry point" do
     visit mortgage_calculator_path
     expect(page).to have_no_button("Изчисли")
-    expect(find_link("Зареди ясно означен пример")[:class]).to include("button--outline", "button--small")
+    expect(find_link("Виж примерна сметка")[:class]).to include("button--outline", "button--small")
     expect(page).to have_no_css(".summary-empty > span")
     fill_in "Размер на кредита", with: "120000"
     fill_in "Годишна номинална лихва", with: "0"
     fill_in "Срок", with: "10"
 
     expect(page).to have_text("1 000,00 €")
-    expect(page).to have_text("Моделирана обща лихва")
+    expect(page).to have_text("Обща лихва")
     year_unit = find_field("Срок").find(:xpath, "..").find("span")
     expect(year_unit.rect.width).to be >= 76
 
@@ -95,7 +95,7 @@ RSpec.describe "Standalone calculators", type: :system do
     fill_in "Годишна номинална лихва", with: "2"
     fill_in "Срок", with: "30"
     find(".calculator-panel__heading").click
-    expect(page).to have_text("Моделирана обща лихва")
+    expect(page).to have_text("Обща лихва")
 
     interest = find_field("Годишна номинална лихва")
     interest.click
@@ -106,7 +106,7 @@ RSpec.describe "Standalone calculators", type: :system do
     expect(page.evaluate_script("window.sessionStorage.getItem('mesto:calculator-draft:mortgage:v1')")).to be_present
 
     find_field("Срок").click
-    expect(page).to have_css(".calculator-warning", text: "Въведи еднозначно положително число")
+    expect(page).to have_css(".calculator-warning", text: "Въведи положително число")
   end
 
   it "keeps financing controls evenly spaced and aligned" do
@@ -152,7 +152,7 @@ RSpec.describe "Standalone calculators", type: :system do
       (() => {
         const disclosures = Array.from(document.querySelectorAll('.calculator-disclosure'))
         const reservation = disclosures.find((details) => details.querySelector('summary')?.textContent.includes('Резервационно плащане'))
-        const mortgageDraws = disclosures.find((details) => details.querySelector('summary')?.textContent.includes('Поетапни ипотечни усвоявания'))
+        const mortgageDraws = disclosures.find((details) => details.querySelector('summary')?.textContent.includes('Усвояване на кредита на части'))
         const warning = document.querySelector('.calculator-inline-warning')
         const openContent = reservation.querySelector('.calculator-fields')
 
@@ -198,14 +198,14 @@ RSpec.describe "Standalone calculators", type: :system do
     end
 
     expect(page).to have_select("Към кое плащане се приспада?", with_options: [ "Предварителен договор" ], visible: :all)
-    expect(page).to have_select("При кое плащане ипотеката става достъпна?", with_options: [ "Нотариално прехвърляне" ], visible: :all)
+    expect(page).to have_select("От кой момент можеш да използваш ипотечния кредит?", with_options: [ "Нотариално прехвърляне" ], visible: :all)
   end
 
   it "saves and resumes an example mortgage-purchase scenario" do
     visit purchase_calculator_path(example: 1)
     click_button "03 График на плащанията"
-    find("summary", text: "Запази сценария").click
-    expect(page).to have_text("Временната чернова е само за текущия раздел")
+    find("summary", text: "Запази сметката").click
+    expect(page).to have_text("Черновата се пази само в текущия раздел")
     save_field = find_field("Име на сметката")
     save_button = find_button("Запази тази сметка")
     expect((save_field.rect.height - save_button.rect.height).abs).to be < 1
@@ -241,7 +241,7 @@ RSpec.describe "Standalone calculators", type: :system do
       find('input[name="calculator[components][garage][amount]"]').set("15000")
 
       click_button "03 График на плащанията"
-      choose_custom_select("Хипотетичен шаблон", "10% / 10% / 80%")
+      choose_custom_select("Примерен график", "10% / 10% / 80%")
       first_schedule_row = first(".schedule-row")
       first_schedule_row.find("input[data-field='label']").set("Персонализиран етап")
       first_schedule_row.find("summary", text: "Допълнителни настройки").click
@@ -318,7 +318,7 @@ RSpec.describe "Standalone calculators", type: :system do
 
     visit purchase_calculator_path(example: 1)
     click_button "03 График на плащанията"
-    find("summary", text: "Запази сценария").click
+    find("summary", text: "Запази сметката").click
     choose_custom_select("Свържи с личен план (по избор)", "Тест план")
     fill_in "Име на сметката", with: "Свързан сценарий"
     click_button "Запази тази сметка"
@@ -458,7 +458,7 @@ RSpec.describe "Standalone calculators", type: :system do
   it "presents other costs as guided cards without a horizontal data grid" do
     visit purchase_calculator_path(example: 1)
 
-    expect(page).to have_text("Местният данък, таксата за вписване на покупката и основната нотариална такса се изчисляват автоматично")
+    expect(page).to have_text("Местният данък, таксата за вписване и основната нотариална такса се изчисляват автоматично")
     expect(page.evaluate_script("document.querySelector('.cost-editor').scrollWidth <= document.querySelector('.cost-editor').clientWidth")).to be(true)
     expect(page).to have_css(".cost-editor__group", count: 4)
 
@@ -523,7 +523,7 @@ RSpec.describe "Standalone calculators", type: :system do
     JS
     expect(native_style).to eq("appearance" => "auto", "backgroundImage" => "none")
     click_button "03 График на плащанията"
-    expect(page).to have_text(/Хипотетичен шаблон/i)
+    expect(page).to have_text(/Примерен график/i)
     mobile_event_field = first(".schedule-row").find_field("Събитие")
     expect(mobile_event_field["list"]).to eq("schedule-event-labels")
     expect(mobile_event_field["role"]).to be_nil

@@ -18,7 +18,7 @@ class BudgetScenario < ApplicationRecord
   def to_param = public_token
 
   def duplicate!
-    self.class.create!(attributes.except("id", "public_token", "created_at", "updated_at").merge(title: "#{title} - копие".first(80)))
+    self.class.create!(attributes.except("id", "public_token", "created_at", "updated_at").merge(title: "#{title} — копие".first(80)))
   end
 
   def stale_rules?

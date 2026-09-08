@@ -1,12 +1,12 @@
-<% content_for :title, "Наръчник за покупка на имот - #{product_name}" %>
+<% content_for :title, "Наръчник за покупка на имот — #{product_name}" %>
 <% content_for :description, "Практичен наръчник за покупка на имот: строителни етапи, важни документи, термини и насоки според твоята ситуация." %>
 
 <section class="education-hero">
   <div class="site-shell education-hero__grid">
     <div>
       <p class="eyebrow"><span></span>Наръчник на Mesto</p>
-      <h1>Покупката на имот, стъпка по стъпка.</h1>
-      <p>Можеш да започнеш и без избран имот. Избери темата според своята ситуация, вида на имота или етапа на строителството.</p>
+      <h1>Подготви покупката си стъпка по стъпка</h1>
+      <p>Не е нужно вече да си избрал имот. Започни от своята ситуация, от вида на имота или от етапа на строителството.</p>
       <div class="education-actions">
         <%= link_to "Избери моята ситуация", buying_guide_path(anchor: "buyer-guide-start"), class: "button button--primary" %>
         <%= link_to "Виж строителните етапи", new_build_guide_path, class: "button button--secondary" %>
@@ -30,14 +30,14 @@
 
   <section class="education-section">
     <div class="section-heading section-heading--split">
-      <div><p class="eyebrow"><span></span>Два отделни процеса</p><h2>Къде е сградата и къде си ти?</h2></div>
-      <p>Етапът на строителството и твоят етап като купувач са различни. Разглеждай ги отделно, за да не правиш изводи за единия само по другия.</p>
+      <div><p class="eyebrow"><span></span>Два отделни процеса</p><h2>Докъде е стигнал строежът и докъде си стигнал ти?</h2></div>
+      <p>Етапът на строителството и твоят етап като купувач не са едно и също. Разглеждай ги отделно, за да не правиш прибързани изводи.</p>
     </div>
     <div class="dual-journeys">
       <article>
         <span class="dual-journeys__label">01 · Сграда и проект</span>
         <h3>Новото строителство</h3>
-        <p>Осем етапа - от подготовката на терена до предаването на имота. Ще видиш какво се строи, кои документи са важни и какво да провериш.</p>
+        <p>Осем етапа — от подготовката на терена до предаването на имота. Ще разбереш какво се строи, кои документи са важни и какво да провериш.</p>
         <ol><% @stages.each do |stage| %><li><%= link_to stage["title"], new_build_stage_path(stage["slug"]) %></li><% end %></ol>
         <%= link_to "Виж всички строителни етапи", new_build_guide_path, class: "text-link" %>
       </article>
@@ -60,7 +60,7 @@
     <div class="situation-grid">
       <%= link_to buying_guide_path(anchor: "researching") do %><span>Само проучвам</span><strong>Тепърва започвам</strong><small>Критерии, бюджет и сравнение</small><% end %>
       <%= link_to buying_guide_path(anchor: "shortlisting") do %><span>Сравнявам</span><strong>Имам няколко варианта</strong><small>Идентичност, състояние и общ разход</small><% end %>
-      <%= link_to buying_guide_path(anchor: "before_deposit") do %><span>Преди плащане</span><strong>Предстои ми капаро</strong><small>На кого плащаш и кога сумата се връща</small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_deposit") do %><span>Преди плащане</span><strong>Предстои ми капаро</strong><small>На кого ще платиш и кога сумата се връща</small><% end %>
       <%= link_to buying_guide_path(anchor: "before_preliminary_contract") do %><span>Преди договор</span><strong>Получих проект за подписване</strong><small>Имот, приложения, плащания и условия за прекратяване</small><% end %>
       <%= link_to buying_guide_path(anchor: "waiting_or_payment") do %><span>След договор</span><strong>Чакам следващо плащане</strong><small>Провери условията и доказателствата по своя договор</small><% end %>
       <%= link_to buying_guide_path(anchor: "before_notarial_transfer") do %><span>Преди сделка</span><strong>Подготвям нотариално прехвърляне</strong><small>Собственост, тежести и начин на плащане</small><% end %>
@@ -79,7 +79,7 @@
   </section>
 
   <section class="education-section education-search-block">
-    <div><p class="eyebrow"><span></span>Търсене в наръчника</p><h2>Какво искаш да провериш?</h2><p>Можеш да търсиш по име, съкращение или израз - например „акт16“, „акт 16“ или „въвеждане в експлоатация“.</p></div>
+    <div><p class="eyebrow"><span></span>Търсене в наръчника</p><h2>Какво искаш да провериш?</h2><p>Търси по име, съкращение или израз — например „акт16“, „акт 16“ или „въвеждане в експлоатация“.</p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси документ или термин", class: "form-label" %>
       <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: "Напр. Акт 15, УПИ, тежести…" %><%= form.submit "Търси", class: "button button--secondary" %></div>

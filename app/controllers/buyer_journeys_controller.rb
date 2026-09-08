@@ -59,7 +59,7 @@ class BuyerJourneysController < ApplicationController
       if params[:suggestion_action].in?(%w[accepted dismissed])
         ProductEvent.record("building_stage_suggestion_#{params[:suggestion_action]}", property_analysis: @journey.property_analysis, metadata: { mode: journey_mode(@journey) })
       end
-      redirect_back fallback_location: my_mesto_path, notice: "Контекстът ти е обновен."
+      redirect_back fallback_location: my_mesto_path, notice: "Информацията в плана ти е обновена."
     else
       redirect_back fallback_location: my_mesto_path, alert: @journey.errors.full_messages.to_sentence
     end
@@ -84,14 +84,14 @@ class BuyerJourneysController < ApplicationController
   def reset
     @journey.journey_item_progresses.delete_all
     @journey.touch(:last_active_at)
-    redirect_to my_mesto_path, notice: "Отметките са нулирани. Контекстът и свързаният имот са запазени."
+    redirect_to my_mesto_path, notice: "Отметките са нулирани. Избраната информация и свързаният имот са запазени."
   end
 
   def destroy
     @journey.destroy!
     next_journey = guest_journeys.first
     next_journey ? remember_current_journey(next_journey) : forget_current_journey
-    redirect_to guide_path, notice: "Личният план и напредъкът към него са изтрити."
+    redirect_to guide_path, notice: "Личният ти план и отбелязаният напредък са изтрити."
   end
 
   def select

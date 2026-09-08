@@ -64,7 +64,7 @@ RSpec.describe Calculators::PurchaseCosts do
     result = described_class.new(normalize(property_price: "100000", tax_assessment: "90000", transaction_cost_share: "50")).call
 
     expect(result["lines"].find { _1["key"] == "municipal_acquisition_tax" }["amount_cents"]).to eq(150_000)
-    expect(result["warnings"].join).to include("50.0%", "не е твърдение")
+    expect(result["warnings"].join).to include("50.0%", "не определя кой по закон дължи разхода")
   end
 
   it "includes a known quote while leaving uncertain VAT unresolved" do

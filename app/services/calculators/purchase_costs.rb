@@ -75,7 +75,7 @@ module Calculators
         "acquisition_costs_cents" => 0, "financing_costs_cents" => 0, "after_purchase_costs_cents" => 0,
         "recurring_monthly_costs_cents" => 0, "included_costs_cents" => 0,
         "combined_included_outlay_cents" => payable_price, "rule_versions" => {},
-        "warnings" => [ "Проверените автоматични правила не покриват избраната дата. Използвай ръчни оферти." ],
+        "warnings" => [ "Проверените правила не важат за избраната дата. Въведи сумите ръчно по актуални оферти." ],
         "assumptions" => []
       }
     end
@@ -164,16 +164,16 @@ module Calculators
         end
         raw_amount = cost["method"] == "percentage" ? percent(base, cost["rate_percent"]) : cost["amount_cents"].to_i
         amount = percent(raw_amount, cost["buyer_share_percent"] || "100")
-        explanation = cost["vat_treatment"] == "uncertain" ? "Нетната или крайната въведена сума е включена, но евентуалният ДДС остава неизвестен." : "Въведена от теб оферта или оценка."
+        explanation = cost["vat_treatment"] == "uncertain" ? "Въведената сума е включена, но не е ясно дали към нея трябва да се добави ДДС." : "Въведена от теб оферта или приблизителна оценка."
         provenance = cost["method"] == "percentage" ? "user_entered_percentage" : (cost["method"] == "estimate" ? "explicit_estimate" : "user_entered")
         base_line = line(cost["key"], cost["label"], cost["category"], amount, "calculated", provenance, nil,
           explanation:, cost:)
         vat_line = if cost["vat_treatment"] == "exclusive"
-          line("#{cost['key']}_vat", "ДДС - #{cost['label']}", cost["category"],
+          line("#{cost['key']}_vat", "ДДС — #{cost['label']}", cost["category"],
             percent(amount, vat_rule.dig("parameters", "rate_percent")), "calculated", "user_confirmed_exclusive_vat", vat_rule,
             explanation: "20% ДДС върху въведената нетна оферта.", cost: cost.merge("already_paid_cents" => 0))
         elsif cost["vat_treatment"] == "uncertain"
-          unresolved_line("#{cost['key']}_vat", "ДДС - #{cost['label']}", cost["category"], explanation, cost:)
+          unresolved_line("#{cost['key']}_vat", "ДДС — #{cost['label']}", cost["category"], explanation, cost:)
         end
         [ base_line, vat_line ].compact
       end
@@ -191,7 +191,7 @@ module Calculators
 
       amount = reservation["amount_cents"].to_i
       line("reservation_separate_fee", "Резервационно плащане като отделна такса", "acquisition", amount,
-        "calculated", "user_reported", nil, explanation: "Третирано е като отделен разход, а не като кредит към цената.",
+        "calculated", "user_reported", nil, explanation: "Третирано е като отделен разход, а не като приспадане от цената.",
         cost: { "already_paid_cents" => amount, "payment_event_key" => "historical", "buyer_share_percent" => "100" })
     end
 
@@ -227,20 +227,20 @@ module Calculators
     def warnings(unresolved)
       result = []
       result << "Има непопълнени разходи. Сумата не е окончателна." if unresolved.any?
-      result << "Данъчната оценка не е въведена. Законовите пера са условно изчислени върху цената и общата сума не е окончателна." if inputs["tax_assessment_cents"].nil?
+      result << "Не си въвел данъчна оценка. Затова данъкът и таксите са ориентировъчно изчислени върху цената и общата сума не е окончателна." if inputs["tax_assessment_cents"].nil?
       if inputs["transaction_cost_share_percent"] != "100.0" && inputs["transaction_cost_share_percent"] != "100"
-        result << "За автоматичните разходи е приложен въведеният от теб планиран дял #{inputs['transaction_cost_share_percent']}%. Това не е твърдение за универсална правна отговорност."
+        result << "За автоматичните разходи е приложен въведеният от теб дял от #{inputs['transaction_cost_share_percent']}%. Той служи само за тази сметка и не определя кой по закон дължи разхода."
       end
       result << "За бъдеща дата се приема, че правилата няма да се променят." if date > Date.current
-      result << "Изчислението е за една стандартна жилищна продажба; смесено данъчно третиране и няколко нотариални акта изискват ръчни оферти."
+      result << "Сметката приема една стандартна жилищна продажба. При смесено данъчно третиране или няколко нотариални акта въведи актуални оферти ръчно."
       result
     end
 
     def assumptions(tax_base:)
       assessment = inputs["tax_assessment_cents"]
       [
-        assessment ? "Материалният интерес е по-високата стойност между цената и въведената данъчна оценка." : "Няма въведена данъчна оценка; условно е използвана цената.",
-        "Разпределението на разходите е планирано от купувача и не твърди универсална правна отговорност."
+        assessment ? "Материалният интерес е по-високата стойност между цената и въведената данъчна оценка." : "Няма въведена данъчна оценка, затова за ориентир е използвана цената.",
+        "Посоченият дял от разходите служи само за тази сметка и не определя кой по закон ги дължи."
       ]
     end
 

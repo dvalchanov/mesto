@@ -5,13 +5,13 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     get guide_path
     expect(response).to have_http_status(:ok)
     expect(response.body).to include(
-      "Покупката на имот, стъпка по стъпка", "<summary>Меню</summary>",
+      "Подготви покупката си стъпка по стъпка", "<summary>Меню</summary>",
       "Сравняване на конкретни имоти", "Първите месеци като собственик", "Намери ясно обяснение"
     )
 
     get new_build_stage_path("akt-15")
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Акт образец 15", "Какво този етап НЕ означава?", "Какво обикновено следва?", "Преди да продължиш")
+    expect(response.body).to include("Акт образец 15", "Какво не означава този етап?", "Какво обикновено следва?", "Преди да продължиш")
     expect(response.body).not_to include("Твоят избран контекст")
 
     get new_build_stage_path("akt-14")
@@ -46,7 +46,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(response.body).to include("Намерени резултати за „възбрана“:", "Възбрана")
 
     get education_document_path("akt-15")
-    expect(response.body).to include("Какво НЕ установява?", "Провери тези подробности", "Предстои преглед от специалист")
+    expect(response.body).to include("Какво не установява?", "Провери тези подробности", "все още не е прегледано от специалист")
 
     get term_path("garazh-sreshtu-parkomyasto")
     expect(response.body).to include("Често объркване", "самостоятелен недвижим имот")
@@ -56,7 +56,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(response.body).to include(
       "Всеки участник има различна роля", "Инвеститор / възложител", "Кредитор и оценител",
       "Провери, преди да продължиш", "Свързани документи, термини и етапи", "Избери друга ситуация",
-      "Официални източници и редакционен статус", "Предстои преглед от специалист"
+      "Официални източници и редакционен статус", "все още не е прегледано от специалист"
     )
     expect(buyer_page.css(".buyer-guide").size).to eq(11)
     expect(buyer_page.at_css("#shortlisting")).to be_present

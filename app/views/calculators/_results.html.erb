@@ -4,14 +4,14 @@
   <% funding = result.fetch("funding", {}) %>
   <div class="summary-card">
     <div class="summary-card__heading">
-      <div><span>Твоят сценарий</span><h2><%= result["complete"] ? "Пълна сметка" : "Текущ междинен резултат" %></h2></div>
+      <div><span>Твоята сметка</span><h2><%= result["complete"] ? "Обобщение" : "Междинен резултат" %></h2></div>
       <i class="summary-status <%= result['complete'] ? 'summary-status--complete' : '' %>"><%= result["complete"] ? "Изчислено" : "За уточняване" %></i>
     </div>
     <% if errors.present? %><div class="calculator-warning"><strong>Провери въведените стойности.</strong><%= errors.values.to_sentence %></div><% end %>
     <dl class="summary-metrics">
       <div><dt>Цена за плащане</dt><dd><%= format_eur(costs["payable_property_price_cents"]) %></dd></div>
-      <div><dt><%= costs.fetch("unresolved_items", []).any? ? "Сбор на изчислените и въведените пера" : "Включени допълнителни разходи" %></dt><dd><%= format_eur(costs["included_costs_cents"]) %></dd></div>
-      <div class="summary-metrics__total"><dt>Общо включено плащане</dt><dd><%= format_eur(costs["combined_included_outlay_cents"]) %></dd></div>
+      <div><dt><%= costs.fetch("unresolved_items", []).any? ? "Изчислени и въведени разходи" : "Включени допълнителни разходи" %></dt><dd><%= format_eur(costs["included_costs_cents"]) %></dd></div>
+      <div class="summary-metrics__total"><dt>Общо планирани плащания</dt><dd><%= format_eur(costs["combined_included_outlay_cents"]) %></dd></div>
       <div><dt>Нужни собствени средства</dt><dd><%= format_eur(result["required_own_funds_cents"]) %></dd></div>
       <div><dt>Месечна вноска</dt><dd><%= format_eur(mortgage["regular_payment_cents"]) %></dd></div>
       <div><dt>Най-голям недостиг</dt><dd class="<%= 'is-negative' if funding['largest_funding_shortfall_cents'].to_i.positive? %>"><%= format_eur(funding["largest_funding_shortfall_cents"]) %></dd></div>
@@ -41,7 +41,7 @@
         <div><dt>Придобиване</dt><dd><%= format_eur(costs["acquisition_costs_cents"]) %></dd></div>
         <div><dt>Финансиране</dt><dd><%= format_eur(costs["financing_costs_cents"]) %></dd></div>
         <div><dt>След покупката</dt><dd><%= format_eur(costs["after_purchase_costs_cents"]) %></dd></div>
-        <div><dt>Месечни разходи отделно</dt><dd><%= format_eur(costs["recurring_monthly_costs_cents"]) %></dd></div>
+        <div><dt>Отделни месечни разходи</dt><dd><%= format_eur(costs["recurring_monthly_costs_cents"]) %></dd></div>
       </dl>
     </details>
   <% end %>
@@ -51,12 +51,12 @@
       <summary>Финансиране <span><%= format_eur(mortgage["regular_payment_cents"]) %> / мес.</span></summary>
       <dl class="summary-subtotals">
         <div><dt>Главница</dt><dd><%= format_eur(mortgage["principal_cents"]) %></dd></div>
-        <div><dt>Моделирана обща лихва</dt><dd><%= format_eur(mortgage["total_interest_cents"]) %></dd></div>
+        <div><dt>Обща лихва</dt><dd><%= format_eur(mortgage["total_interest_cents"]) %></dd></div>
         <div><dt>Последна коригирана вноска</dt><dd><%= format_eur(mortgage["final_payment_cents"]) %></dd></div>
         <div><dt>Вноска + включени месечни такси</dt><dd><%= format_eur(mortgage["total_regular_monthly_outflow_cents"]) %></dd></div>
       </dl>
       <p class="summary-explanation">Анюитетна схема при постоянна номинална лихва за целия срок. Това не е ГПР, одобрение или официален погасителен план.</p>
-      <div class="amortization-visual" role="img" aria-label="Дял на главницата и моделираната лихва в общо платената сума">
+      <div class="amortization-visual" role="img" aria-label="Дял на главницата и лихвата в общо платената сума">
         <% total = mortgage["total_principal_and_interest_cents"].to_i %>
         <% principal_width = total.positive? ? (mortgage["principal_cents"].to_d / total * 100).round(1) : 0 %>
         <span style="width: <%= principal_width %>%"></span><i style="width: <%= 100 - principal_width %>%"></i>
@@ -67,16 +67,16 @@
 
   <% if funding.fetch("rows", []).any? %>
     <details class="summary-detail">
-      <summary>График и наличност <span><%= funding["complete"] ? "по реда на събитията" : "условен" %></span></summary>
+      <summary>График и налични средства <span><%= funding["complete"] ? "по реда на плащанията" : "ориентировъчно" %></span></summary>
       <div class="ledger-table-wrap"><table class="ledger-table"><thead><tr><th>Събитие</th><th>Към продавача</th><th>Разходи</th><th>Ипотека</th><th>Собствени средства</th><th>Оставаща наличност</th></tr></thead><tbody><% funding["rows"].each do |row| %><tr><th><%= row["label"].presence || row["event_key"] %><small><%= row["date"].presence || "по ред на етапа" %></small></th><td><%= format_eur(row["seller_payment_cents"]) %></td><td><%= format_eur(row["additional_costs_cents"]) %></td><td><%= format_eur(row["mortgage_applied_cents"]) %></td><td><%= format_eur(row["own_cash_required_cents"]) %></td><td class="<%= 'is-negative' if row['projected_own_cash_cents'].negative? %>"><%= format_eur(row["projected_own_cash_cents"]) %></td></tr><% end %></tbody></table></div>
       <dl class="summary-subtotals">
-        <div><dt>Оставащо собствено финансиране</dt><dd><%= format_eur(funding["remaining_own_funding_cents"]) %></dd></div>
-        <div><dt>Преди първа налична ипотека</dt><dd><%= format_eur(funding["own_funds_before_first_mortgage_cents"]) %></dd></div>
-        <div><dt>Минимална прогнозна наличност</dt><dd><%= format_eur(funding["minimum_projected_cash_cents"]) %></dd></div>
-        <div><dt>Допълване за запазване на резерва</dt><dd><%= format_eur(funding["additional_funding_for_reserve_cents"]) %></dd></div>
+        <div><dt>Оставащи нужни собствени средства</dt><dd><%= format_eur(funding["remaining_own_funding_cents"]) %></dd></div>
+        <div><dt>Собствени средства преди първото усвояване</dt><dd><%= format_eur(funding["own_funds_before_first_mortgage_cents"]) %></dd></div>
+        <div><dt>Най-ниска прогнозна наличност</dt><dd><%= format_eur(funding["minimum_projected_cash_cents"]) %></dd></div>
+        <div><dt>Допълнителни средства за запазване на резерва</dt><dd><%= format_eur(funding["additional_funding_for_reserve_cents"]) %></dd></div>
       </dl>
     </details>
   <% end %>
 
-  <p class="calculator-legal-note">Ориентировъчен сценарий за планиране. Официалните източници са проверени на 06.09.2026 г.; професионален правен и данъчен преглед предстои. Провери договорните суми, данъчното третиране и приложимите такси с компетентните страни по сделката.</p>
+  <p class="calculator-legal-note">Тази сметка е ориентир за планиране. Официалните източници са проверени на 06.09.2026 г., но съдържанието все още не е прегледано от правен и данъчен специалист. Потвърди договорните суми, данъчното третиране и приложимите такси със страните и специалистите по сделката.</p>
 <% end %>

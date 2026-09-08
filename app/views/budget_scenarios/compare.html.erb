@@ -1,12 +1,12 @@
-<% content_for :title, "Сравнение на сценарии | #{product_name}" %>
+<% content_for :title, "Сравнение на сметки | #{product_name}" %>
 <% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="scenario-page"><div class="site-shell">
-  <div class="scenario-page__heading"><div><p class="eyebrow">Сравнение без победител</p><h1><%= @first.title %> <span>срещу</span> <%= @second.title %></h1><p>Разликите показват компромисите между твоите допускания, не обективно „най-добър“ вариант.</p></div><%= link_to "Назад към сметките", budget_scenarios_path, class: "button button--outline" %></div>
-  <div class="comparison-table" role="table" aria-label="Сравнение на два сценария">
+  <div class="scenario-page__heading"><div><p class="eyebrow">Сравнение на сметки</p><h1><%= @first.title %> <span>и</span> <%= @second.title %></h1><p>Сравнението показва как се променят резултатите при различни допускания. Само ти можеш да прецениш кой вариант е по-подходящ за теб.</p></div><%= link_to "Назад към сметките", budget_scenarios_path, class: "button button--outline" %></div>
+  <div class="comparison-table" role="table" aria-label="Сравнение на две сметки">
     <div class="comparison-table__head" role="row"><span role="columnheader">Показател</span><strong role="columnheader"><%= @first.title %></strong><strong role="columnheader"><%= @second.title %></strong><strong role="columnheader">Разлика</strong></div>
-    <% { "included_outlay_cents" => "Включено общо плащане", "own_funding_cents" => "Оставащо собствено финансиране", "monthly_payment_cents" => "Месечна вноска", "total_interest_cents" => "Моделирана лихва", "peak_shortfall_cents" => "Пиков недостиг" }.each do |key, label| %>
+    <% { "included_outlay_cents" => "Общо планирани плащания", "own_funding_cents" => "Оставащи собствени средства", "monthly_payment_cents" => "Месечна вноска", "total_interest_cents" => "Обща лихва", "peak_shortfall_cents" => "Най-голям недостиг" }.each do |key, label| %>
       <% metric = @comparison.dig("metrics", key) %><div role="row"><span role="cell"><%= label %></span><span role="cell"><%= format_eur(metric["first"]) %></span><span role="cell"><%= format_eur(metric["second"]) %></span><strong role="cell"><%= format_eur(metric["difference"]) %></strong></div>
     <% end %>
   </div>
-  <div class="calculator-note"><strong>За тълкуването</strong><p>Промяна на лихвата се прилага като хипотетична постоянна ставка за целия срок. Преместването на събитие не мести други договорни задължения.</p></div>
+  <div class="calculator-note"><strong>Как да четеш сравнението</strong><p>Ако промениш лихвата, тя се приема за постоянна през целия срок. Ако преместиш едно плащане, останалите договорни срокове не се променят автоматично.</p></div>
 </div></section>
