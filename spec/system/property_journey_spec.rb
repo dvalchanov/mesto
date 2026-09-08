@@ -12,6 +12,7 @@ RSpec.describe "Mesto journey", type: :system do
 
     analysis = PropertyAnalysis.last
     expect(page).to have_text(I18n.t("reports.progress.title"))
+    prepare_complete_sources
     Analysis::Runner.new(analysis, cadastre_provider: successful_cadastre_provider).call
     expect(analysis.reload.status).to eq("ready")
     visit report_path(analysis)
@@ -33,11 +34,46 @@ RSpec.describe "Mesto journey", type: :system do
 
   def successful_cadastre_provider
     point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3205, 42.6905)
+    factory = RGeo::Cartesian.preferred_factory(srid: 4326)
+    ring = factory.linear_ring([
+      factory.point(23.319, 42.689), factory.point(23.322, 42.689),
+      factory.point(23.322, 42.692), factory.point(23.319, 42.692),
+      factory.point(23.319, 42.689)
+    ])
+    parcel = factory.multi_polygon([ factory.polygon(ring) ])
     result = DataSources::Result.success(
-      data: { "centroid" => point, "precision" => "cadastral_geometry" },
+      data: {
+        "analysis_point" => point,
+        "parcel_geometry" => parcel,
+        "precision" => "cadastral_geometry",
+        "geometry_bases" => {
+          "amenity_proximity" => "selected_building_representative_point",
+          "parcel_planning" => "parcel_polygon"
+        }
+      },
       source_url: "https://kais.cadastre.bg/bg/OpenData",
       relevant_at: Time.zone.parse("2026-08-05")
     )
     instance_double(Cadastre::Provider, locate: result)
+  end
+
+  def prepare_complete_sources
+    profile = DataCoverage.profile
+    DataSources::Sofiaplan::DatasetSynchronizer.new(coverage_profile: profile).sync
+    DataSources::ArcGis::DatasetSynchronizer.new(coverage_profile: profile).sync
+    DataSources::OpenStreetMap::DatasetSynchronizer.new(coverage_profile: profile).sync
+      .spatial_dataset.update!(coverage_status: "complete")
+    DataSources.config.dig("nag", "registers").each_key do |key|
+      SourceSnapshot.create!(
+        source_key: "nag_#{key}",
+        provider: "NAG",
+        source_url: "https://nag.sofia.bg/#{key}",
+        coverage_profile_key: profile.key,
+        status: "succeeded",
+        coverage_status: "complete",
+        fetched_at: Time.current,
+        permission_status: "approved"
+      )
+    end
   end
 end

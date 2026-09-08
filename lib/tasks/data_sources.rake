@@ -1,4 +1,10 @@
 namespace :data_sources do
+  desc "Enqueue refresh checks for prepared datasets"
+  task refresh_due: :environment do
+    RefreshPreparedDataJob.perform_later(coverage_profile_key: DataCoverage.profile.key)
+    puts "enqueued profile=#{DataCoverage.profile.key}"
+  end
+
   desc "Check configured public-source connectivity"
   task check: :environment do
     checks = {}
@@ -74,6 +80,55 @@ namespace :sofiaplan do
   end
 end
 
+namespace :arcgis do
+  desc "Import configured planning layers for the current coverage profile"
+  task :sync, [ :key ] => :environment do |_task, args|
+    results = DataSources::ArcGis::DatasetSynchronizer.new.sync(args[:key])
+    results.each { |key, result| puts [ key, result.status, result.try(:records_seen) ].compact.join("\t") }
+  end
+end
+
+namespace :openstreetmap do
+  desc "Import schools and kindergartens for the supporting-data boundary"
+  task sync: :environment do
+    result = DataSources::OpenStreetMap::DatasetSynchronizer.new.sync
+    puts [ result.status, result.try(:records_seen) ].compact.join("\t")
+  end
+end
+
+namespace :coverage do
+  desc "Show configured boundaries, prepared datasets, archive health, and permission states"
+  task status: :environment do
+    profile = DataCoverage.profile
+    puts "profile=#{profile.key}\tlabel=#{profile.label}\tmode=#{profile.mode}\tbuffer_m=#{profile.supporting_buffer_metres}"
+    puts "search_boundary=#{profile.search_geometry_wkt}"
+    CadastreSourceArchive.for_profile(profile).order(:district, :object_kind).each do |entry|
+      latest = entry.latest_successful_import
+      puts [
+        "cadastre", entry.district, entry.object_kind, entry.status,
+        "enabled=#{entry.enabled?}", "permission=#{entry.permission_status}",
+        "checked=#{entry.last_checked_at || '-'}", "imported=#{latest&.completed_at || '-'}",
+        "seen=#{latest&.records_seen || 0}", "outcomes=#{latest&.outcome_counts || {}}"
+      ].join("\t")
+    end
+    SpatialDataset.where(coverage_profile_key: profile.key).order(:key).each do |dataset|
+      latest = dataset.dataset_imports.order(created_at: :desc).first
+      puts [
+        "spatial", dataset.key, "coverage=#{dataset.coverage_status}",
+        "permission=#{dataset.permission_status}", "imported=#{dataset.last_imported_at || '-'}",
+        "features=#{dataset.spatial_features.count}", "outcomes=#{latest&.outcome_counts || {}}"
+      ].join("\t")
+    end
+    SourceSnapshot.for_profile(profile).order(:source_key, created_at: :desc).each do |snapshot|
+      puts [
+        "snapshot", snapshot.source_key, snapshot.status,
+        "coverage=#{snapshot.coverage_status}", "permission=#{snapshot.permission_status}",
+        "fetched=#{snapshot.fetched_at || '-'}", "records=#{snapshot.record_count}"
+      ].join("\t")
+    end
+  end
+end
+
 namespace :mesto do
   desc "Run a property analysis synchronously"
   task :analyze, [ :identifier ] => :environment do |_task, args|
@@ -100,6 +155,72 @@ namespace :mesto do
 end
 
 namespace :cadastre do
+  desc "Create source-archive catalog entries for the current coverage profile"
+  task catalog: :environment do
+    DataSources::CadastreOpenData::SourceCatalog.new.ensure_profile_entries!.each do |entry|
+      puts [ entry.id, entry.district, entry.object_kind, entry.enabled? ? "enabled" : "disabled", entry.source_archive_key ].join("\t")
+    end
+  end
+
+  desc "Create disabled source-archive entries for one explicit Sofia district"
+  task :catalog_district, [ :district ] => :environment do |_task, args|
+    abort("Provide a district name") if args[:district].blank?
+
+    entries = DataSources::CadastreOpenData::SourceCatalog.new.ensure_district_entries!(args[:district])
+    entries.each { |entry| puts [ entry.id, entry.district, entry.object_kind, entry.source_archive_key ].join("\t") }
+  end
+
+  desc "Record an explicit source-permission approval for a catalog district"
+  task :approve_district_permissions, [ :district, :reference ] => :environment do |_task, args|
+    abort("Provide a district and supporting permission reference") if args[:district].blank? || args[:reference].blank?
+
+    entries = CadastreSourceArchive.for_profile(DataCoverage.profile).where(district: args[:district])
+    abort("Catalog the district first") if entries.empty?
+    entries.update_all(
+      permission_status: "approved",
+      permission_reference: args[:reference],
+      updated_at: Time.current
+    )
+    puts "approved=#{entries.count}\tdistrict=#{args[:district]}\treference=#{args[:reference]}"
+  end
+
+  desc "Enqueue enabled archive imports for the current coverage profile"
+  task sync_profile: :environment do
+    profile = DataCoverage.profile
+    entries = DataSources::CadastreOpenData::SourceCatalog.new.ensure_profile_entries!
+    entries = entries.select(&:enabled?) if profile.mode == "catalog"
+    entries.each { |entry| ImportCadastreArchiveJob.perform_later(entry.id) }
+    puts "enqueued=#{entries.length}\tprofile=#{profile.key}"
+  end
+
+  desc "Enable a reviewed catalog district for production search coverage"
+  task :enable_district, [ :district ] => :environment do |_task, args|
+    abort("Provide a district name") if args[:district].blank?
+
+    entries = CadastreSourceArchive.for_profile(DataCoverage.profile).where(district: args[:district])
+    abort("Run cadastre:catalog or configure this district first") if entries.empty?
+    abort("Approve and document source permissions before enabling this district") if entries.where.not(permission_status: "approved").exists?
+
+    entries.update_all(enabled: true, updated_at: Time.current)
+    puts "enabled=#{entries.count}\tdistrict=#{args[:district]}"
+  end
+
+  desc "Preview or explicitly prune cadastral rows outside the supporting-data boundary"
+  task :prune_outside_scope, [ :confirmation ] => :environment do |_task, args|
+    profile = DataCoverage.profile
+    relation = CadastralProperty.where.not(geometry: nil).where(
+      "NOT ST_Intersects(geometry, ST_GeomFromText(?, 4326))",
+      profile.supporting_geometry_wkt
+    )
+    puts "profile=#{profile.key}\toutside_rows=#{relation.count}"
+    if args[:confirmation] == "DELETE"
+      deleted = relation.delete_all
+      puts "deleted=#{deleted}\trecoverable_from_source_archives=true"
+    else
+      puts "dry_run=true\tto_delete=bin/rails 'cadastre:prune_outside_scope[DELETE]'"
+    end
+  end
+
   desc "Import an AGKK parcel, building, or individual-object open-data ZIP"
   task :import_archive, [ :archive_path, :source_archive_key, :archive_kind, :relevant_at ] => :environment do |_task, args|
     archive_path = Pathname(args[:archive_path].to_s)

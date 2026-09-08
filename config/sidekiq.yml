@@ -1,6 +1,6 @@
 ---
 :concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 5) %>
 :queues:
+  - ingestion
   - analysis
-  - imports
   - default

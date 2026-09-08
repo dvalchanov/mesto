@@ -32,17 +32,17 @@ module Analysis
     def add_cadastral_context(features)
       records = hierarchy_records
       add_record(features, records["parcel"], "parcel", fallback_geometry: @analysis.parcel_geometry)
-      add_record(features, records["building"], "selected_building")
-      add_record(features, records["individual_object"], "selected_object")
+      add_record(features, records["building"], "selected_building", fallback_geometry: @analysis.building_geometry)
+      add_record(features, records["individual_object"], "selected_object", fallback_geometry: @analysis.subject_geometry)
 
       nearby_buildings.each do |building|
         add_record(features, building, "nearby_building")
       end
 
-      return unless @analysis.centroid
+      return unless location_point
 
       features << map_feature(
-        @analysis.centroid,
+        location_point,
         kind: "selected_location",
         label: @analysis.submitted_identifier,
         type_label: translate_feature_type("selected_location"),
@@ -64,18 +64,18 @@ module Analysis
     end
 
     def nearby_buildings
-      return CadastralProperty.none unless @analysis.centroid
+      return CadastralProperty.none unless location_point
 
       relation = CadastralProperty.where(identifier_level: "building")
         .where.not(geometry: nil)
-        .near(@analysis.centroid, BUILDING_RADIUS_METRES)
-        .nearest_to(@analysis.centroid)
+        .near(location_point, BUILDING_RADIUS_METRES)
+        .nearest_to(location_point)
       relation = relation.where.not(cadastral_identifier: @analysis.building_identifier) if @analysis.building_identifier
       relation.limit(MAX_NEARBY_BUILDINGS)
     end
 
     def add_record(features, record, kind, fallback_geometry: nil)
-      geometry = record&.geometry || fallback_geometry
+      geometry = fallback_geometry || record&.geometry
       return unless geometry
 
       identifier = record&.cadastral_identifier || @analysis.parcel_identifier
@@ -116,17 +116,17 @@ module Analysis
     end
 
     def add_spatial_context(features)
-      return unless @analysis.centroid
+      return unless location_point
 
       add_current_amenities(features) if current_amenities_available?
       categories = current_amenities_available? ? AMENITY_CATEGORIES - %w[schools kindergartens] : AMENITY_CATEGORIES
       categories.each do |category|
         next unless spatial_dataset_available?(category)
 
-        SpatialFeature.in_category(category)
-          .within(@analysis.centroid, AMENITY_RADIUS_METRES)
-          .nearest_to(@analysis.centroid)
-          .with_distance_to(@analysis.centroid)
+        spatial_dataset_for(category).spatial_features.in_category(category)
+          .within(location_point, AMENITY_RADIUS_METRES)
+          .nearest_to(location_point)
+          .with_distance_to(location_point)
           .includes(:spatial_dataset)
           .limit(MAX_FEATURES_BY_CATEGORY.fetch(category))
           .each do |feature|
@@ -146,45 +146,44 @@ module Analysis
     end
 
     def add_current_amenities(features)
-      nearby = Array(current_amenities_source_run.parsed_payload["features"])
       visible_places = %w[schools kindergartens].flat_map do |category|
-        nearby.select do |feature|
-          feature["category"] == category && feature.fetch("distance_m") <= AMENITY_RADIUS_METRES
-        end.first(MAX_FEATURES_BY_CATEGORY.fetch(category))
+        current_amenity_dataset.spatial_features.in_category(category)
+          .within(location_point, AMENITY_RADIUS_METRES)
+          .nearest_to(location_point)
+          .with_distance_to(location_point)
+          .limit(MAX_FEATURES_BY_CATEGORY.fetch(category))
       end
       visible_places.each do |feature|
-        geometry = RGeo::Geographic.spherical_factory(srid: 4326)
-          .point(feature.fetch("longitude"), feature.fetch("latitude"))
         features << map_feature(
-          geometry,
+          feature.geometry,
           kind: "amenity",
-          category: feature.fetch("category"),
-          label: feature["name"],
-          type_label: translate_feature_type(feature.fetch("category")),
-          detail: feature["operator"],
-          address: feature["address"],
-          source_url: feature["source_url"],
-          date_label: date_label(current_amenities_source_run.relevant_at),
-          distance_label: distance_label(feature.fetch("distance_m"))
+          category: feature.category,
+          label: feature.name,
+          type_label: translate_feature_type(feature.category),
+          detail: feature.properties["operator"],
+          address: feature.address,
+          source_url: feature.properties["source_url"] || current_amenity_dataset.source_url,
+          date_label: date_label(current_amenity_dataset.relevant_at),
+          distance_label: distance_label(feature[:map_distance_m])
         )
       end
     end
 
     def current_amenities_available?
-      current_amenities_source_run&.status == "succeeded"
+      current_amenities_source_run&.status == "succeeded" && current_amenity_dataset.present?
     end
 
     def current_amenities_source_run
       return @current_amenities_source_run if defined?(@current_amenities_source_run)
 
-      @current_amenities_source_run = @analysis.source_runs
+      @current_amenities_source_run = @analysis.current_source_runs
         .where(source_key: "openstreetmap_nearby_amenities")
         .order(id: :desc).first
     end
 
     def spatial_dataset_available?(category)
-      @analysis.source_runs.where(source_key: "sofiaplan_dataset_#{category}")
-        .order(id: :desc).pick(:status) == "succeeded"
+      @analysis.current_source_runs.where(source_key: "sofiaplan_dataset_#{category}")
+        .order(id: :desc).pick(:status) == "succeeded" && spatial_dataset_for(category).present?
     end
 
     def spatial_feature_type(feature, category)
@@ -211,7 +210,7 @@ module Analysis
     end
 
     def planning_source_urls
-      @planning_source_urls ||= @analysis.source_runs
+      @planning_source_urls ||= @analysis.current_source_runs
         .where(source_key: %w[arcgis_development_potential arcgis_functional_zoning])
         .where.not(source_url: nil)
         .pluck(:source_key, :source_url)
@@ -246,6 +245,23 @@ module Analysis
       return unless value
 
       I18n.t("reports.map.popup.distance", distance: value.to_f.round)
+    end
+
+    def current_amenity_dataset
+      return @current_amenity_dataset if defined?(@current_amenity_dataset)
+
+      @current_amenity_dataset = SpatialDataset.prepared.find_by(
+        key: DataSources.config.dig("openstreetmap", "dataset_key"),
+        coverage_profile_key: @analysis.coverage_profile_key
+      )
+    end
+
+    def spatial_dataset_for(category)
+      SpatialDataset.prepared.find_by(key: category, coverage_profile_key: @analysis.coverage_profile_key)
+    end
+
+    def location_point
+      @analysis.location_point
     end
   end
 end

@@ -3,7 +3,6 @@ module Cadastre
     def self.configured
       config = DataSources.config.fetch("cadastre")
       case config.fetch("provider")
-      when "agkk_wms" then AgkkWmsOverlay.new(config:)
       when "open_data" then OpenDataProvider.new(config: config.fetch("open_data"))
       else NullProvider.new
       end

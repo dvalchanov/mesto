@@ -102,11 +102,11 @@ RSpec.describe Analysis::ReportMapBuilder do
     gateway.succeed(order)
 
     dataset = SpatialDataset.create!(
-      key: "map-schools",
+      key: "schools",
       name: "Schools",
       provider: "SofiaPlan",
       source_url: "https://api.sofiaplan.bg/datasets/166",
-      relevant_at: Time.zone.parse("2018-08-08")
+      relevant_at: Time.zone.parse("2018-08-08"), last_imported_at: Time.current
     )
     school = dataset.spatial_features.create!(
       external_key: "school-1",
@@ -142,11 +142,11 @@ RSpec.describe Analysis::ReportMapBuilder do
       location_precision: "official_record_geometry"
     )
     dataset = SpatialDataset.create!(
-      key: "map-kindergartens",
+      key: "kindergartens",
       name: "Kindergartens",
       provider: "SofiaPlan",
       source_url: "https://api.sofiaplan.bg/datasets/167",
-      relevant_at: Time.zone.parse("2019-03-12")
+      relevant_at: Time.zone.parse("2019-03-12"), last_imported_at: Time.current
     )
     kindergarten = dataset.spatial_features.create!(
       external_key: "kindergarten-1",
@@ -174,16 +174,18 @@ RSpec.describe Analysis::ReportMapBuilder do
       :property_analysis,
       status: "partial",
       centroid: point_factory.point(23.3460262, 42.6394047),
-      location_precision: "cadastral_geometry"
+      location_precision: "cadastral_geometry",
+      coverage_profile_key: DataCoverage.profile.key
     )
-    result = DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch(centroid: analysis.centroid)
+    import = DataSources::OpenStreetMap::DatasetSynchronizer.new.sync
+    dataset = import.spatial_dataset
     analysis.source_runs.create!(
       source_key: "openstreetmap_nearby_amenities",
       status: "succeeded",
-      parsed_payload: result.data,
-      source_url: result.source_url,
-      fetched_at: result.fetched_at,
-      relevant_at: result.relevant_at
+      parsed_payload: { "feature_count" => dataset.spatial_features.count, "coverage_status" => "complete" },
+      source_url: dataset.source_url,
+      fetched_at: dataset.last_imported_at,
+      relevant_at: dataset.relevant_at
     )
 
     properties = feature_properties(described_class.new(analysis:).call)

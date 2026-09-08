@@ -42,7 +42,7 @@ RSpec.describe DataSources::CadastreOpenData::PropertyArchiveImporter do
     described_class.new(
       archive_path: archive.path, source_archive_key: "district/parcels-geometry.zip",
       source_url: "https://kais.cadastre.bg/source", archive_kind: :parcels,
-      relevant_at: Time.zone.parse("2026-08-05")
+      relevant_at: Time.zone.parse("2026-08-05"), coverage_profile: nil
     ).call
     property = CadastralProperty.find_by!(cadastral_identifier: row.fetch("cadnum"))
 
@@ -50,6 +50,36 @@ RSpec.describe DataSources::CadastreOpenData::PropertyArchiveImporter do
     expect(property.geometry.geometry_type.type_name).to eq("MultiPolygon")
     expect(property.properties.fetch("source_crs")).to eq("EPSG:7801 (BGS2005 / CCS2005)")
     expect(CadastralProperty.where(id: property.id).pick(Arel.sql("ST_Area(source_geometry)"))).to be_within(0.01).of(100)
+  ensure
+    archive&.unlink
+  end
+
+  it "accounts for a valid feature outside configured supporting coverage without persisting it" do
+    row = {
+      "cadnum" => "68134.1609.3263", "AREA" => "100.00", "PERIM" => "40.00",
+      "parcel" => "IX-3263", "quarter" => "51", "purptype" => "Урбанизирана",
+      "purpcode" => "1", "usetype" => "Средно застрояване", "usecode" => "1010"
+    }
+    archive = Tempfile.new([ "cadastre-scoped", ".zip" ])
+    archive.close
+    Zip::File.open(archive.path, create: true) do |zip|
+      zip.get_output_stream("data.dbf") { |io| io.write(build_dbf(parcel_fields, [ row ])) }
+      zip.get_output_stream("data.shp") { |io| io.write(build_shp) }
+      zip.get_output_stream("data.prj") { |io| io.write('PROJCS["BGS2005",PROJECTION["Lambert_Conformal_Conic"]]') }
+    end
+
+    result = described_class.new(
+      archive_path: archive.path,
+      source_archive_key: "district/scoped-parcels.zip",
+      source_url: "https://kais.cadastre.bg/source",
+      archive_kind: :parcels,
+      coverage_profile: DataCoverage.profile
+    ).call
+
+    expect(result.records_seen).to eq(1)
+    expect(result.records_imported).to eq(0)
+    expect(result.outcome_counts.fetch("outside_configured_coverage")).to eq(1)
+    expect(CadastralProperty.find_by(cadastral_identifier: row.fetch("cadnum"))).to be_nil
   ensure
     archive&.unlink
   end
@@ -63,7 +93,7 @@ RSpec.describe DataSources::CadastreOpenData::PropertyArchiveImporter do
     described_class.new(
       archive_path: archive.path, source_archive_key: "district/#{kind}.zip",
       source_url: "https://kais.cadastre.bg/source", archive_kind: kind,
-      relevant_at: Time.zone.parse("2026-08-05")
+      relevant_at: Time.zone.parse("2026-08-05"), coverage_profile: nil
     ).call
   ensure
     archive&.unlink

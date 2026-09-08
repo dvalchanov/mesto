@@ -81,7 +81,7 @@ module Analysis
 
     def cadastre_payload
       @cadastre_payload ||= begin
-        payload = @analysis.source_runs.where(source_key: "cadastre", status: "succeeded")
+        payload = @analysis.current_source_runs.where(source_key: "cadastre", status: "succeeded")
           .order(created_at: :desc).pick(:parsed_payload)
         payload.presence || local_cadastre_payload
       end
@@ -95,7 +95,7 @@ module Analysis
     end
 
     def cadastre_relevant_at
-      run_date = @analysis.source_runs.where(source_key: "cadastre", status: "succeeded")
+      run_date = @analysis.current_source_runs.where(source_key: "cadastre", status: "succeeded")
         .order(created_at: :desc).pick(:relevant_at)
       run_date || cadastral_properties[@analysis.identifier_level]&.source_relevant_at
     end

@@ -36,12 +36,12 @@ module Analysis
       result << { "key" => "building_permit", "year" => permit.issued_on.year } if permit
       result << { "key" => "design_visa" } if @analysis.administrative_acts.where(registry_kind: "design_visas").exists?
       result << { "key" => "location_unavailable" } unless @analysis.centroid
-      result << { "key" => "no_matches" } if total.zero? && @analysis.source_runs.succeeded.exists?
+      result << { "key" => "no_matches" } if total.zero? && @analysis.current_source_runs.succeeded.exists?
       result
     end
 
     def planning_features
-      @analysis.source_runs.where(source_key: %w[arcgis_development_potential arcgis_functional_zoning])
+      @analysis.current_source_runs.where(source_key: %w[arcgis_development_potential arcgis_functional_zoning])
         .where(status: "succeeded").map do |run|
           { "source_key" => run.source_key, "features" => run.parsed_payload.fetch("features", []) }
         end

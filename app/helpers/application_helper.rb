@@ -67,7 +67,7 @@ module ApplicationHelper
   end
 
   def source_result_key(run, analysis:)
-    return "needs_location" if run.source_key.start_with?("sofiaplan_dataset_", "arcgis_") && !analysis.centroid
+    return "needs_location" if run.source_key.start_with?("sofiaplan_dataset_", "arcgis_", "openstreetmap_") && !analysis.location_point
     return run.status unless run.status == "succeeded"
     return source_record_count(run).positive? ? "records_found" : "no_match" if run.source_key.start_with?("nag_", "arcgis_", "openstreetmap_")
     return "used_for_calculation" if run.source_key.start_with?("sofiaplan_dataset_")
@@ -103,6 +103,10 @@ module ApplicationHelper
       t("reports.sources.issues.needs_location")
     elsif cadastre_archive_unavailable?(run)
       t("reports.sources.issues.cadastre_archive_unavailable")
+    elsif run.error_class == "DataCoverage::DatasetNotPrepared"
+      t("reports.sources.issues.dataset_not_prepared")
+    elsif run.error_class == "DataCoverage::OutsideSearchCoverage"
+      t("reports.sources.issues.outside_dataset")
     elsif run.source_key.start_with?("sofiaplan_dataset_")
       t("reports.sources.issues.spatial_dataset")
     else
@@ -379,6 +383,8 @@ module ApplicationHelper
     return payload.length if payload.is_a?(Array)
     return Array(payload["features"]).length if payload.is_a?(Hash) && payload.key?("features")
     return payload["count"].to_i if payload.is_a?(Hash) && payload.key?("count")
+    return payload["record_count"].to_i if payload.is_a?(Hash) && payload.key?("record_count")
+    return payload["feature_count"].to_i if payload.is_a?(Hash) && payload.key?("feature_count")
 
     0
   end

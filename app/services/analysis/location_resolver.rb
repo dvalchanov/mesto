@@ -22,11 +22,16 @@ module Analysis
     def from_cadastre
       return unless @cadastre_result&.success?
       data = @cadastre_result.data.symbolize_keys
-      return unless data[:centroid] || data[:geometry]
+      return unless data[:analysis_point] || data[:centroid] || data[:parcel_geometry] || data[:geometry]
 
       {
-        centroid: data[:centroid] || data[:geometry].centroid,
-        geometry: data[:geometry],
+        analysis_point: data[:analysis_point] || data[:centroid],
+        centroid: data[:analysis_point] || data[:centroid],
+        subject_geometry: data[:subject_geometry],
+        building_geometry: data[:building_geometry],
+        parcel_geometry: data[:parcel_geometry] || data[:geometry],
+        geometry: data[:parcel_geometry] || data[:geometry],
+        geometry_bases: data[:geometry_bases] || {},
         precision: data[:precision] || "cadastral_geometry"
       }
     end

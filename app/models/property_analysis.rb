@@ -2,8 +2,10 @@ class PropertyAnalysis < ApplicationRecord
   STATUSES = %w[queued running ready partial failed].freeze
   COVERAGE_STATUSES = %w[complete good partial limited].freeze
   LOCATION_PRECISIONS = %w[cadastral_geometry official_record_geometry matched_address approximate unavailable].freeze
+  ANALYSIS_SCOPE_STATUSES = %w[unknown covered outside data_unavailable].freeze
 
   has_many :source_runs, dependent: :destroy
+  has_many :analysis_revisions, dependent: :destroy
   has_many :orders, dependent: :destroy
   has_many :product_events, dependent: :nullify
   has_many :buyer_journeys, dependent: :nullify
@@ -17,6 +19,7 @@ class PropertyAnalysis < ApplicationRecord
   validates :status, inclusion: { in: STATUSES }
   validates :coverage_status, inclusion: { in: COVERAGE_STATUSES }
   validates :location_precision, inclusion: { in: LOCATION_PRECISIONS }
+  validates :analysis_scope_status, inclusion: { in: ANALYSIS_SCOPE_STATUSES }
 
   scope :completed, -> { where(status: %w[ready partial]) }
 
@@ -24,6 +27,20 @@ class PropertyAnalysis < ApplicationRecord
   def ready_for_display? = status.in?(%w[ready partial failed])
   def running? = status.in?(%w[queued running])
   def sofia? = settlement_code == CadastralIdentifier::SOFIA_SETTLEMENT_CODE
+  def location_point = analysis_point || centroid
+
+  def current_revision
+    analysis_revisions.order(number: :desc).first
+  end
+
+  def current_source_runs
+    revision = current_revision
+    revision ? revision.source_runs : source_runs
+  end
+
+  def next_revision_number
+    analysis_revisions.maximum(:number).to_i + 1
+  end
 
   def full_report_unlocked?
     orders.paid.exists?

@@ -43,7 +43,7 @@ bin/rails tailwindcss:watch
 bundle exec sidekiq -C config/sidekiq.yml
 ```
 
-Open <http://mesto.localhost>. The direct Rails endpoint remains available at <http://localhost:3000>. Analysis jobs use the `analysis` queue and dataset imports use `imports`.
+Open <http://mesto.localhost>. The direct Rails endpoint remains available at <http://localhost:3000>. Analysis jobs use the `analysis` queue. Every remote download and bulk import uses the separate `ingestion` queue.
 
 The product name defaults to `Mesto` and the canonical production host defaults to `mesto.bg`; both can be configured with `PRODUCT_NAME` and `APP_HOST`. Bulgarian is the default locale and the interface also has English translations.
 
@@ -53,26 +53,31 @@ The programmable five-row wordmark, variants, motion behavior, and usage rules a
 
 `DATA_SOURCE_MODE=live` uses the allowlisted official hosts in `config/data_sources.yml`. `DATA_SOURCE_MODE=fixture` reads offline files from `spec/fixtures/data_sources`; this is the automatic test default. Production must not use fixture mode because fixtures are representative test data, not live facts.
 
-Every request becomes an independent `SourceRun` with status, source URL, retrieval time, known validity date, checksum, and a sanitized error when needed. Raw source responses are not stored unless `STORE_RAW_SOURCE_RESPONSES=true`; it defaults to false and should stay false in production.
+Report generation is database-first. It never contacts NAG, KAIS, ArcGIS, SofiaPlan, or Overpass and never starts an import. Background ingestion prepares shared data first. Every report revision records a separate set of `SourceRun` rows with source URL, source-data date, retrieval time, checksum, dataset revision, geographic coverage, and calculation basis. Refreshing a report preserves earlier revisions instead of deleting their evidence. Raw source responses are not stored unless `STORE_RAW_SOURCE_RESPONSES=true`; it defaults to false and should stay false in production.
 
 Current integrations:
 
-- SofiaPlan API: live version/catalog clients and GeoJSON download/import. A located analysis imports any missing configured datasets before it calculates spatial results; one failed import does not stop the other datasets. The deterministic prototype configuration pins schools `166` (2018-08-08), kindergartens `142` (2018-08-08), parks and gardens `235` (2020-09-14), metro stations `47` (2021-03-08), and significant flood-risk areas `51` (2018-06-18). Old dates are preserved and shown, never treated as current.
-- SofiaPlan ArcGIS: a generic paginated Feature Layer client queries development potential layer `31` and predominant functional zoning layer `33` by reliable location. Raw returned attributes are retained as provenance instead of assuming field meanings.
-- OpenStreetMap: one bounded Overpass query fetches only mapped schools and kindergartens within 2 km of the property. Results retain per-place source links and the OpenStreetMap snapshot time; this is community-maintained context rather than an official municipal register.
-- NAG registers: the adapter discovers the official public search-form action and searches building permits, design visas, planning orders, and occupancy certificates by full, building, and parcel identifiers. It parses the Kendo result payload and a capped set of public detail pages. The public pages have no documented third-party API, so this integration is intentionally isolated and can become `unavailable` if the form changes. It does not bypass authentication, CAPTCHAs, or access controls and does not fetch PDFs.
-- Cadastre: the default provider imports AGKK's official parcel, building, and individual-object open-data archives. It retains exact identifiers, attributes, archive dates, and vector geometry; parcel geometry is transformed from BGS2005 / CCS2005 (EPSG:7801) to WGS 84 for the report map and spatial checks. The optional AGKK WMS configuration remains overlay-only.
+- SofiaPlan API: ingestion jobs download configured GeoJSON datasets, filter whole features to the supporting-data boundary, validate them, and publish them transactionally. The pinned source dates remain distinct from Mesto's retrieval dates.
+- SofiaPlan ArcGIS: background ingestion stores development potential layer `31` and functional zoning layer `33` locally. Reports intersect every matching planning polygon with the full parcel polygon.
+- OpenStreetMap: background ingestion stores mapped schools and kindergartens for the supporting-data boundary. Reports calculate and label straight-line distance from the selected building/location point.
+- NAG registers: per-report scraping is disabled. The existing bounded identifier adapter can run only through `ImportNagRegistryJob`, is disabled by default, and always records partial coverage. Do not enable it as an area-wide feed until a supported and permitted acquisition method is established.
+- Cadastre: dedicated ingestion jobs download AGKK parcel, building, and individual-object archives from an explicit source catalog. Reports perform exact local lookups only. The importer retains subject, building, and parcel geometry and uses a building representative point for proximity calculations. Nonfunctional WMS configuration is no longer exposed as a provider.
 
 Only HTTPS hosts explicitly allowlisted in `config/data_sources.yml` can be fetched. User input never controls a remote URL.
 
 ### AGKK cadastral open data
 
-Property identity and hierarchy facts come from AGKK's public `самостоятелни обекти`, `сгради`, and `поземлени имоти` archives. This includes object area and outline, attached/common parts, floor and purpose; building footprint, floors, function, and object count; parcel area, perimeter, territory type, permanent use, regulation quarter/UPI; official addresses, approval acts, technical codes, and cadastral geometry. In live mode, an analysis imports the required hierarchy for the relevant Sofia district on first use when a municipal record provides the district hint. Imported records are reused locally and refreshed by archive checksum and importer version.
+Property identity and hierarchy facts come from AGKK's `самостоятелни обекти`, `сгради`, and `поземлени имоти` archives. Archive selection comes from `CadastreSourceArchive`, independently of NAG. A source archive may still be district-wide because that is the smallest upstream unit; persistence is filtered to the configured supporting-data boundary without clipping included geometry. Parent parcel and building archives are catalogued explicitly.
 
-To refresh a district explicitly:
+Archives are streamed into a temporary file, imported into PostGIS, and deleted in an `ensure` block. They are not retained on the Heroku filesystem. S3 is therefore optional archive retention for audit/reprocessing, not a replacement for PostGIS. The importer records source checksum, ETag/Last-Modified when supplied, importer version, coverage-scope digest, row outcomes, validation errors, and the last successful import. PostgreSQL advisory locks prevent concurrent publication of the same source/scope, and a failed transaction leaves the last successful records intact.
+
+Development uses the explicit `malinova_dolina` profile in `config/coverage_profiles.yml`: a search polygon plus a 2 km supporting-data buffer. Test uses synthetic fixture coverage and blocks external network access. Production uses an enabled Sofia district catalog; entries cannot be enabled until their permission status is approved.
+
+Prepare and import development cadastral coverage explicitly:
 
 ```sh
-bin/rails 'cadastre:sync_sofia_district[Студентски]'
+bin/rails cadastre:catalog
+bin/rails cadastre:sync_profile
 ```
 
 The importer reads only the three non-ownership archives. It deliberately does not download the separate `собственост ПИ`, `собственост сгради`, or `собственост СОС` archives, and it never imports owner names. The non-ownership archives' broad cadastral ownership category may be displayed with an explicit warning that it is not a current ownership, title, seller, or encumbrance check.
@@ -92,12 +97,25 @@ bin/rails sofiaplan:datasets
 bin/rails 'sofiaplan:datasets[kindergarten]'
 ```
 
-Import the five configured GeoJSON datasets. Imports upsert stable feature IDs, remove stale features, preserve freshness, and skip an unchanged checksum:
+Import the configured datasets. Imports upsert stable feature IDs, preserve freshness, account for filtered/rejected rows, and skip an unchanged source/version/scope checksum. Stale rows are retained until a validated explicit prune is implemented for that source:
 
 ```sh
 bin/rails sofiaplan:sync
 bin/rails 'sofiaplan:sync[schools]'
+bin/rails arcgis:sync
+bin/rails openstreetmap:sync
 ```
+
+Imports retain existing records by default. Preview the explicit, recoverable pruning operation before confirming it:
+
+```sh
+bin/rails cadastre:prune_outside_scope
+bin/rails 'cadastre:prune_outside_scope[DELETE]'
+```
+
+Inspect boundaries, freshness, row outcomes, completeness, and permission states with `bin/rails coverage:status`. `sidekiq-cron` runs `RefreshPreparedDataJob` daily at 03:00 Europe/Sofia. Successful checks download the source to compare its checksum; an old successful import is not treated as permanently fresh.
+
+Recurring jobs are defined in `config/initializers/sidekiq.rb`. Every Sidekiq startup creates or updates those definitions in Redis and removes stale Mesto-owned cron entries, so a deploy is enough to apply schedule changes. Keep at least one Sidekiq worker running; Heroku Scheduler and manual schedule setup are not required.
 
 Run any valid cadastral identifier synchronously from the command line:
 
@@ -142,13 +160,13 @@ Coverage includes identifier parsing, source clients/parsers, automatic GeoJSON 
 ## Known limitations
 
 - Municipal coverage is Sofia-first. Valid non-Sofia identifiers receive an honest limited-coverage report.
-- NAG public HTML/Kendo contracts are undocumented and may change. A failed public form is marked unavailable rather than worked around with browser automation or fabricated data.
-- AGKK open-data coverage depends on a district being identified and its archive being available. Similar identifiers are never used to infer a match; all hierarchy records and geometry are joined by exact cadastral identifiers.
+- NAG public HTML/Kendo contracts are undocumented and are not treated as a complete area feed. Until a permitted supported acquisition method is approved and ingested, reports label municipal coverage partial.
+- AGKK archive availability and reuse permissions must be reviewed before enabling production-wide ingestion. Similar identifiers are never used to infer a match; all hierarchy records and geometry are joined by exact cadastral identifiers.
 - SofiaPlan amenity datasets currently available through the catalog are dated; every date is displayed, and snapshots older than two years are never presented as current amenity counts.
 - The fallback MapLibre demo style is not a production tile service.
 - Reports are link-based and have no accounts, emails, PDF export, document uploads, valuation, listing imports, or LLM-generated conclusions.
 
-The highest-value next step is scheduling archive refreshes for all launch districts and importing fresher municipal amenity datasets, while preserving the same exact-identifier and per-source provenance rules.
+The remaining external dependency is product/legal rather than report architecture: establish and document a supported area-wide NAG acquisition method, then mark snapshots complete only after geographic and historical coverage has been validated.
 
 ## Education catalog and anonymous journeys
 
@@ -160,7 +178,7 @@ bin/rails education:validate
 
 Personal learning plans do not require an account. A random guest identity is stored in a signed, HTTP-only, same-site cookie; only its SHA-256 digest is stored with server-side journey rows. Public report tokens do not authorize access to a journey. Private buyer stage, financing context, labels, and progress are never rendered into shared reports.
 
-Anonymous journeys default to 180 days from last activity. Configure `ANONYMOUS_JOURNEY_RETENTION_DAYS` and schedule:
+Anonymous journeys default to 180 days from last activity. Configure `ANONYMOUS_JOURNEY_RETENTION_DAYS`. `sidekiq-cron` runs the cleanup daily at 04:00 Europe/Sofia; it can also be invoked manually with:
 
 ```sh
 bin/rails education:prune_anonymous_journeys

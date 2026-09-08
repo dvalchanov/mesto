@@ -1,4 +1,9 @@
 shared: &shared
+  analysis_radii_metres:
+    - 175
+    - 500
+    - 1000
+    - 2000
   allowed_hosts:
     - api.sofiaplan.bg
     - gis.sofiaplan.bg
@@ -11,6 +16,13 @@ shared: &shared
     retries: 2
   sofiaplan:
     base_url: <%= ENV.fetch("SOFIAPLAN_API_BASE_URL", "https://api.sofiaplan.bg") %>
+    permission_status: review_required
+    attribution: "Софияплан"
+    permission_reference: "https://sofiaplan.bg"
+    storage_reuse: unknown
+    redistribution: unknown
+    retention_constraints: unknown
+    rate_limit: undocumented
     datasets:
       schools:
         id: "166"
@@ -40,13 +52,45 @@ shared: &shared
   arcgis:
     development_potential:
       url: <%= ENV.fetch("SOFIAPLAN_ARCGIS_DEVELOPMENT_POTENTIAL_URL", "https://gis.sofiaplan.bg/server/rest/services/programa_za_sofia/programa_sofia_atlas_na_analizite/FeatureServer/31") %>
+      name: "Потенциал за развитие"
+      category: planning_development_potential
+      permission_status: review_required
+      attribution: "Софияплан"
+      storage_reuse: unknown
+      redistribution: unknown
+      retention_constraints: unknown
+      rate_limit: undocumented
     functional_zoning:
       url: <%= ENV.fetch("SOFIAPLAN_ARCGIS_FUNCTIONAL_ZONING_URL", "https://gis.sofiaplan.bg/server/rest/services/programa_za_sofia/programa_sofia_atlas_na_analizite/FeatureServer/33") %>
+      name: "Преобладаващо функционално предназначение"
+      category: planning_functional_zoning
+      permission_status: review_required
+      attribution: "Софияплан"
+      storage_reuse: unknown
+      redistribution: unknown
+      retention_constraints: unknown
+      rate_limit: undocumented
   openstreetmap:
     overpass_url: <%= ENV.fetch("OPENSTREETMAP_OVERPASS_URL", "https://overpass-api.de/api/interpreter") %>
+    dataset_key: openstreetmap_amenities
+    permission_status: approved
+    attribution: "© OpenStreetMap contributors"
+    permission_reference: "https://www.openstreetmap.org/copyright"
+    coverage_status: partial
+    storage_reuse: "ODbL subject to attribution/share-alike requirements"
+    redistribution: "ODbL requirements apply"
+    retention_constraints: "No application-specific limit recorded"
+    rate_limit: "Public Overpass fair-use policy; background scoped imports only"
   nag:
     request_delay_seconds: 0.5
     detail_limit: 25
+    background_ingestion_enabled: <%= ENV.fetch("NAG_BACKGROUND_INGESTION_ENABLED", "false") %>
+    permission_status: review_required
+    storage_reuse: unknown
+    redistribution: unknown
+    retention_constraints: unknown
+    rate_limit: "0.5 seconds between bounded registry requests"
+    coverage_status: partial
     registers:
       building_permits:
         url: <%= ENV.fetch("NAG_BUILDING_PERMITS_URL", "https://nag.sofia.bg/RegisterBuildingPermitsPortal/Index") %>
@@ -62,14 +106,17 @@ shared: &shared
         identifier_field: Identifier
   cadastre:
     provider: <%= ENV.fetch("CADASTRE_PROVIDER", "open_data") %>
-    wms_url: <%= ENV.fetch("AGKK_WMS_URL", "") %>
-    wms_username: <%= ENV.fetch("AGKK_WMS_USERNAME", "") %>
-    wms_password: <%= ENV.fetch("AGKK_WMS_PASSWORD", "") %>
     open_data:
       portal_url: "https://kais.cadastre.bg/bg/OpenData"
       download_url: "https://kais.cadastre.bg/bg/OpenData/Download"
       download_timeout: 120
-      auto_import: <%= ENV.fetch("CADASTRE_OPEN_DATA_AUTO_IMPORT", "true") %>
+      permission_status: review_required
+      attribution: "Агенция по геодезия, картография и кадастър"
+      permission_reference: "https://kais.cadastre.bg/bg/OpenData"
+      storage_reuse: unknown
+      redistribution: unknown
+      retention_constraints: unknown
+      rate_limit: undocumented
 
 development:
   <<: *shared

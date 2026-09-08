@@ -34,12 +34,15 @@
     <dl class="report-coverage">
       <div><dt><%= t("reports.coverage.title") %></dt><dd><%= t("reports.coverage.#{@coverage['status'] || 'limited'}") %></dd></div>
       <div><dt><%= t("reports.sources.title") %></dt><dd><%= @coverage["succeeded"].to_i %> / <%= @coverage["checked"].to_i %></dd></div>
+      <div><dt><%= t("reports.coverage.geographic_title") %></dt><dd><%= t("reports.coverage.geographic.#{@coverage['geographic_coverage_status'] || 'unknown'}") %></dd></div>
       <div><dt><%= t("reports.overview.direct_acts") %></dt><dd><%= @analysis.metrics.dig("direct_activity", "total").to_i %></dd></div>
     </dl>
 
     <% if @analysis.status == "partial" %><div class="report-alert"><%= t(@analysis.full_report_unlocked? ? "reports.partial_notice_unlocked" : "reports.partial_notice") %></div><% end %>
     <% if @analysis.summary["outside_sofia"] %>
       <div class="report-alert"><strong><%= t("reports.outside_sofia.title") %></strong><br><%= t("reports.outside_sofia.body") %></div>
+    <% elsif @analysis.summary["outside_development_dataset"] %>
+      <div class="report-alert"><strong><%= t("reports.outside_dataset.title") %></strong><br><%= t("reports.outside_dataset.body", profile: @analysis.summary.dig("coverage_profile", "label")) %></div>
     <% elsif @analysis.status == "failed" %>
       <div class="report-alert"><strong><%= t("reports.failed.title") %></strong><br><%= t("reports.failed.body") %></div>
     <% end %>

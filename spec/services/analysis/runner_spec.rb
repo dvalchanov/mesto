@@ -1,39 +1,60 @@
 require "rails_helper"
 
 RSpec.describe Analysis::Runner do
-  it "completes a useful partial report while preserving independent source states" do
+  it "reads prepared state without contacting or importing upstream sources" do
     DataSources::Sofiaplan::DatasetSynchronizer.new.sync
     analysis = create(:property_analysis)
+
+    expect_any_instance_of(DataSources::Nag::RegistryClient).not_to receive(:search)
+    expect_any_instance_of(DataSources::ArcGis::FeatureLayerClient).not_to receive(:query)
+    expect_any_instance_of(DataSources::OpenStreetMap::NearbyAmenitiesClient).not_to receive(:fetch)
 
     described_class.new(analysis).call
 
     expect(analysis.reload.status).to eq("partial")
-    expect(analysis.location_precision).to eq("official_record_geometry")
-    expect(analysis.source_runs.succeeded.count).to be >= 1
+    expect(analysis.location_precision).to eq("unavailable")
     expect(analysis.source_runs.where(status: "unavailable", source_key: "cadastre")).to exist
-    expect(analysis.administrative_acts.count).to eq(2)
+    expect(analysis.administrative_acts.count).to eq(0)
     expect(analysis.summary.fetch("paid_content_available")).to be(false)
     expect(analysis).not_to be_meaningful_paid_content
   end
 
-  it "imports missing shared spatial datasets before applying them to a located property" do
+  it "does not import missing shared spatial datasets from a report job" do
     analysis = create(:property_analysis)
 
     described_class.new(analysis).call
 
-    expect(SpatialDataset.where(key: DataSources.config.dig("sofiaplan", "datasets").keys)
-      .where.not(last_imported_at: nil).count).to eq(5)
+    expect(SpatialDataset.prepared).to be_empty
     expect(analysis.source_runs.where("source_key LIKE ?", "sofiaplan_dataset_%").pluck(:status).uniq)
-      .to eq([ "succeeded" ])
-    expect(analysis.source_runs.find_by!(source_key: "openstreetmap_nearby_amenities").status).to eq("succeeded")
+      .to eq([ "unavailable" ])
+    expect(analysis.source_runs.find_by!(source_key: "openstreetmap_nearby_amenities").status).to eq("unavailable")
   end
 
-  it "does not duplicate administrative acts on a repeated run" do
+  it "reports an imported property outside the development boundary without starting an import" do
+    result = DataSources::Result.unavailable(
+      source_url: "https://kais.cadastre.bg/bg/OpenData",
+      error: DataCoverage::OutsideSearchCoverage.new("outside test coverage")
+    )
+    provider = instance_double(Cadastre::Provider, locate: result)
+    analysis = create(:property_analysis)
+
+    expect(ImportCadastreArchiveJob).not_to receive(:perform_later)
+    described_class.new(analysis, cadastre_provider: provider).call
+
+    expect(analysis.reload.status).to eq("partial")
+    expect(analysis.analysis_scope_status).to eq("outside")
+    expect(analysis.summary.fetch("outside_development_dataset")).to be(true)
+    expect(analysis.source_runs.pluck(:source_key)).to eq([ "cadastre" ])
+  end
+
+  it "preserves source evidence in separate revisions on a repeated run" do
     analysis = create(:property_analysis)
 
     2.times { described_class.new(analysis).call }
 
-    expect(AdministrativeAct.count).to eq(2)
+    expect(analysis.analysis_revisions.count).to eq(2)
+    expect(analysis.source_runs.where.not(analysis_revision_id: nil)).to exist
+    expect(AdministrativeAct.count).to eq(0)
   end
 
   it "does not claim that spatial datasets were applied without a reliable property location" do

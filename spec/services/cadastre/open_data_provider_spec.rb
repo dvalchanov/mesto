@@ -12,7 +12,7 @@ RSpec.describe Cadastre::OpenDataProvider do
 
     result = described_class.new(config: {
       "portal_url" => "https://kais.cadastre.bg/bg/OpenData", "auto_import" => false
-    }).locate(identifier: property.cadastral_identifier)
+    }, coverage_profile: accepting(everything: true)).locate(identifier: property.cadastral_identifier)
 
     expect(result).to be_success
     expect(result.data).to include(
@@ -45,7 +45,7 @@ RSpec.describe Cadastre::OpenDataProvider do
 
     result = described_class.new(config: {
       "portal_url" => "https://kais.cadastre.bg/bg/OpenData", "auto_import" => false
-    }).locate(identifier: object.cadastral_identifier)
+    }, coverage_profile: accepting(everything: true)).locate(identifier: object.cadastral_identifier)
 
     expect(result.data.fetch("cadastre_records").keys).to contain_exactly(
       "parcel", "building", "individual_object"
@@ -55,5 +55,43 @@ RSpec.describe Cadastre::OpenDataProvider do
     expect(result.data.fetch("geometry").geometry_type.type_name).to eq("MultiPolygon")
     expect(result.data.fetch("centroid").x).to be_within(0.001).of(23.005)
     expect(result.data.fetch("centroid").y).to be_within(0.001).of(42.005)
+  end
+
+  it "distinguishes an imported property outside search coverage from missing prepared data" do
+    factory = RGeo::Cartesian.preferred_factory(srid: 4326)
+    ring = factory.linear_ring([
+      factory.point(24.0, 42.0), factory.point(24.01, 42.0),
+      factory.point(24.01, 42.01), factory.point(24.0, 42.01),
+      factory.point(24.0, 42.0)
+    ])
+    source = {
+      source_archive_key: "district/data.zip",
+      source_url: "https://kais.cadastre.bg/source"
+    }
+    property = CadastralProperty.create!(
+      **source,
+      cadastral_identifier: "68134.1000.9999",
+      identifier_level: "parcel",
+      geometry: factory.polygon(ring)
+    )
+    provider = described_class.new(
+      config: { "portal_url" => "https://kais.cadastre.bg/bg/OpenData" },
+      coverage_profile: accepting(everything: false)
+    )
+
+    outside = provider.locate(identifier: property.cadastral_identifier)
+    missing = provider.locate(identifier: "68134.1000.8888")
+
+    expect(outside.error).to be_a(DataCoverage::OutsideSearchCoverage)
+    expect(missing.error).to be_a(DataCoverage::DatasetNotPrepared)
+  end
+
+
+  def accepting(everything:)
+    instance_double(
+      DataCoverage::Profile,
+      covers_property?: everything,
+      label: "test coverage"
+    )
   end
 end

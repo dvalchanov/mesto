@@ -180,7 +180,7 @@ module Analysis
       return if key.blank?
 
       @latest_source_runs ||= {}
-      @latest_source_runs[key] ||= @analysis.source_runs.where(source_key: key).order(id: :desc).first
+      @latest_source_runs[key] ||= @analysis.current_source_runs.where(source_key: key).order(id: :desc).first
     end
   end
 end

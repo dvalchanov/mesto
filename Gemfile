@@ -24,6 +24,8 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 # Process Active Job work outside the web process
 gem "sidekiq", "~> 8.1"
+# Keep recurring jobs version-controlled and reconcile them in Redis on worker startup
+gem "sidekiq-cron", "~> 2.4"
 # Use Redis-backed Action Cable across web and worker processes
 gem "redis", ">= 5.0", "< 6"
 # Small, explicit public-data clients and GeoJSON parsing.
