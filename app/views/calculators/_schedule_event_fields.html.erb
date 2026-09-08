@@ -1,0 +1,55 @@
+<% key = schedule_event_value(event, "key").presence || (index == "NEW_INDEX" ? "event_NEW_INDEX" : "event_#{index}") %>
+<% amount_type = schedule_event_value(event, "amount_type").presence || "percentage" %>
+<% date_precision = schedule_event_value(event, "date_precision").presence || "unknown" %>
+<% advanced_open = schedule_event_value(event, "date").present? || schedule_event_value(event, "already_paid_cents").to_i.positive? || date_precision != "unknown" %>
+<% field_prefix = "calculator_schedule_#{index}" %>
+<div class="schedule-row" data-schedule-editor-target="row">
+  <%= hidden_field_tag "calculator[schedule][#{index}][key]", key, data: { field: "key" } %>
+  <%= hidden_field_tag "calculator[schedule][#{index}][percentage_base]", "property_price" %>
+
+  <div class="schedule-row__main">
+    <span class="schedule-row__number" data-schedule-number><%= index == "NEW_INDEX" ? "01" : format("%02d", index.to_i + 1) %></span>
+    <div class="calculator-field schedule-row__event">
+      <%= label_tag "#{field_prefix}_label", "Събитие" %>
+      <%= text_field_tag "calculator[schedule][#{index}][label]", schedule_event_value(event, "label"), id: "#{field_prefix}_label", list: "schedule-event-labels", placeholder: "напр. Предварителен договор", data: { controller: "combobox", field: "label" } %>
+    </div>
+    <div class="calculator-field schedule-row__method">
+      <%= label_tag "#{field_prefix}_amount_type", "Как се определя сумата?" %>
+      <%= select_tag "calculator[schedule][#{index}][amount_type]", options_for_select([["Процент от цената", "percentage"], ["Фиксирана сума", "fixed"], ["Целият остатък", "remaining"]], amount_type), id: "#{field_prefix}_amount_type", data: { field: "amount_type", action: "change->schedule-editor#changeAmountType" } %>
+    </div>
+    <div class="calculator-field schedule-row__value" data-amount-type-field="percentage" <%= "hidden" unless amount_type == "percentage" %>>
+      <%= label_tag "#{field_prefix}_percentage", "Процент от цената" %>
+      <div class="money-field money-field--short"><%= text_field_tag "calculator[schedule][#{index}][percentage]", schedule_event_value(event, "percentage"), id: "#{field_prefix}_percentage", inputmode: "decimal", placeholder: "10", data: { field: "percentage" } %><span>%</span></div>
+    </div>
+    <div class="calculator-field schedule-row__value" data-amount-type-field="fixed" <%= "hidden" unless amount_type == "fixed" %>>
+      <%= label_tag "#{field_prefix}_amount", "Сума" %>
+      <div class="money-field"><%= text_field_tag "calculator[schedule][#{index}][amount]", money_input_value(schedule_event_value(event, "amount_cents")), id: "#{field_prefix}_amount", inputmode: "decimal", placeholder: "0,00", data: { field: "amount" } %><span>€</span></div>
+    </div>
+    <div class="schedule-row__remaining" data-amount-type-field="remaining" <%= "hidden" unless amount_type == "remaining" %>>
+      <strong>Остатъкът</strong><span>Изчислява се автоматично</span>
+    </div>
+    <button type="button" class="schedule-row__remove" data-action="schedule-editor#remove" aria-label="Премахни събитието">×</button>
+  </div>
+
+  <details class="schedule-row__advanced" <%= "open" if advanced_open %>>
+    <summary><span>Допълнителни настройки</span><small>Дата, вече платено и ред</small></summary>
+    <div class="schedule-row__advanced-grid">
+      <div class="calculator-field">
+        <%= label_tag "#{field_prefix}_date", "Дата (по избор)" %>
+        <%= date_field_tag "calculator[schedule][#{index}][date]", schedule_event_value(event, "date"), id: "#{field_prefix}_date", data: { field: "date" } %>
+      </div>
+      <div class="calculator-field">
+        <%= label_tag "#{field_prefix}_date_precision", "Точност на датата" %>
+        <%= select_tag "calculator[schedule][#{index}][date_precision]", options_for_select([["Неизвестна", "unknown"], ["Приблизителна", "estimated"], ["Точна", "exact"]], date_precision), id: "#{field_prefix}_date_precision", data: { field: "date_precision" } %>
+      </div>
+      <div class="calculator-field">
+        <%= label_tag "#{field_prefix}_already_paid", "Вече платено" %>
+        <div class="money-field"><%= text_field_tag "calculator[schedule][#{index}][already_paid]", money_input_value(schedule_event_value(event, "already_paid_cents")), id: "#{field_prefix}_already_paid", inputmode: "decimal", placeholder: "0,00", data: { field: "already_paid" } %><span>€</span></div>
+      </div>
+      <div class="calculator-field">
+        <%= label_tag "#{field_prefix}_order", "Ред при една и съща дата" %>
+        <%= number_field_tag "calculator[schedule][#{index}][order]", schedule_event_value(event, "order") || index.to_i + 1, id: "#{field_prefix}_order", min: 0, max: 1000, data: { field: "order" } %>
+      </div>
+    </div>
+  </details>
+</div>

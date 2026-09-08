@@ -1,0 +1,91 @@
+<% included = cost_input(cost, "included") == true %>
+<% method = cost_input(cost, "method") || (cost[:percentage] ? "percentage" : "fixed_quote") %>
+<% method_help = {
+  "fixed_quote" => "Въведи крайната сума от оферта, договор или фактура.",
+  "percentage" => "Въведи процента и върху коя сума се изчислява.",
+  "estimate" => "Въведи ориентировъчна сума за собственото си планиране.",
+  "unknown" => "Можеш да продължиш без сума; ще я покажем като неизвестна, а не като нула."
+}.fetch(method, "Избери начина, по който разполагаш със стойността.") %>
+<% field_prefix = "cost_#{cost[:key]}" %>
+<% event_value = cost_input(cost, "payment_event_key").presence || cost[:event] %>
+<% event_options = [["Обичайно - #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}", cost[:event]]] %>
+<% schedule_event_options.each do |label, value| %>
+  <% event_options << [label, value] unless event_options.any? { _1.last == value } %>
+<% end %>
+<% event_options << ["Запазен момент", event_value] unless event_options.any? { _1.last == event_value } %>
+
+<article class="cost-editor__item" data-cost-editor-target="row">
+  <%= hidden_field_tag "calculator[costs][#{cost[:key]}][key]", cost[:key] %>
+  <%= hidden_field_tag "calculator[costs][#{cost[:key]}][label]", cost[:label] %>
+  <%= hidden_field_tag "calculator[costs][#{cost[:key]}][category]", cost[:category] %>
+  <% Array(cost[:replaces]).each do |replaced_key| %><%= hidden_field_tag "calculator[costs][#{cost[:key]}][replaces][]", replaced_key %><% end %>
+
+  <header class="cost-editor__item-heading">
+    <label class="cost-editor__include" for="<%= field_prefix %>_included">
+      <%= check_box_tag "calculator[costs][#{cost[:key]}][included]", "1", included, id: "#{field_prefix}_included", data: { cost_field: "included", action: "change->cost-editor#toggle" } %>
+      <span>
+        <strong><%= cost[:label] %></strong>
+        <small><%= cost[:description] %></small>
+      </span>
+    </label>
+    <span class="cost-editor__status <%= 'is-included' if included %>" data-cost-status><%= included ? "Добавено към сметката" : "Не е включено" %></span>
+  </header>
+
+  <div class="cost-editor__fields" data-cost-fields <%= "hidden" unless included %>>
+    <div class="cost-editor__primary-fields">
+      <div class="cost-editor__field">
+        <%= label_tag "#{field_prefix}_method", "Каква информация имаш?" %>
+        <%= select_tag "calculator[costs][#{cost[:key]}][method]", options_for_select([["Точна сума или оферта", "fixed_quote"], ["Процент", "percentage"], ["Приблизителна сума", "estimate"], ["Още не знам сумата", "unknown"]], method), id: "#{field_prefix}_method", data: { cost_field: "method", action: "change->cost-editor#changeMethod" } %>
+        <small data-cost-method-help><%= method_help %></small>
+      </div>
+
+      <div class="cost-editor__field" data-cost-method-field="fixed_quote estimate" <%= "hidden" unless %w[fixed_quote estimate].include?(method) %>>
+        <%= label_tag "#{field_prefix}_amount", method == "estimate" ? "Приблизителна сума" : "Сума от офертата", data: { cost_amount_label: true } %>
+        <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][amount]", money_input_value(cost_input(cost, "amount_cents")), id: "#{field_prefix}_amount", inputmode: "decimal", placeholder: cost[:category] == "recurring" ? "напр. 80,00" : "напр. 1 200,00" %><span>€</span></div>
+        <small><%= cost[:category] == "recurring" ? "Въведи сумата за един месец." : "Въведи само сумата, която искаш да включиш в бюджета." %></small>
+      </div>
+
+      <div class="cost-editor__percentage" data-cost-method-field="percentage" <%= "hidden" unless method == "percentage" %>>
+        <div class="cost-editor__field">
+          <%= label_tag "#{field_prefix}_rate", "Процент" %>
+          <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][rate]", cost_input(cost, "rate_percent"), id: "#{field_prefix}_rate", inputmode: "decimal", placeholder: "напр. 3" %><span>%</span></div>
+        </div>
+        <div class="cost-editor__field">
+          <%= label_tag "#{field_prefix}_base", "Върху коя сума?" %>
+          <%= select_tag "calculator[costs][#{cost[:key]}][base]", options_for_select([["Цената на имота", "property_price"], ["По-високата от цена и данъчна оценка", "tax_base"], ["Размерът на кредита", "loan_amount"]], cost_input(cost, "base") || "property_price"), id: "#{field_prefix}_base" %>
+        </div>
+      </div>
+
+      <div class="cost-editor__unknown" data-cost-method-field="unknown" <%= "hidden" unless method == "unknown" %>>
+        <strong>Оставяме сумата неизвестна</strong>
+        <p>Разходът ще остане видим като липсваща стойност и няма да бъде третиран като 0 €.</p>
+      </div>
+    </div>
+
+    <details class="cost-editor__advanced">
+      <summary><span>Допълнителни настройки</span><small>Повечето хора могат да ги пропуснат</small></summary>
+      <div class="cost-editor__advanced-grid">
+        <div class="cost-editor__field">
+          <%= label_tag "#{field_prefix}_vat", "Как е посочена сумата спрямо ДДС?" %>
+          <%= select_tag "calculator[costs][#{cost[:key]}][vat_treatment]", options_for_select([["Сумата включва ДДС", "inclusive"], ["Сумата е без ДДС", "exclusive"], ["Не съм сигурен", "uncertain"], ["ДДС не се прилага", "not_applicable"]], cost_input(cost, "vat_treatment") || "inclusive"), id: "#{field_prefix}_vat" %>
+          <small>Избери „без ДДС“ само ако офертата изрично е нетна.</small>
+        </div>
+        <div class="cost-editor__field">
+          <%= label_tag "#{field_prefix}_buyer_share", "Какъв дял плащаш ти?" %>
+          <div class="money-field money-field--short"><%= text_field_tag "calculator[costs][#{cost[:key]}][buyer_share]", cost_input(cost, "buyer_share_percent") || "100", id: "#{field_prefix}_buyer_share", inputmode: "decimal" %><span>%</span></div>
+          <small>Остави 100%, ако поемаш целия разход.</small>
+        </div>
+        <div class="cost-editor__field">
+          <%= label_tag "#{field_prefix}_event", "Кога ще го платиш?" %>
+          <%= select_tag "calculator[costs][#{cost[:key]}][payment_event_key]", options_for_select(event_options, event_value), id: "#{field_prefix}_event", data: { schedule_editor_target: "eventSelect", schedule_editor_fallback_key: cost[:event], schedule_editor_fallback_label: "Обичайно - #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}" } %>
+          <small>Това поставя разхода в графика на плащанията.</small>
+        </div>
+        <div class="cost-editor__field">
+          <%= label_tag "#{field_prefix}_already_paid", "Колко вече е платено?" %>
+          <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][already_paid]", money_input_value(cost_input(cost, "already_paid_cents")), id: "#{field_prefix}_already_paid", inputmode: "decimal", placeholder: "0,00" %><span>€</span></div>
+          <small>Остави празно, ако още не си платил нищо.</small>
+        </div>
+      </div>
+    </details>
+  </div>
+</article>

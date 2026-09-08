@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="report-actions">
-        <%= link_to root_path, class: "button button--ink" do %><%= mesto_icon("search", css_class: "size-4") %><%= t("navigation.new_search") %><% end %>
+        <%= link_to root_path, class: "button button--secondary" do %><%= mesto_icon("search", css_class: "size-4") %><%= t("navigation.new_search") %><% end %>
       </div>
     </div>
     <% unless @analysis.running? %>

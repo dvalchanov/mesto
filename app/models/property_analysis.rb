@@ -7,6 +7,7 @@ class PropertyAnalysis < ApplicationRecord
   has_many :orders, dependent: :destroy
   has_many :product_events, dependent: :nullify
   has_many :buyer_journeys, dependent: :nullify
+  has_many :budget_scenarios, dependent: :nullify
 
   before_validation :assign_public_token, on: :create
   after_update_commit :broadcast_terminal_report_refresh, if: :terminal_status_changed?

@@ -4,11 +4,11 @@
     <% if @outcome %>
       <span class="checkout-state__icon is-error"><%= mesto_icon("lock", css_class: "size-7") %></span>
       <h1><%= t("checkout.#{@outcome}") %></h1>
-      <%= link_to t("checkout.try_again"), report_checkout_path(@analysis), class: "button button--ink mt-7" %>
+      <%= link_to t("checkout.try_again"), report_checkout_path(@analysis), class: "button button--secondary mt-7" %>
     <% elsif @order.status == "paid" %>
       <span class="checkout-state__icon"><%= mesto_icon("check", css_class: "size-8") %></span>
       <h1><%= t("checkout.success_title") %></h1>
-      <%= link_to t("checkout.back_to_report"), report_path(@analysis), class: "button button--ink mt-7" %>
+      <%= link_to t("checkout.back_to_report"), report_path(@analysis), class: "button button--secondary mt-7" %>
     <% else %>
       <span class="checkout-state__icon"><%= mesto_icon("shield", css_class: "size-8") %></span>
       <h1><%= t("checkout.processing_title") %></h1>
@@ -17,8 +17,8 @@
         <div class="mt-8 space-y-3">
           <%= button_to fake_checkout_succeed_path(@order), method: :post, form_class: "w-full" , class: "button button--primary button--wide" do %><%= t("checkout.success_action") %><%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
           <div class="grid gap-3 sm:grid-cols-2">
-            <%= button_to t("checkout.fail_action"), fake_checkout_fail_path(@order), method: :post, class: "button w-full border border-red-200 bg-red-50 text-red-800" %>
-            <%= button_to t("checkout.cancel_action"), fake_checkout_cancel_path(@order), method: :post, class: "button w-full border border-stone-300 bg-white text-stone-700" %>
+            <%= button_to t("checkout.fail_action"), fake_checkout_fail_path(@order), method: :post, class: "button button--danger button--wide" %>
+            <%= button_to t("checkout.cancel_action"), fake_checkout_cancel_path(@order), method: :post, class: "button button--outline button--wide" %>
           </div>
         </div>
       <% end %>

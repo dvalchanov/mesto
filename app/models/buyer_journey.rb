@@ -15,6 +15,7 @@ class BuyerJourney < ApplicationRecord
 
   belongs_to :property_analysis, optional: true
   has_many :journey_item_progresses, dependent: :destroy
+  has_many :budget_scenarios, dependent: :nullify
 
   before_validation :assign_public_token, on: :create
   before_validation :touch_last_active

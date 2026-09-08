@@ -1,0 +1,110 @@
+rules:
+  - key: bg.euro_conversion
+    jurisdiction: BG
+    effective_from: "2026-01-01"
+    denomination: BGN
+    parameters:
+      bgn_per_eur: "1.95583"
+    rounding_policy: convert_with_full_fixed_rate_then_half_up_to_euro_cent
+    source_url: https://evroto.bg/bg
+    checked_on: "2026-09-06"
+    version: "2026-01-01.1"
+    source_verification: primary_source_checked
+    review_status: professional_review_pending
+
+  - key: bg.registry.sale_registration
+    jurisdiction: BG
+    effective_from: "2026-01-01"
+    denomination: BGN
+    parameters:
+      rate_percent: "0.1"
+      minimum_bgn: "10"
+    rounding_policy: calculate_on_applicable_material_interest_then_convert_once_and_half_up_to_euro_cent
+    source_url: https://justice.government.bg/home/index/8f3b6632-5b81-42e5-82c7-4c4e813a6662
+    checked_on: "2026-09-06"
+    version: "2026-01-01.1"
+    source_verification: primary_source_checked
+    review_status: professional_review_pending
+
+  - key: bg.notary.material_interest
+    jurisdiction: BG
+    effective_from: "2026-01-01"
+    denomination: BGN
+    parameters:
+      maximum_bgn: "6000"
+      brackets:
+        - up_to_bgn: "100"
+          fixed_bgn: "30"
+          excess_over_bgn: "0"
+          excess_rate_percent: "0"
+        - up_to_bgn: "1000"
+          fixed_bgn: "30"
+          excess_over_bgn: "100"
+          excess_rate_percent: "1.5"
+        - up_to_bgn: "10000"
+          fixed_bgn: "43.50"
+          excess_over_bgn: "1000"
+          excess_rate_percent: "1.3"
+        - up_to_bgn: "50000"
+          fixed_bgn: "160.50"
+          excess_over_bgn: "10000"
+          excess_rate_percent: "0.8"
+        - up_to_bgn: "100000"
+          fixed_bgn: "480.50"
+          excess_over_bgn: "50000"
+          excess_rate_percent: "0.5"
+        - up_to_bgn: "500000"
+          fixed_bgn: "730.50"
+          excess_over_bgn: "100000"
+          excess_rate_percent: "0.2"
+        - up_to_bgn:
+          fixed_bgn: "1530.50"
+          excess_over_bgn: "500000"
+          excess_rate_percent: "0.1"
+    rounding_policy: convert_material_interest_to_bgn_at_fixed_rate_apply_legacy_progressive_tariff_then_convert_total_once_and_half_up_to_euro_cent
+    source_url: https://notary-chamber.bg/sites/default/files/tarifa_za_notarialnite_taksi_km_zakona_za_notariusite_i_notarialnata_deynost.pdf
+    checked_on: "2026-09-06"
+    version: "2026-01-01.1"
+    source_verification: primary_source_checked
+    review_status: professional_review_pending
+
+  - key: bg.vat.standard
+    jurisdiction: BG
+    effective_from: "2026-01-01"
+    denomination: EUR
+    parameters:
+      rate_percent: "20"
+    rounding_policy: half_up_to_euro_cent_per_line
+    source_url: https://nra.bg/wps/portal/nra/taxes/dds-v-balgariya/fakturirane
+    checked_on: "2026-09-06"
+    version: "2026-01-01.1"
+    source_verification: primary_source_checked
+    review_status: professional_review_pending
+
+  - key: bg.property_transfer.tax_base
+    jurisdiction: BG
+    effective_from: "2026-01-01"
+    denomination: EUR
+    parameters:
+      basis: higher_of_agreed_price_and_tax_assessment
+    rounding_policy: not_applicable
+    source_url: https://www.minfin.bg/bg/1708
+    checked_on: "2026-09-06"
+    version: "2026-01-01.1"
+    source_verification: primary_source_checked
+    review_status: professional_review_pending
+
+  - key: bg.sofia.acquisition_tax
+    jurisdiction: BG
+    municipality: sofia
+    effective_from: "2026-01-01"
+    denomination: EUR
+    parameters:
+      rate_percent: "3"
+      basis: higher_of_agreed_price_and_tax_assessment
+    rounding_policy: half_up_to_euro_cent
+    source_url: https://council.sofia.bg/documents/d/guest/r-1036-2025
+    checked_on: "2026-09-06"
+    version: "2026-01-01.1"
+    source_verification: primary_source_checked
+    review_status: professional_review_pending

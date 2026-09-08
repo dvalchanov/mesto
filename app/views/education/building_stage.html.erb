@@ -108,10 +108,10 @@
   <% if @journey %>
     <div class="lesson-action">
       <div><strong>Полезно ли ти беше?</strong><p>Отбелязването пази само учебния ти напредък. То не проверява документ или имот.</p></div>
-      <%= button_to "Отбележи като прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: @stage["key"], status: "done", content_version: @stage["content_version"] }, class: "button button--ink" %>
+      <%= button_to "Отбележи като прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: @stage["key"], status: "done", content_version: @stage["content_version"] }, class: "button button--secondary" %>
     </div>
   <% else %>
-    <div class="lesson-action"><div><strong>Запази това в личен план</strong><p>Напредъкът се пази в този браузър и може да бъде изтрит по всяко време.</p></div><%= link_to "Създай план", my_mesto_path, class: "button button--ink" %></div>
+    <div class="lesson-action"><div><strong>Запази това в личен план</strong><p>Напредъкът се пази в този браузър и може да бъде изтрит по всяко време.</p></div><%= link_to "Създай план", my_mesto_path, class: "button button--secondary" %></div>
   <% end %>
 
   <nav class="stage-neighbors" aria-label="Съседни етапи">

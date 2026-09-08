@@ -12,7 +12,7 @@
     <% presenter.recommendations.first(3).each do |item| %><%= link_to education_path_for(item) do %><span>Какво означава?</span><strong><%= item["title"] %></strong><small><%= item["reason"] %></small><% end %><% end %>
   </div>
   <% if journey %>
-    <%= link_to "Виж личния ми план", my_mesto_path, class: "button button--ink" %>
+    <%= link_to "Виж личния ми план", my_mesto_path, class: "button button--secondary" %>
   <% else %>
     <div class="report-education__connect"><p>Искаш ли да подредим информацията за твоя етап? Свързването пази личния контекст отделно от споделения отчет.</p><%= button_to "Свържи с личен план", attach_report_to_journey_path(analysis), method: :post, class: "button button--primary" %></div>
   <% end %>
