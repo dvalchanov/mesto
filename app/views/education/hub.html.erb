@@ -9,7 +9,7 @@
       <p>Можеш да започнеш и без избран имот. Избери темата според своята ситуация, вида на имота или етапа на строителството.</p>
       <div class="education-actions">
         <%= link_to "Избери моята ситуация", buying_guide_path(anchor: "buyer-guide-start"), class: "button button--primary" %>
-        <%= link_to "Виж строителните етапи", new_build_guide_path, class: "button button--ink" %>
+        <%= link_to "Виж строителните етапи", new_build_guide_path, class: "button button--secondary" %>
       </div>
     </div>
     <div class="education-principle" aria-label="Подходът на Mesto">
@@ -82,7 +82,7 @@
     <div><p class="eyebrow"><span></span>Търсене в наръчника</p><h2>Какво искаш да провериш?</h2><p>Можеш да търсиш по име, съкращение или израз - например „акт16“, „акт 16“ или „въвеждане в експлоатация“.</p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси документ или термин", class: "form-label" %>
-      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: "Напр. Акт 15, УПИ, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: "Напр. Акт 15, УПИ, тежести…" %><%= form.submit "Търси", class: "button button--secondary" %></div>
     <% end %>
     <div class="library-links"><%= link_to "Всички документи", education_documents_path %><%= link_to "Всички термини", terms_path %></div>
   </section>

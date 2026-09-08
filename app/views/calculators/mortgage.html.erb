@@ -1,0 +1,35 @@
+<% content_for :title, "Ипотечен калкулатор | #{product_name}" %>
+<% content_for :description, "Изчисли анюитетна ипотечна вноска, моделирана обща лихва и погасителен план в евро без регистрация." %>
+
+<section class="calculator-hero calculator-hero--mortgage">
+  <div class="site-shell calculator-hero__inner">
+    <div>
+      <p class="eyebrow">Фокусиран ипотечен калкулатор</p>
+      <h1>Каква би била месечната ти вноска?</h1>
+      <p>Моделирай кредит с постоянна номинална лихва. Резултатът не е ГПР, банкова оферта, одобрение или официален погасителен план.</p>
+    </div>
+    <%= link_to "Пълният план за покупка →", purchase_calculator_path, class: "button button--outline" %>
+  </div>
+</section>
+
+<div class="site-shell mortgage-workspace" data-controller="calculator-form" data-calculator-form-draft-key-value="mortgage" data-calculator-form-draft-enabled-value="<%= request.get? && params[:example].blank? %>" data-calculator-form-reset-url-value="<%= mortgage_calculator_path %>" data-action="turbo:before-frame-render@document->calculator-form#guard">
+  <div class="calculator-reset-bar" data-calculator-form-target="resetter" <%= "hidden" if params[:example].blank? && params[:calculator].blank? %>>
+    <button type="button" class="text-link calculator-reset" data-action="calculator-form#reset"><%= mesto_icon("refresh", css_class: "size-4") %><span>Започни отначало</span></button>
+  </div>
+  <%= form_with scope: :calculator, url: calculate_mortgage_calculator_path, method: :post,
+    html: { class: "mortgage-form", data: { calculator_form_target: "form", turbo_frame: "mortgage-results", action: "input->calculator-form#rememberInput change->calculator-form#queue" } } do |form| %>
+    <%= form.hidden_field :request_sequence, value: 0, data: { calculator_form_target: "sequence" } %>
+    <button type="submit" class="hidden" tabindex="-1" aria-hidden="true" data-calculator-form-target="submitter">Изчисли</button>
+    <div class="calculator-panel__heading"><div><span>EUR</span><h2>Параметри на сценария</h2></div><p>Няма предварително зададена „пазарна“ лихва.</p></div>
+    <div class="calculator-fields">
+      <div class="calculator-field calculator-field--strong"><%= form.label :principal, "Размер на кредита" %><div class="money-field"><%= form.text_field :principal, value: money_input_value(mortgage_input("principal_cents")), inputmode: "decimal", placeholder: "100 000,00" %><span>€</span></div><%= calculator_error(@normalizer&.errors, "principal") %></div>
+      <div class="calculator-field"><%= form.label :annual_interest_rate, "Годишна номинална лихва" %><div class="money-field"><%= form.text_field :annual_interest_rate, value: mortgage_input("annual_interest_rate"), inputmode: "decimal", placeholder: "напр. 3,5" %><span>%</span></div><small>Примерна лихва - не е банкова оферта.</small></div>
+      <div class="calculator-field"><%= form.label :term_years, "Срок" %><div class="money-field money-field--unit"><%= form.number_field :term_years, value: mortgage_input("term_months").to_i.positive? ? mortgage_input("term_months").to_i / 12 : nil, min: 1, max: 50, placeholder: "30" %><span>години</span></div></div>
+      <div class="calculator-field"><%= form.label :monthly_charges, "Други месечни разходи" %><div class="money-field"><%= form.text_field :monthly_charges, value: money_input_value(mortgage_input("monthly_charges_cents")), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div><small>Показват се отделно от главница и лихва.</small></div>
+    </div>
+    <div class="calculator-form__footer">
+      <%= link_to "Зареди ясно означен пример", mortgage_calculator_path(example: 1), class: "button button--outline button--small" %>
+    </div>
+  <% end %>
+  <aside class="calculator-summary"><%= render "calculators/mortgage_results", result: @mortgage_result, errors: @normalizer&.errors.to_h %></aside>
+</div>

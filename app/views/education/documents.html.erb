@@ -7,7 +7,7 @@
     <div><p class="eyebrow"><span></span>Документи</p><h1>Разбери какво доказва всеки документ</h1><p>Виж кога се използва, кои данни трябва да сравниш и какво не можеш да заключиш само от него.</p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, "Търси по име, съкращение или въпрос", class: "form-label" %>
-      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. акт16, схема, тежести…" %><%= form.submit "Търси", class: "button button--ink" %></div>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. акт16, схема, тежести…" %><%= form.submit "Търси", class: "button button--secondary" %></div>
     <% end %>
   </header>
 
@@ -34,6 +34,6 @@
       <% end %>
     </div>
   <% else %>
-    <div class="empty-state"><h2>Не намерихме такъв документ</h2><p>Опитай с друго изписване, съкращение или дума от въпроса, който искаш да изясниш.</p><%= link_to "Виж термините", terms_path, class: "button button--ink" %></div>
+    <div class="empty-state"><h2>Не намерихме такъв документ</h2><p>Опитай с друго изписване, съкращение или дума от въпроса, който искаш да изясниш.</p><%= link_to "Виж термините", terms_path, class: "button button--secondary" %></div>
   <% end %>
 </div>

@@ -14,6 +14,21 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "home#show"
 
+  get "kalkulator", to: "calculators#index", as: :calculators
+  get "kalkulator/pokupka-na-imot", to: "calculators#purchase", as: :purchase_calculator
+  post "kalkulator/pokupka-na-imot", to: "calculators#calculate_purchase", as: :calculate_purchase_calculator
+  get "kalkulator/ipoteka", to: "calculators#mortgage", as: :mortgage_calculator
+  post "kalkulator/ipoteka", to: "calculators#calculate_mortgage", as: :calculate_mortgage_calculator
+  get "kalkulator/scenarii", to: "budget_scenarios#index", as: :budget_scenarios
+  post "kalkulator/scenarii", to: "budget_scenarios#create"
+  post "kalkulator/scenarii/sravni", to: "budget_scenarios#compare", as: :compare_budget_scenarios
+  get "kalkulator/scenarii/:public_token", to: "budget_scenarios#show", as: :budget_scenario
+  patch "kalkulator/scenarii/:public_token", to: "budget_scenarios#update"
+  delete "kalkulator/scenarii/:public_token", to: "budget_scenarios#destroy"
+  post "kalkulator/scenarii/:public_token/kopie", to: "budget_scenarios#duplicate", as: :duplicate_budget_scenario
+  post "kalkulator/scenarii/:public_token/preizchisli", to: "budget_scenarios#recalculate", as: :recalculate_budget_scenario
+  post "kalkulator/scenarii/:public_token/zapazi", to: "budget_scenarios#save", as: :save_budget_scenario
+
   get "guides", to: "knowledge#guides", as: :guides
   get "documents", to: "knowledge#documents", as: :documents
   get "glossary", to: "knowledge#glossary", as: :glossary

@@ -1,0 +1,27 @@
+<% content_for :title, "Запазени сметки | #{product_name}" %>
+<% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
+<section class="scenario-page"><div class="site-shell">
+  <div class="scenario-page__heading"><div><p class="eyebrow">Частни сценарии</p><h1>Запазени сметки</h1><p>Достъпни са само за гост идентичността в този браузър.</p></div><%= link_to "Нова сметка", purchase_calculator_path, class: "button button--secondary" %></div>
+
+  <% if @scenarios.any? %>
+    <%= form_with url: compare_budget_scenarios_path, method: :post, class: "scenario-list" do %>
+      <% @scenarios.each do |scenario| %>
+        <% result = scenario.calculation_snapshot %>
+        <% costs = result.fetch("costs", {}) %>
+        <% mortgage = result.fetch("mortgage", {}) %>
+        <article>
+          <%= check_box_tag "scenario_tokens[]", scenario.public_token, false, id: dom_id(scenario, :compare), aria: { label: "Избери #{scenario.title} за сравнение" } %>
+          <div>
+            <span><%= scenario.stale_rules? ? "Правилата са променени" : "Изчислено с текущите правила" %></span>
+            <h2><%= link_to scenario.title, budget_scenario_path(scenario) %></h2>
+            <p>Общо включено плащане: <strong><%= format_eur(costs["combined_included_outlay_cents"]) %></strong> · Месечна вноска: <strong><%= format_eur(mortgage["regular_payment_cents"]) %></strong></p>
+            <small>Обновена <%= l(scenario.updated_at, format: :short) %> · Валутата е <%= scenario.currency %></small>
+          </div>
+        </article>
+      <% end %>
+      <button class="button button--secondary" type="submit">Сравни избраните две</button>
+    <% end %>
+  <% else %>
+    <div class="empty-state"><h2>Все още нямаш запазени сметки</h2><p>Създай сценарий в калкулатора, ако искаш да го отвориш отново или да го сравниш с друг вариант.</p><%= link_to "Създай нова сметка", purchase_calculator_path, class: "button button--primary" %></div>
+  <% end %>
+</div></section>

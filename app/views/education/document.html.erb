@@ -57,6 +57,6 @@
   <% related = (Array(@entry["related_document_keys"]) + Array(@entry["related_term_keys"]) + Array(@entry["related_stage_keys"])).uniq %>
   <% if related.any? %><section class="related-content"><h2>Свързани теми</h2><div><% related.each do |key| %><% item = @catalog.find(key) %><%= link_to education_path_for(item), target: "_blank", rel: "noopener noreferrer" do %><span><%= item["kind"] == "stage" ? "Етап" : item["kind"] == "term" ? "Термин" : "Документ" %></span><strong><%= item["title"] %></strong><% end %><% end %></div></section><% end %>
 
-  <% if current_buyer_journey %><div class="lesson-action"><div><strong>Добави към прочетените теми</strong><p>Това отбелязва само, че си прочел обяснението. Не означава, че документът е намерен или проверен.</p></div><%= button_to "Отбележи като прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: @entry["key"], status: "done", content_version: @entry["content_version"] }, class: "button button--ink" %></div><% end %>
+  <% if current_buyer_journey %><div class="lesson-action"><div><strong>Добави към прочетените теми</strong><p>Това отбелязва само, че си прочел обяснението. Не означава, че документът е намерен или проверен.</p></div><%= button_to "Отбележи като прочетено", buyer_journey_progress_path, method: :patch, params: { item_kind: "lesson", item_key: @entry["key"], status: "done", content_version: @entry["content_version"] }, class: "button button--secondary" %></div><% end %>
   <%= render "sources", entry: @entry, catalog: @catalog %>
 </div>

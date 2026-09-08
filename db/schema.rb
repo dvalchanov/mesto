@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_04_183000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_06_122000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -52,6 +52,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_183000) do
     t.string "upi"
     t.index ["geometry"], name: "index_administrative_acts_on_geometry", using: :gist
     t.index ["registry_kind", "external_key"], name: "index_administrative_acts_on_registry_kind_and_external_key", unique: true
+  end
+
+  create_table "budget_scenarios", force: :cascade do |t|
+    t.bigint "buyer_journey_id"
+    t.datetime "calculated_at", null: false
+    t.jsonb "calculation_snapshot", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "EUR", null: false
+    t.string "engine_version", null: false
+    t.jsonb "financial_rule_versions", default: {}, null: false
+    t.string "guest_identity_digest", null: false
+    t.integer "input_schema_version", default: 1, null: false
+    t.bigint "property_analysis_id"
+    t.uuid "public_token", default: -> { "gen_random_uuid()" }, null: false
+    t.string "title", default: "Моята сметка", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "validated_inputs", default: {}, null: false
+    t.index ["buyer_journey_id"], name: "index_budget_scenarios_on_buyer_journey_id"
+    t.index ["guest_identity_digest", "updated_at"], name: "index_budget_scenarios_on_guest_identity_digest_and_updated_at"
+    t.index ["property_analysis_id"], name: "index_budget_scenarios_on_property_analysis_id"
+    t.index ["public_token"], name: "index_budget_scenarios_on_public_token", unique: true
   end
 
   create_table "buyer_journeys", force: :cascade do |t|
@@ -280,6 +301,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_183000) do
   end
 
   add_foreign_key "administrative_act_references", "administrative_acts"
+  add_foreign_key "budget_scenarios", "buyer_journeys"
+  add_foreign_key "budget_scenarios", "property_analyses"
   add_foreign_key "buyer_journeys", "property_analyses"
   add_foreign_key "dataset_imports", "spatial_datasets"
   add_foreign_key "journey_item_progresses", "buyer_journeys"
