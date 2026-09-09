@@ -22,7 +22,7 @@
         <section id="terms-<%= group[:key] %>" class="library-group">
           <header class="library-group__heading"><div><p class="eyebrow"><span></span><%= group[:label] %></p><h2><%= group[:title] %></h2></div><p><%= group[:description] %></p></header>
           <div class="content-index content-index--terms">
-            <% group[:entries].each do |entry| %><%= link_to term_path(slug: entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><small><%= localized_copy("Определение · Пример", "Definition · Example") %></small><% end %><% end %>
+            <% group[:entries].each do |entry| %><%= link_to term_path(slug: entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><% end %><% end %>
           </div>
         </section>
       <% end %>

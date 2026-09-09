@@ -2,7 +2,7 @@
 <% content_for :description, localized_copy("Личните ти сметки за разходите, финансирането и плащанията при покупка на имот.", "Your private property purchase cost, funding and payment calculations.") %>
 <% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="scenario-page"><div class="site-shell">
-  <div class="scenario-page__heading"><div><p class="eyebrow"><%= localized_copy("Твоите изчисления", "Your calculations") %></p><h1><%= localized_copy("Запазени сметки", "Saved calculations") %></h1><p><%= localized_copy("Тези сметки са достъпни само в този браузър.", "These calculations are available only in this browser.") %></p></div><%= link_to localized_copy("Нова сметка", "New calculation"), purchase_calculator_path, class: "button button--secondary" %></div>
+  <div class="scenario-page__heading"><div><p class="eyebrow"><span></span><%= localized_copy("Твоите изчисления", "Your calculations") %></p><h1><%= localized_copy("Запазени сметки", "Saved calculations") %></h1><p><%= localized_copy("Тези сметки са достъпни само в този браузър.", "These calculations are available only in this browser.") %></p></div><%= link_to localized_copy("Нова сметка", "New calculation"), purchase_calculator_path, class: "button button--secondary" %></div>
 
   <% if @scenarios.any? %>
     <%= form_with url: compare_budget_scenarios_path, method: :post, class: "scenario-list" do %>

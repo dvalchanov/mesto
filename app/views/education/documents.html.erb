@@ -27,7 +27,6 @@
               <%= link_to education_path_for(entry) do %>
                 <span><%= { "term" => localized_copy("Термин", "Term"), "stage" => localized_copy("Строителен етап", "Construction stage"), "guide" => localized_copy("Насока за купувача", "Buyer guidance") }.fetch(entry["kind"], group[:label]) %></span>
                 <h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p>
-                <small><%= { "term" => localized_copy("Определение · Пример", "Definition · Example"), "stage" => localized_copy("Какво се случва · Какво да провериш", "What happens · What to check"), "guide" => localized_copy("Какво да направиш · Какво следва", "What to do · What comes next") }.fetch(entry["kind"], localized_copy("Какво доказва · Какво да провериш", "What it proves · What to check")) %></small>
               <% end %>
             <% end %>
           </div>
