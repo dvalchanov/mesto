@@ -78,6 +78,13 @@ namespace :sofiaplan do
       end
     end
   end
+
+  desc "Replay retained SofiaPlan snapshots without contacting the upstream API"
+  task :replay_retained, [ :key ] => :environment do |_task, args|
+    DataSources::Sofiaplan::DatasetSynchronizer.new.replay(args[:key]).each do |key, result|
+      puts [ key, result.status, result.try(:records_seen) ].compact.join("\t")
+    end
+  end
 end
 
 namespace :arcgis do
@@ -86,12 +93,26 @@ namespace :arcgis do
     results = DataSources::ArcGis::DatasetSynchronizer.new.sync(args[:key])
     results.each { |key, result| puts [ key, result.status, result.try(:records_seen) ].compact.join("\t") }
   end
+
+
+  desc "Replay retained ArcGIS snapshots without contacting the upstream API"
+  task :replay_retained, [ :key ] => :environment do |_task, args|
+    results = DataSources::ArcGis::DatasetSynchronizer.new.replay(args[:key])
+    results.each { |key, result| puts [ key, result.status, result.try(:records_seen) ].compact.join("\t") }
+  end
 end
 
 namespace :openstreetmap do
   desc "Import schools and kindergartens for the supporting-data boundary"
   task sync: :environment do
     result = DataSources::OpenStreetMap::DatasetSynchronizer.new.sync
+    puts [ result.status, result.try(:records_seen) ].compact.join("\t")
+  end
+
+
+  desc "Replay the retained OpenStreetMap snapshot without contacting Overpass"
+  task replay_retained: :environment do
+    result = DataSources::OpenStreetMap::DatasetSynchronizer.new.replay
     puts [ result.status, result.try(:records_seen) ].compact.join("\t")
   end
 end
@@ -260,5 +281,14 @@ namespace :cadastre do
     results.each do |archive_kind, result|
       puts [ archive_kind, result.status, "seen=#{result.records_seen}", "imported=#{result.records_imported}" ].join("\t")
     end
+  end
+
+  desc "Replay the latest retained S3 archive for one catalog entry"
+  task :replay_retained, [ :catalog_entry_id ] => :environment do |_task, args|
+    entry = CadastreSourceArchive.find(args[:catalog_entry_id])
+    profile = DataCoverage::Profile.find(entry.coverage_profile_key)
+    result = DataSources::CadastreOpenData::DistrictSynchronizer.new(coverage_profile: profile)
+      .replay_catalog_entry(entry)
+    puts [ result.status, "seen=#{result.records_seen}", "imported=#{result.records_imported}" ].join("\t")
   end
 end

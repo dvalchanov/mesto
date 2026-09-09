@@ -9,6 +9,8 @@ module DataSources
       end
     end
 
+    class ArchiveTooLarge < StandardError; end
+
     class ArchiveClient
       DOWNLOAD_URL = "https://kais.cadastre.bg/bg/OpenData/Download".freeze
 
@@ -22,19 +24,33 @@ module DataSources
         url = "#{@config.fetch('download_url', DOWNLOAD_URL)}?#{URI.encode_www_form(path: archive_key)}"
         tempfile = Tempfile.new([ "cadastre-open-data", ".zip" ])
         tempfile.binmode
+        download_state = {
+          io: tempfile,
+          digest: Digest::SHA256.new,
+          byte_size: 0
+        }
         response = connection.get(url) do |request|
           request.headers["If-None-Match"] = etag if etag.present?
           request.headers["If-Modified-Since"] = last_modified_at.httpdate if last_modified_at
-          request.options.context = { download_io: tempfile }
-          request.options.on_data = ->(chunk, _received_bytes, _env) { tempfile.write(chunk) }
+          request.options.context = { download_state: }
+          request.options.on_data = ->(chunk, _received_bytes, _env) { write_chunk(chunk, download_state) }
         end
+        unless [ 200, 304 ].include?(response.status)
+          raise ArchiveUnavailable.new(archive_key:, status: response.status)
+        end
+
         metadata = {
           checked_at: Time.current,
           etag: response.headers["etag"],
           last_modified_at: parse_time(response.headers["last-modified"]),
+          checksum: download_state[:digest].hexdigest,
+          byte_size: download_state[:byte_size],
+          content_type: response.headers["content-type"],
           not_modified: response.status == 304
         }.compact
-        return yield nil, url, metadata if response.status == 304
+        if response.status == 304
+          return yield nil, url, metadata.except(:checksum, :byte_size, :content_type)
+        end
 
         tempfile.flush
         tempfile.rewind
@@ -68,11 +84,23 @@ module DataSources
       end
 
       def reset_partial_download(env:, **)
-        download_io = env.request.context&.fetch(:download_io, nil)
-        return unless download_io
+        download_state = env.request.context&.fetch(:download_state, nil)
+        return unless download_state
 
-        download_io.rewind
-        download_io.truncate(0)
+        download_state.fetch(:io).rewind
+        download_state.fetch(:io).truncate(0)
+        download_state.fetch(:digest).reset
+        download_state[:byte_size] = 0
+      end
+
+      def write_chunk(chunk, download_state)
+        download_state[:byte_size] += chunk.bytesize
+        if download_state[:byte_size] > @config.fetch("max_archive_bytes", 1.gigabyte).to_i
+          raise ArchiveTooLarge, "The cadastral archive exceeds the configured size limit"
+        end
+
+        download_state.fetch(:digest).update(chunk)
+        download_state.fetch(:io).write(chunk)
       end
 
       def parse_time(value)

@@ -110,6 +110,7 @@ shared: &shared
       portal_url: "https://kais.cadastre.bg/bg/OpenData"
       download_url: "https://kais.cadastre.bg/bg/OpenData/Download"
       download_timeout: 120
+      max_archive_bytes: <%= ENV.fetch("CADASTRE_MAX_ARCHIVE_BYTES", 1.gigabyte) %>
       permission_status: review_required
       attribution: "Агенция по геодезия, картография и кадастър"
       permission_reference: "https://kais.cadastre.bg/bg/OpenData"

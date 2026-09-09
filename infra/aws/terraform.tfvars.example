@@ -1,0 +1,2 @@
+environment                = "staging"
+source_archive_bucket_name = "replace-with-a-globally-unique-mesto-staging-archive-bucket"

@@ -2,7 +2,9 @@ require "rails_helper"
 
 RSpec.describe DataSources::CadastreOpenData::ArchiveClient do
   let(:download_url) { "https://kais.cadastre.bg/bg/OpenData/Download" }
-  let(:config) { { "download_url" => download_url, "download_timeout" => 1 } }
+  let(:config) do
+    { "download_url" => download_url, "download_timeout" => 1, "max_archive_bytes" => 1.megabyte }
+  end
   let(:archive_key) do
     "област София (столица)/община Столична/гр. София (68134) - район Студентски/поземлени имоти.zip"
   end
@@ -30,7 +32,12 @@ RSpec.describe DataSources::CadastreOpenData::ArchiveClient do
       downloaded_path = path
       expect(File.binread(path)).to eq(chunks.join)
       expect(source_url).to start_with(download_url)
-      expect(metadata).to include(etag: '"archive-v2"', not_modified: false)
+      expect(metadata).to include(
+        etag: '"archive-v2"',
+        not_modified: false,
+        checksum: Digest::SHA256.hexdigest(chunks.join),
+        byte_size: chunks.sum(&:bytesize)
+      )
     end
 
     expect(File.exist?(downloaded_path)).to be(false)
@@ -79,14 +86,34 @@ RSpec.describe DataSources::CadastreOpenData::ArchiveClient do
     Tempfile.create([ "cadastre-retry", ".zip" ]) do |download_io|
       download_io.binmode
       download_io.write("partial response")
-      request = Struct.new(:context).new({ download_io: })
+      download_state = {
+        io: download_io,
+        digest: Digest::SHA256.new.update("partial response"),
+        byte_size: "partial response".bytesize
+      }
+      request = Struct.new(:context).new({ download_state: })
       env = Struct.new(:request).new(request)
 
       described_class.new(config:).send(:reset_partial_download, env:)
 
       expect(download_io.pos).to eq(0)
       expect(download_io.size).to eq(0)
+      expect(download_state[:digest].hexdigest).to eq(Digest::SHA256.hexdigest(""))
+      expect(download_state[:byte_size]).to eq(0)
     end
+  end
+
+  it "aborts a response that exceeds the configured maximum size" do
+    request = Struct.new(:headers, :options).new({}, Faraday::RequestOptions.new)
+    connection = instance_double(Faraday::Connection)
+    allow(connection).to receive(:get) do |_url, &configure_request|
+      configure_request.call(request)
+      request.options.on_data.call("oversized", 9, nil)
+    end
+
+    expect {
+      described_class.new(config: config.merge("max_archive_bytes" => 4), connection:).download(archive_key) { }
+    }.to raise_error(DataSources::CadastreOpenData::ArchiveTooLarge)
   end
 
   it "classifies an unpublished official archive separately from a generic network failure" do

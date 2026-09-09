@@ -37,7 +37,7 @@ module DataSources
         )
         dataset.save!
 
-        checksum = Digest::SHA256.hexdigest(JSON.generate(@payload))
+        checksum = Digest::SHA256.hexdigest(DataSources::SourceArchives::CanonicalJson.dump(@payload))
         previous = dataset.dataset_imports.where(
           status: "succeeded", checksum:, importer_version: IMPORTER_VERSION, scope_digest:
         ).order(completed_at: :desc).first
