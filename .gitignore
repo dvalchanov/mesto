@@ -32,6 +32,13 @@
 
 /public/assets
 
+# Terraform working directories, local plans, and environment values.
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+infra/aws/terraform.tfvars
+
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 

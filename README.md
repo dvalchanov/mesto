@@ -69,7 +69,9 @@ Only HTTPS hosts explicitly allowlisted in `config/data_sources.yml` can be fetc
 
 Property identity and hierarchy facts come from AGKK's `самостоятелни обекти`, `сгради`, and `поземлени имоти` archives. Archive selection comes from `CadastreSourceArchive`, independently of NAG. A source archive may still be district-wide because that is the smallest upstream unit; persistence is filtered to the configured supporting-data boundary without clipping included geometry. Parent parcel and building archives are catalogued explicitly.
 
-Archives are streamed into a temporary file, imported into PostGIS, and deleted in an `ensure` block. They are not retained on the Heroku filesystem. S3 is therefore optional archive retention for audit/reprocessing, not a replacement for PostGIS. The importer records source checksum, ETag/Last-Modified when supplied, importer version, coverage-scope digest, row outcomes, validation errors, and the last successful import. PostgreSQL advisory locks prevent concurrent publication of the same source/scope, and a failed transaction leaves the last successful records intact.
+Archives are streamed into a size-bounded temporary file while calculating SHA-256, staged under a checksum-addressed key in private S3, imported into PostGIS, and deleted from the Heroku filesystem in an `ensure` block. Only after database publication succeeds does Mesto update the small `latest` S3 manifest. Failed candidates expire after two days and the previous validated object gets a 14-day rollback window; the current artifact is retained for audit and database reconstruction. The importer records source checksum, ETag/Last-Modified when supplied, importer version, coverage-scope digest, row outcomes, validation errors, and the last successful import. PostgreSQL advisory locks prevent concurrent publication of the same source/scope, and a failed transaction leaves the last successful records intact.
+
+SofiaPlan, SofiaPlan ArcGIS, and OpenStreetMap background imports use the same archive contract. Their normalized GeoJSON is serialized canonically, compressed with deterministic gzip metadata, and staged before publication. Production ingestion requires `SOURCE_ARCHIVE_BUCKET` by default; development and tests use a no-op store unless a bucket is configured. AWS credentials use the normal SDK credential chain and must not be committed.
 
 Development uses the explicit `malinova_dolina` profile in `config/coverage_profiles.yml`: a search polygon plus a 2 km supporting-data buffer. Test uses synthetic fixture coverage and blocks external network access. Production uses an enabled Sofia district catalog; entries cannot be enabled until their permission status is approved.
 
@@ -106,6 +108,15 @@ bin/rails arcgis:sync
 bin/rails openstreetmap:sync
 ```
 
+Rebuild normalized data from the latest retained S3 artifacts without contacting an upstream provider:
+
+```sh
+bin/rails 'cadastre:replay_retained[CATALOG_ENTRY_ID]'
+bin/rails 'sofiaplan:replay_retained[schools]'
+bin/rails 'arcgis:replay_retained[functional_zoning]'
+bin/rails openstreetmap:replay_retained
+```
+
 Imports retain existing records by default. Preview the explicit, recoverable pruning operation before confirming it:
 
 ```sh
@@ -113,7 +124,7 @@ bin/rails cadastre:prune_outside_scope
 bin/rails 'cadastre:prune_outside_scope[DELETE]'
 ```
 
-Inspect boundaries, freshness, row outcomes, completeness, and permission states with `bin/rails coverage:status`. `sidekiq-cron` runs `RefreshPreparedDataJob` daily at 03:00 Europe/Sofia. Successful checks download the source to compare its checksum; an old successful import is not treated as permanently fresh.
+Inspect boundaries, freshness, row outcomes, completeness, and permission states with `bin/rails coverage:status`. `sidekiq-cron` runs `RefreshPreparedDataJob` every Sunday at 03:00 Europe/Sofia. Successful checks download the source to compare its checksum; an old successful import is not treated as permanently fresh.
 
 Recurring jobs are defined in `config/initializers/sidekiq.rb`. Every Sidekiq startup creates or updates those definitions in Redis and removes stale Mesto-owned cron entries, so a deploy is enough to apply schedule changes. Keep at least one Sidekiq worker running; Heroku Scheduler and manual schedule setup are not required.
 
