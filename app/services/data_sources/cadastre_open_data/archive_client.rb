@@ -12,16 +12,21 @@ module DataSources
     class ArchiveClient
       DOWNLOAD_URL = "https://kais.cadastre.bg/bg/OpenData/Download".freeze
 
-      def initialize(config: DataSources.config.dig("cadastre", "open_data"))
+      def initialize(config: DataSources.config.dig("cadastre", "open_data"), connection: nil)
         @config = config
+        @connection = connection
       end
 
       def download(archive_key, etag: nil, last_modified_at: nil)
         validate_archive_key!(archive_key)
         url = "#{@config.fetch('download_url', DOWNLOAD_URL)}?#{URI.encode_www_form(path: archive_key)}"
+        tempfile = Tempfile.new([ "cadastre-open-data", ".zip" ])
+        tempfile.binmode
         response = connection.get(url) do |request|
           request.headers["If-None-Match"] = etag if etag.present?
           request.headers["If-Modified-Since"] = last_modified_at.httpdate if last_modified_at
+          request.options.context = { download_io: tempfile }
+          request.options.on_data = ->(chunk, _received_bytes, _env) { tempfile.write(chunk) }
         end
         metadata = {
           checked_at: Time.current,
@@ -31,9 +36,7 @@ module DataSources
         }.compact
         return yield nil, url, metadata if response.status == 304
 
-        tempfile = Tempfile.new([ "cadastre-open-data", ".zip" ])
-        tempfile.binmode
-        tempfile.write(response.body)
+        tempfile.flush
         tempfile.rewind
         yield tempfile.path, url, metadata
       rescue Faraday::Error => error
@@ -50,7 +53,8 @@ module DataSources
         @connection ||= Faraday.new do |faraday|
           faraday.request :retry,
             max: DataSources.config.dig("http", "retries"), interval: 0.2,
-            backoff_factor: 2, exceptions: DataSources::HttpClient::TRANSIENT_ERRORS
+            backoff_factor: 2, exceptions: DataSources::HttpClient::TRANSIENT_ERRORS,
+            retry_block: method(:reset_partial_download)
           faraday.options.open_timeout = DataSources.config.dig("http", "open_timeout")
           faraday.options.timeout = @config.fetch("download_timeout", 120)
           faraday.response :raise_error
@@ -61,6 +65,14 @@ module DataSources
 
       def validate_archive_key!(archive_key)
         raise ArgumentError, "Invalid cadastral archive path" if archive_key.blank? || archive_key.include?("..")
+      end
+
+      def reset_partial_download(env:, **)
+        download_io = env.request.context&.fetch(:download_io, nil)
+        return unless download_io
+
+        download_io.rewind
+        download_io.truncate(0)
       end
 
       def parse_time(value)
