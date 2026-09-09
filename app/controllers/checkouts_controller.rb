@@ -8,27 +8,27 @@ class CheckoutsController < ApplicationController
 
   def succeed
     Payments::Gateway.configured.succeed(@order)
-    redirect_to checkout_success_path(@order)
+    redirect_to checkout_success_path(public_token: @order)
   rescue Payments::Gateway::InvalidTransition
-    redirect_to checkout_path(@order), alert: t("checkout.invalid_transition")
+    redirect_to checkout_path(public_token: @order), alert: t("checkout.invalid_transition")
   end
 
   def fail
     Payments::Gateway.configured.fail(@order)
-    redirect_to checkout_path(@order, outcome: "failed")
+    redirect_to checkout_path(public_token: @order, outcome: "failed")
   rescue Payments::Gateway::InvalidTransition
-    redirect_to checkout_path(@order), alert: t("checkout.invalid_transition")
+    redirect_to checkout_path(public_token: @order), alert: t("checkout.invalid_transition")
   end
 
   def cancel
     Payments::Gateway.configured.cancel(@order)
-    redirect_to checkout_path(@order, outcome: "cancelled")
+    redirect_to checkout_path(public_token: @order, outcome: "cancelled")
   rescue Payments::Gateway::InvalidTransition
-    redirect_to checkout_path(@order), alert: t("checkout.invalid_transition")
+    redirect_to checkout_path(public_token: @order), alert: t("checkout.invalid_transition")
   end
 
   def success
-    redirect_to checkout_path(@order) unless @order.status == "paid"
+    redirect_to checkout_path(public_token: @order) unless @order.status == "paid"
   end
 
   private

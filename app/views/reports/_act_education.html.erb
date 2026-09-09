@@ -6,7 +6,7 @@
       <article><strong><%= localized_copy("Какво означава?", "What does it mean?") %></strong><p><%= entry.dig("sections", "what") %></p></article>
       <article><strong><%= localized_copy("Защо е важно?", "Why is it important?") %></strong><p><%= entry.dig("sections", "why") %></p></article>
       <article><strong><%= localized_copy("Какво да проверя?", "What should I check?") %></strong><p><%= entry.dig("sections", "compare") %></p></article>
-      <%= link_to localized_copy("Прочети пълното обяснение", "Read the full explanation"), education_document_path(entry["slug"]), class: "text-link" %>
+      <%= link_to localized_copy("Прочети пълното обяснение", "Read the full explanation"), education_document_path(slug: entry["slug"]), class: "text-link" %>
     </div>
   </details>
 <% end %>

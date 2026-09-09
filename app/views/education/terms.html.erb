@@ -1,5 +1,6 @@
-<% content_for :title, localized_copy("Имотни термини на разбираем български | #{product_name}", "Property terms in plain English | #{product_name}") %>
-<% content_for :description, localized_copy("Имотни понятия за кадастър, собственост, вписвания, сделки, ново строителство и предаване - с примери и практическо значение за купувача.", "Property terms covering the cadastre, ownership, registrations, transactions, new construction and handover, with examples and practical context for buyers.") %>
+<% content_for :title, localized_copy("Имотни термини и понятия | #{product_name}", "Bulgarian Property Terms Explained | #{product_name}") %>
+<% content_for :description, localized_copy("Ясни обяснения на кадастрални, правни и строителни термини, които срещаш при проверка и покупка на имот, с примери за купувачи.", "Clear explanations of Bulgarian cadastral, legal and construction terms, with practical examples for property buyers.") %>
+<% if @query.present? %><% content_for :head do %><meta name="robots" content="noindex,follow"><% end %><% end %>
 
 <div class="site-shell education-page library-page">
   <%= render "breadcrumbs", items: [[localized_copy("Термини", "Terms"), nil]] %>
@@ -21,7 +22,7 @@
         <section id="terms-<%= group[:key] %>" class="library-group">
           <header class="library-group__heading"><div><p class="eyebrow"><span></span><%= group[:label] %></p><h2><%= group[:title] %></h2></div><p><%= group[:description] %></p></header>
           <div class="content-index content-index--terms">
-            <% group[:entries].each do |entry| %><%= link_to term_path(entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><small><%= localized_copy("Определение · Пример", "Definition · Example") %></small><% end %><% end %>
+            <% group[:entries].each do |entry| %><%= link_to term_path(slug: entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><small><%= localized_copy("Определение · Пример", "Definition · Example") %></small><% end %><% end %>
           </div>
         </section>
       <% end %>

@@ -1,5 +1,5 @@
-<% content_for :title, localized_copy("Новото строителство - осем етапа | #{product_name}", "New construction - eight stages | #{product_name}") %>
-<% content_for :description, localized_copy("Ясен преглед на новото строителство: какво се изпълнява на всеки етап, кои документи са свързани с него и какво да провери купувачът.", "A clear overview of new construction: what happens at each stage, the related documents and what a buyer should check.") %>
+<% content_for :title, localized_copy("Ново строителство: етапи и проверки | #{product_name}", "Buying New Construction in Bulgaria | #{product_name}") %>
+<% content_for :description, localized_copy("Разбери етапите при покупка на ново строителство, от терена и разрешението за строеж до Акт 14, Акт 15, Акт 16 и предаването.", "Understand the stages of buying new construction in Bulgaria, from planning and the building permit to Acts 14, 15 and 16 and handover.") %>
 
 <div class="site-shell education-page">
   <%= render "breadcrumbs", items: [[localized_copy("Ново строителство", "New construction"), nil]] %>
@@ -26,7 +26,7 @@
     <header class="section-heading section-heading--split"><div><p class="eyebrow"><span></span><%= localized_copy("Подробно за всеки етап", "Each stage in detail") %></p><h2><%= localized_copy("Избери етапа, за който имаш въпрос", "Choose the stage you have a question about") %></h2></div><p><%= localized_copy("За всеки етап ще видиш какво обикновено се изпълнява, кои документи са свързани с него и какво да провериш като купувач.", "For each stage, see what usually happens, which documents are connected to it and what you should check as a buyer.") %></p></header>
     <div>
       <% @stages.each do |stage| %>
-        <%= link_to new_build_stage_path(stage["slug"]) do %><span><%= localized_copy("Етап", "Stage") %> <%= format("%02d", stage["position"]) %></span><h3><%= stage["title"] %></h3><p><%= stage["summary"] %></p><small><%= localized_copy("Отвори етапа", "Open this stage") %></small><% end %>
+        <%= link_to new_build_stage_path(stage: stage["slug"]) do %><span><%= localized_copy("Етап", "Stage") %> <%= format("%02d", stage["position"]) %></span><h3><%= stage["title"] %></h3><p><%= stage["summary"] %></p><small><%= localized_copy("Отвори етапа", "Open this stage") %></small><% end %>
       <% end %>
     </div>
   </section>

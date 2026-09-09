@@ -24,7 +24,7 @@ class PropertyAnalysesController < ApplicationController
       ProductEvent.record("property_attachment_started", property_analysis: analysis, metadata: { mode: "personalized_no_property" })
       attach_to_current_journey(analysis)
     end
-    redirect_to report_path(analysis)
+    redirect_to report_path(public_token: analysis)
   end
 
   private

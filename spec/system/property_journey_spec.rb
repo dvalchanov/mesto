@@ -15,7 +15,7 @@ RSpec.describe "Mesto journey", type: :system do
     prepare_complete_sources
     Analysis::Runner.new(analysis, cadastre_provider: successful_cadastre_provider).call
     expect(analysis.reload.status).to eq("ready")
-    visit report_path(analysis)
+    visit report_path(public_token: analysis)
     expect(page).to have_text(I18n.t("reports.locked.cta"))
     expect(page).not_to have_text(I18n.t("reports.full.timeline"))
 
@@ -27,7 +27,7 @@ RSpec.describe "Mesto journey", type: :system do
     click_link I18n.t("checkout.back_to_report")
 
     expect(page).to have_text(I18n.t("reports.full.timeline"))
-    visit report_path(analysis)
+    visit report_path(public_token: analysis)
     expect(page).to have_text(I18n.t("reports.full.timeline"))
   end
 

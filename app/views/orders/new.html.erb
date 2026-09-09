@@ -1,13 +1,15 @@
 <% content_for :title, "#{t('checkout.title')} - #{product_name}" %>
+<% content_for :description, localized_copy("Защитено плащане за отключване на пълния личен отчет в Mesto.", "Secure checkout to unlock your full private Mesto report.") %>
+<% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="site-shell checkout-page">
-  <%= link_to report_path(@analysis), class: "checkout-back" do %>← <%= t("common.back") %><% end %>
+  <%= link_to report_path(public_token: @analysis), class: "checkout-back" do %>← <%= t("common.back") %><% end %>
   <div class="checkout-shell">
     <div class="checkout-main">
       <p class="eyebrow"><span></span><%= t("payments.products.full_property_report.name") %></p>
       <h1><%= t("checkout.title") %></h1>
       <p class="checkout-id"><%= t("checkout.subtitle", identifier: @analysis.submitted_identifier) %></p>
       <div class="checkout-banner"><%= mesto_icon("shield", css_class: "size-5") %><span><%= t("checkout.fake_banner") %></span></div>
-      <%= form_with model: @order, url: report_orders_path(@analysis), class: "checkout-form" do |form| %>
+      <%= form_with model: @order, url: report_orders_path(public_token: @analysis), class: "checkout-form" do |form| %>
         <div>
           <%= form.label :email, t("checkout.email"), class: "form-label" %>
           <%= form.email_field :email, required: true, autocomplete: "email", placeholder: t("checkout.email_placeholder") %>

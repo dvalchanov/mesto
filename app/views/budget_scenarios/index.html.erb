@@ -1,4 +1,5 @@
 <% content_for :title, localized_copy("Запазени сметки | #{product_name}", "Saved Calculations | #{product_name}") %>
+<% content_for :description, localized_copy("Личните ти сметки за разходите, финансирането и плащанията при покупка на имот.", "Your private property purchase cost, funding and payment calculations.") %>
 <% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="scenario-page"><div class="site-shell">
   <div class="scenario-page__heading"><div><p class="eyebrow"><%= localized_copy("Твоите изчисления", "Your calculations") %></p><h1><%= localized_copy("Запазени сметки", "Saved calculations") %></h1><p><%= localized_copy("Тези сметки са достъпни само в този браузър.", "These calculations are available only in this browser.") %></p></div><%= link_to localized_copy("Нова сметка", "New calculation"), purchase_calculator_path, class: "button button--secondary" %></div>
@@ -13,7 +14,7 @@
           <%= check_box_tag "scenario_tokens[]", scenario.public_token, false, id: dom_id(scenario, :compare), aria: { label: localized_copy("Избери #{scenario.title} за сравнение", "Select #{scenario.title} to compare") } %>
           <div>
             <span><%= scenario.stale_rules? ? localized_copy("Има по-нова версия на правилата", "There is a newer version of the rules") : localized_copy("Изчислено по текущите правила", "Calculated according to current rules") %></span>
-            <h2><%= link_to scenario.title, budget_scenario_path(scenario) %></h2>
+            <h2><%= link_to scenario.title, budget_scenario_path(public_token: scenario) %></h2>
             <p><%= localized_copy("Общо планирани плащания:", "Total planned payments:") %> <strong><%= format_eur(costs["combined_included_outlay_cents"]) %></strong> <%= localized_copy("· Месечна вноска:", "· Monthly payment:") %> <strong><%= format_eur(mortgage["regular_payment_cents"]) %></strong></p>
             <small><%= localized_copy("Обновена на", "Updated on") %> <%= l(scenario.updated_at, format: :short) %> · <%= localized_copy("Валута:", "Currency:") %> <%= scenario.currency %></small>
           </div>

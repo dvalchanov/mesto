@@ -1,5 +1,10 @@
-<% content_for :title, localized_copy("Калкулатор за покупка на имот | #{product_name}", "Property Purchase Calculator | #{product_name}") %>
-<% content_for :description, localized_copy("Сметни в евро разходите по покупката, нужните собствени средства, ипотечната вноска и кога ще ти трябват парите.", "Calculate your purchase costs, required own funds, mortgage payment and when each amount will be due - all in euros.") %>
+<% if @scenario %>
+  <% content_for :title, localized_copy("Запазена сметка: #{@scenario.title} | #{product_name}", "Saved Calculation: #{@scenario.title} | #{product_name}") %>
+  <% content_for :description, localized_copy("Лична сметка за разходите, финансирането и плащанията при покупка на имот.", "A private property purchase cost, funding and payment calculation.") %>
+<% else %>
+  <% content_for :title, localized_copy("Калкулатор за разходи при покупка на имот | #{product_name}", "Property Purchase Cost Calculator | #{product_name}") %>
+  <% content_for :description, localized_copy("Изчисли местния данък, нотариалните такси, общите разходи, нужните собствени средства и ипотечната вноска при покупка на имот.", "Calculate property transfer tax, notary and registration fees, total buying costs, cash required and mortgage payments in Bulgaria.") %>
+<% end %>
 <% if @scenario %><% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %><% end %>
 
 <section class="calculator-hero calculator-hero--purchase">
@@ -53,16 +58,16 @@
       <% if @scenario.buyer_journey %><small><%= localized_copy("Свързан личен план:", "Linked personal plan:") %> <%= @scenario.buyer_journey.label.presence || localized_copy("без име", "untitled") %></small><% end %>
     </div>
     <div class="saved-scenario-bar__actions">
-      <%= form_with model: @scenario, url: budget_scenario_path(@scenario), method: :patch, class: "scenario-rename" do |form| %>
+      <%= form_with model: @scenario, url: budget_scenario_path(public_token: @scenario), method: :patch, class: "scenario-rename" do |form| %>
         <%= form.label :title, localized_copy("Преименувай", "Rename"), class: "sr-only" %>
         <%= form.text_field :title, maxlength: 80 %>
         <%= form.submit localized_copy("Запази име", "Save name"), class: "button button--outline button--small" %>
       <% end %>
-      <%= button_to localized_copy("Дублирай", "Duplicate"), duplicate_budget_scenario_path(@scenario), class: "button button--clear button--small" %>
-      <%= button_to localized_copy("Изтрий", "Delete"), budget_scenario_path(@scenario), method: :delete, class: "button button--small button--danger", data: { turbo_confirm: localized_copy("Да изтрия ли тази сметка?", "Delete this calculation?") } %>
+      <%= button_to localized_copy("Дублирай", "Duplicate"), duplicate_budget_scenario_path(public_token: @scenario), class: "button button--clear button--small" %>
+      <%= button_to localized_copy("Изтрий", "Delete"), budget_scenario_path(public_token: @scenario), method: :delete, class: "button button--small button--danger", data: { turbo_confirm: localized_copy("Да изтрия ли тази сметка?", "Delete this calculation?") } %>
     </div>
     <% if @scenario.stale_rules? %>
-      <div class="calculator-warning"><%= localized_copy("Правилата са обновени след тази сметка. Запазеният резултат не е променян.", "The rules have changed since this calculation was saved. The saved result has not been updated.") %> <%= button_to localized_copy("Преизчисли по новите правила", "Recalculate using the new rules"), recalculate_budget_scenario_path(@scenario), class: "text-link" %></div>
+      <div class="calculator-warning"><%= localized_copy("Правилата са обновени след тази сметка. Запазеният резултат не е променян.", "The rules have changed since this calculation was saved. The saved result has not been updated.") %> <%= button_to localized_copy("Преизчисли по новите правила", "Recalculate using the new rules"), recalculate_budget_scenario_path(public_token: @scenario), class: "text-link" %></div>
     <% end %>
   </section>
 <% end %>
@@ -288,7 +293,7 @@
           <% if guest_journeys.any? %>
             <div class="calculator-field"><%= form.label :buyer_journey_id, localized_copy("Свържи с личен план (по избор)", "Connect to personal plan (optional)") %><%= form.select :buyer_journey_id, guest_journeys.map { |journey| [journey.label.presence || localized_copy("План от #{l(journey.created_at.to_date)}", "Plan by #{l(journey.created_at.to_date)}"), journey.id] }, { include_blank: localized_copy("Без връзка", "No connection"), selected: calculator_input("buyer_journey_id") } %><small><%= localized_copy("Връзката не отбелязва урок или задача като завършени.", "The link does not mark a lesson or assignment as completed.") %></small></div>
           <% end %>
-          <button type="submit" formaction="<%= @scenario ? save_budget_scenario_path(@scenario) : budget_scenarios_path %>" formtarget="_top" data-turbo="false" class="button button--secondary"><%= @scenario ? localized_copy("Запази промените", "Save changes") : localized_copy("Запази тази сметка", "Save this calculation") %></button>
+          <button type="submit" formaction="<%= @scenario ? save_budget_scenario_path(public_token: @scenario) : budget_scenarios_path %>" formtarget="_top" data-turbo="false" class="button button--secondary"><%= @scenario ? localized_copy("Запази промените", "Save changes") : localized_copy("Запази тази сметка", "Save this calculation") %></button>
           <p class="calculator-privacy"><%= localized_copy("Черновата се пази само в текущия раздел. Ако запазиш сметката, ще можеш да я отваряш, дублираш и сравняваш в този браузър до #{Rails.application.config.x.anonymous_journey_retention_days} дни. Тя не се синхронизира между устройства и не се публикува.", "The draft is kept only in this browser tab. If you save the calculation, you can reopen, duplicate and compare it in this browser for up to #{Rails.application.config.x.anonymous_journey_retention_days} days. It is not synced across devices or made public.") %></p>
         </div>
       </details>

@@ -110,9 +110,9 @@ module CalculatorsHelper
     return unless entry
 
     case entry["kind"]
-    when "document" then education_document_path(entry["slug"])
-    when "term" then term_path(entry["slug"])
-    when "stage" then new_build_stage_path(entry["slug"])
+    when "document" then education_document_path(slug: entry["slug"])
+    when "term" then term_path(slug: entry["slug"])
+    when "stage" then new_build_stage_path(stage: entry["slug"])
     end
   end
 

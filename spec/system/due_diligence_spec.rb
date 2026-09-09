@@ -4,7 +4,7 @@ RSpec.describe "Due-diligence directory", type: :system do
   it "shows each expandable topic on its own row at desktop and mobile widths" do
     analysis = create(:property_analysis, status: "partial")
 
-    visit report_path(analysis)
+    visit report_path(public_token: analysis)
 
     directory = find('[data-testid="due-diligence"]')
     expect(directory).to have_text(I18n.t("reports.due_diligence.title"))

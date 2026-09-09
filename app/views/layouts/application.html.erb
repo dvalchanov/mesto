@@ -1,7 +1,6 @@
 <% page_title = content_for(:title).presence || product_name %>
 <% page_description = content_for(:description).presence || t("layout.meta_description") %>
-<% canonical_origin = Rails.env.production? ? "https://#{Rails.application.config.x.app_host}" : request.base_url %>
-<% canonical_url = "#{canonical_origin}#{request.path}" %>
+<% canonical_url = localized_page_url(I18n.locale) %>
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>">
   <head>
@@ -15,14 +14,21 @@
     <meta property="og:description" content="<%= page_description %>">
     <meta property="og:url" content="<%= canonical_url %>">
     <meta property="og:locale" content="<%= I18n.locale == :bg ? 'bg_BG' : 'en_US' %>">
+    <meta property="og:locale:alternate" content="<%= I18n.locale == :bg ? 'en_US' : 'bg_BG' %>">
     <meta name="twitter:card" content="summary">
     <link rel="canonical" href="<%= canonical_url %>">
+    <link rel="alternate" hreflang="bg" href="<%= localized_page_url(:bg) %>">
+    <link rel="alternate" hreflang="en" href="<%= localized_page_url(:en) %>">
+    <link rel="alternate" hreflang="x-default" href="<%= localized_page_url(:bg) %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="<%= product_name %>">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
+    <% if controller_name == "home" && action_name == "show" %>
+      <script type="application/ld+json"><%= raw json_escape({ "@context": "https://schema.org", "@type": "WebSite", name: product_name, alternateName: "Mesto.bg", url: localized_page_url(:bg), inLanguage: %w[bg en] }.to_json) %></script>
+    <% end %>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -51,8 +57,8 @@
 
         <div class="site-actions">
           <div class="locale-switch" aria-label="<%= t('navigation.language') %>">
-            <%= link_to t("navigation.language_bg"), url_for(locale: :bg), class: (I18n.locale == :bg ? "is-active" : nil), aria: { current: (I18n.locale == :bg ? "page" : nil) } %>
-            <%= link_to t("navigation.language_en"), url_for(locale: :en), class: (I18n.locale == :en ? "is-active" : nil), aria: { current: (I18n.locale == :en ? "page" : nil) } %>
+            <%= link_to t("navigation.language_bg"), localized_page_path(:bg), class: (I18n.locale == :bg ? "is-active" : nil), aria: { current: (I18n.locale == :bg ? "page" : nil) } %>
+            <%= link_to t("navigation.language_en"), localized_page_path(:en), class: (I18n.locale == :en ? "is-active" : nil), aria: { current: (I18n.locale == :en ? "page" : nil) } %>
           </div>
           <details class="mobile-nav">
             <summary><%= t("navigation.menu") %></summary>

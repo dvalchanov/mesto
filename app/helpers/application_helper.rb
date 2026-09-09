@@ -5,6 +5,20 @@ module ApplicationHelper
     LocalizedCopy.call(bg, en)
   end
 
+  def localized_page_path(locale)
+    route_locale = locale.to_sym == I18n.default_locale ? nil : locale
+    route_options = request.path_parameters.symbolize_keys.except(:format).merge(locale: route_locale, only_path: true)
+    url_for(route_options)
+  end
+
+  def localized_page_url(locale)
+    "#{seo_origin}#{localized_page_path(locale)}"
+  end
+
+  def seo_origin
+    Rails.env.production? ? "https://#{Rails.application.config.x.app_host}" : request.base_url
+  end
+
   ICON_PATHS = {
     "arrow-right" => '<path d="M5 12h14M13 6l6 6-6 6"/>',
     "arrow-up-right" => '<path d="M7 17 17 7M7 7h10v10"/>',
@@ -380,9 +394,9 @@ module ApplicationHelper
 
   def education_path_for(entry)
     case entry["kind"] || entry["path_kind"]
-    when "stage" then new_build_stage_path(entry["slug"])
-    when "document" then education_document_path(entry["slug"])
-    when "term" then term_path(entry["slug"])
+    when "stage" then new_build_stage_path(stage: entry["slug"])
+    when "document" then education_document_path(slug: entry["slug"])
+    when "term" then term_path(slug: entry["slug"])
     when "guide" then buying_guide_path(anchor: entry["buyer_stage"].presence || entry["slug"])
     else guide_path
     end

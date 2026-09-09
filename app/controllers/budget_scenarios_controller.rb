@@ -18,7 +18,7 @@ class BudgetScenariosController < ApplicationController
     )
     if normalizer.errors.empty? && scenario.save
       ProductEvent.record("scenario_saved", property_analysis: scenario.property_analysis, metadata: { attached_to_journey: journey.present? })
-      redirect_to budget_scenario_path(scenario), notice: LocalizedCopy.call("Сметката е запазена само в този браузър.", "The calculation has been saved in this browser only.")
+      redirect_to budget_scenario_path(public_token: scenario), notice: LocalizedCopy.call("Сметката е запазена само в този браузър.", "The calculation has been saved in this browser only.")
     else
       @inputs = inputs
       @result = result
@@ -37,16 +37,16 @@ class BudgetScenariosController < ApplicationController
 
   def update
     if @scenario.update(title: params.dig(:budget_scenario, :title).to_s.strip.first(80))
-      redirect_to budget_scenario_path(@scenario), notice: LocalizedCopy.call("Името на сметката е обновено.", "The calculation name has been updated.")
+      redirect_to budget_scenario_path(public_token: @scenario), notice: LocalizedCopy.call("Името на сметката е обновено.", "The calculation name has been updated.")
     else
-      redirect_to budget_scenario_path(@scenario), alert: @scenario.errors.full_messages.to_sentence
+      redirect_to budget_scenario_path(public_token: @scenario), alert: @scenario.errors.full_messages.to_sentence
     end
   end
 
   def duplicate
     copy = @scenario.duplicate!
     ProductEvent.record("scenario_saved", property_analysis: copy.property_analysis, metadata: { duplicated: true })
-    redirect_to budget_scenario_path(copy), notice: LocalizedCopy.call("Създадено е копие на сметката.", "A copy of the calculation has been created.")
+    redirect_to budget_scenario_path(public_token: copy), notice: LocalizedCopy.call("Създадено е копие на сметката.", "A copy of the calculation has been created.")
   end
 
   def destroy
@@ -58,7 +58,7 @@ class BudgetScenariosController < ApplicationController
     result = Calculators::PurchasePlan.new(@scenario.validated_inputs).call
     @scenario.update!(calculation_snapshot: result, engine_version: result["engine_version"],
       financial_rule_versions: result["rule_versions"], calculated_at: Time.current)
-    redirect_to budget_scenario_path(@scenario), notice: LocalizedCopy.call("Сметката е преизчислена по текущите правила.", "The calculation has been updated using the current rules.")
+    redirect_to budget_scenario_path(public_token: @scenario), notice: LocalizedCopy.call("Сметката е преизчислена по текущите правила.", "The calculation has been updated using the current rules.")
   end
 
   def save
@@ -75,7 +75,7 @@ class BudgetScenariosController < ApplicationController
       buyer_journey: journey, property_analysis: journey&.property_analysis
     )
     ProductEvent.record("scenario_saved", property_analysis: @scenario.property_analysis, metadata: { updated: true, attached_to_journey: journey.present? })
-    redirect_to budget_scenario_path(@scenario), notice: LocalizedCopy.call("Промените в сметката са запазени.", "Your changes have been saved.")
+    redirect_to budget_scenario_path(public_token: @scenario), notice: LocalizedCopy.call("Промените в сметката са запазени.", "Your changes have been saved.")
   end
 
   def compare

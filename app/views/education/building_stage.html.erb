@@ -1,4 +1,4 @@
-<% content_for :title, localized_copy("#{@stage['title']} - какво означава | #{product_name}", "#{@stage['title']} - what it means | #{product_name}") %>
+<% content_for :title, localized_copy("#{@stage['title']}: етап и проверки | #{product_name}", "#{@stage['title']}: Stage and Checks | #{product_name}") %>
 <% content_for :description, @stage["summary"] %>
 
 <div class="site-shell education-page stage-page">
@@ -17,7 +17,7 @@
 
   <section class="stage-context">
     <div><span><%= localized_copy("Текуща тема", "Current topic") %></span><strong><%= @stage["title"] %></strong></div>
-    <%= form_with url: new_build_stage_path(@stage["slug"]), method: :get do |form| %>
+    <%= form_with url: new_build_stage_path(stage: @stage["slug"]), method: :get do |form| %>
       <%= form.label :buyer_stage, localized_copy("Къде си в покупката?", "Where are you in the purchase process?") %>
       <%= form.select :buyer_stage, options_for_select(BuyerJourney::GUIDED_BUYER_STAGES.map { |key| [buyer_stage_label(key), key] }, @buyer_stage), {}, onchange: "this.form.requestSubmit()" %>
       <noscript><%= form.submit localized_copy("Покажи насоките", "Show guidance") %></noscript>
@@ -51,7 +51,7 @@
           <% if related_documents.any? %>
             <div class="inline-reading-list">
               <% related_documents.each do |document| %>
-                <%= link_to education_document_path(document["slug"]), target: "_blank", rel: "noopener noreferrer" do %>
+                <%= link_to education_document_path(slug: document["slug"]), target: "_blank", rel: "noopener noreferrer" do %>
                   <span><%= localized_copy("Научи повече за документа", "Learn more about this document") %></span><strong><%= document["title"] %></strong><small><%= document["summary"] %></small>
                 <% end %>
               <% end %>
@@ -79,7 +79,7 @@
     <section class="stage-support <%= 'stage-support--single' if related_terms.empty? %>">
       <div><span class="section-kicker"><%= localized_copy("Кой може да помогне?", "Who can help?") %></span><%= education_prose(@stage.dig("sections", "helpers")) %></div>
       <% if related_terms.any? %>
-        <div><span class="section-kicker"><%= localized_copy("Термини, които ще срещнеш", "Terms you will encounter") %></span><div class="term-pills"><% related_terms.each do |term| %><%= link_to term["title"], term_path(term["slug"]), target: "_blank", rel: "noopener noreferrer" %><% end %></div></div>
+        <div><span class="section-kicker"><%= localized_copy("Термини, които ще срещнеш", "Terms you will encounter") %></span><div class="term-pills"><% related_terms.each do |term| %><%= link_to term["title"], term_path(slug: term["slug"]), target: "_blank", rel: "noopener noreferrer" %><% end %></div></div>
       <% end %>
     </section>
 
@@ -116,8 +116,8 @@
 
   <nav class="stage-neighbors" aria-label="<%= localized_copy("Съседни етапи", "Adjacent stages") %>">
     <% current_index = @stages.index(@stage) %>
-    <% if current_index&.positive? %><%= link_to new_build_stage_path(@stages[current_index - 1]["slug"]) do %><span><%= localized_copy("Преди", "Previous") %></span><strong><%= @stages[current_index - 1]["title"] %></strong><% end %><% else %><span></span><% end %>
-    <% if current_index && current_index < @stages.length - 1 %><%= link_to new_build_stage_path(@stages[current_index + 1]["slug"]) do %><span><%= localized_copy("Следва", "Next") %></span><strong><%= @stages[current_index + 1]["title"] %></strong><% end %><% end %>
+    <% if current_index&.positive? %><%= link_to new_build_stage_path(stage: @stages[current_index - 1]["slug"]) do %><span><%= localized_copy("Преди", "Previous") %></span><strong><%= @stages[current_index - 1]["title"] %></strong><% end %><% else %><span></span><% end %>
+    <% if current_index && current_index < @stages.length - 1 %><%= link_to new_build_stage_path(stage: @stages[current_index + 1]["slug"]) do %><span><%= localized_copy("Следва", "Next") %></span><strong><%= @stages[current_index + 1]["title"] %></strong><% end %><% end %>
   </nav>
 
   <%= render "sources", entry: @stage, catalog: @catalog %>

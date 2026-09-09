@@ -11,8 +11,11 @@ Rails.application.routes.draw do
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest, defaults: { format: :json }
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Defines the root path route ("/")
-  root "home#show"
+  # Bulgarian uses the root URLs. English pages use a stable /en prefix so
+  # search engines and visitors always receive the same language for a URL.
+  scope "(:locale)", locale: /en/ do
+    # Defines the root path route ("/")
+    root "home#show"
 
   get "kalkulator", to: "calculators#index", as: :calculators
   get "kalkulator/pokupka-na-imot", to: "calculators#purchase", as: :purchase_calculator
@@ -61,5 +64,6 @@ Rails.application.routes.draw do
   post "checkout/:public_token/fake/succeed", to: "checkouts#succeed", as: :fake_checkout_succeed
   post "checkout/:public_token/fake/fail", to: "checkouts#fail", as: :fake_checkout_fail
   post "checkout/:public_token/fake/cancel", to: "checkouts#cancel", as: :fake_checkout_cancel
-  get "checkout/:public_token/success", to: "checkouts#success", as: :checkout_success
+    get "checkout/:public_token/success", to: "checkouts#success", as: :checkout_success
+  end
 end

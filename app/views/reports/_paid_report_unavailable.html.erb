@@ -23,5 +23,5 @@
   <% end %>
   <p class="mt-5 text-sm font-bold text-amber-950"><%= t("reports.paid_unavailable.no_charge") %></p>
   <p class="mt-2 text-sm leading-6 text-amber-900"><%= t("reports.paid_unavailable.retry_note") %></p>
-  <%= button_to t("reports.refresh.action"), refresh_report_path(analysis), method: :post, class: "mt-5 rounded-xl border border-amber-400 bg-white px-4 py-2.5 text-sm font-bold text-amber-950 hover:border-amber-600" %>
+  <%= button_to t("reports.refresh.action"), refresh_report_path(public_token: analysis), method: :post, class: "mt-5 rounded-xl border border-amber-400 bg-white px-4 py-2.5 text-sm font-bold text-amber-950 hover:border-amber-600" %>
 </section>

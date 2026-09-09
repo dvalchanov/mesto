@@ -26,18 +26,18 @@ RSpec.describe "Property report journey", type: :request do
     )
   end
 
-  it "serves the bilingual buyer knowledge library" do
+  it "permanently redirects the legacy knowledge URLs to the canonical library" do
     get guides_path
-    expect(response).to have_http_status(:ok)
-    expect(response.body).to include(I18n.t("knowledge.guides.title", locale: :bg))
+    expect(response).to redirect_to(guide_path)
+    expect(response).to have_http_status(:moved_permanently)
 
-    get documents_path, params: { locale: :en }
-    expect(response).to have_http_status(:ok)
-    expect(response.body).to include(I18n.t("knowledge.documents.title", locale: :en))
+    get documents_path(locale: :en)
+    expect(response).to redirect_to(education_documents_path(locale: :en))
+    expect(response).to have_http_status(:moved_permanently)
 
     get glossary_path
-    expect(response).to have_http_status(:ok)
-    expect(response.body).to include(I18n.t("knowledge.glossary.title", locale: :en))
+    expect(response).to redirect_to(terms_path)
+    expect(response).to have_http_status(:moved_permanently)
   end
 
   it "creates a UUID-token analysis and rejects invalid input" do
@@ -46,7 +46,7 @@ RSpec.describe "Property report journey", type: :request do
     }.to change(PropertyAnalysis, :count).by(1)
 
     analysis = PropertyAnalysis.last
-    expect(response).to redirect_to(report_path(analysis))
+    expect(response).to redirect_to(report_path(public_token: analysis))
     expect(response.location).not_to include("/#{analysis.id}")
     expect(analysis.public_token).to match(/\A[0-9a-f-]{36}\z/)
     expect(AnalyzePropertyJob).to have_been_enqueued.with(analysis.id)
@@ -60,14 +60,15 @@ RSpec.describe "Property report journey", type: :request do
 
   it "renders progress, free preview, locked details, and successful unlock" do
     analysis = create(:property_analysis)
-    get report_path(analysis)
+    get report_path(public_token: analysis)
     expect(response.body).to include(I18n.t("reports.progress.title"))
     expect(response.body).to include("report-progress__grid-loader")
+    expect(response.body).to include('name="robots" content="noindex,nofollow"')
 
     prepare_complete_sources
     Analysis::Runner.new(analysis, cadastre_provider: successful_cadastre_provider).call
     expect(analysis.reload.status).to eq("ready")
-    get report_path(analysis)
+    get report_path(public_token: analysis)
     expect(response.body).to include(
       I18n.t("reports.property_facts.title"),
       I18n.t("reports.findings.title"),
@@ -77,19 +78,19 @@ RSpec.describe "Property report journey", type: :request do
     )
     expect(response.body).not_to include(I18n.t("reports.full.timeline"))
 
-    post report_orders_path(analysis), params: { order: { email: "buyer@example.com", amount_cents: 1 } }
+    post report_orders_path(public_token: analysis), params: { order: { email: "buyer@example.com", amount_cents: 1 } }
     order = analysis.orders.last
     expect(order.amount_cents).to eq(2_490)
-    expect(response).to redirect_to(checkout_path(order))
+    expect(response).to redirect_to(checkout_path(public_token: order))
 
-    post fake_checkout_succeed_path(order)
-    expect(response).to redirect_to(checkout_success_path(order))
+    post fake_checkout_succeed_path(public_token: order)
+    expect(response).to redirect_to(checkout_success_path(public_token: order))
     expect(order.reload.status).to eq("paid")
 
-    post fake_checkout_succeed_path(order)
+    post fake_checkout_succeed_path(public_token: order)
     expect(ProductEvent.where(order:, name: "fake_payment_succeeded").count).to eq(1)
 
-    get report_path(analysis)
+    get report_path(public_token: analysis)
     expect(response.body).to include(I18n.t("reports.full.timeline"))
   end
 
@@ -98,13 +99,13 @@ RSpec.describe "Property report journey", type: :request do
     failed = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "fail@example.com")
     cancelled = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "cancel@example.com")
 
-    post fake_checkout_fail_path(failed)
-    expect(response).to redirect_to(checkout_path(failed, outcome: "failed"))
+    post fake_checkout_fail_path(public_token: failed)
+    expect(response).to redirect_to(checkout_path(public_token: failed, outcome: "failed"))
     follow_redirect!
     expect(response.body).to include(I18n.t("checkout.failed"))
 
-    post fake_checkout_cancel_path(cancelled)
-    expect(response).to redirect_to(checkout_path(cancelled, outcome: "cancelled"))
+    post fake_checkout_cancel_path(public_token: cancelled)
+    expect(response).to redirect_to(checkout_path(public_token: cancelled, outcome: "cancelled"))
     follow_redirect!
     expect(response.body).to include(I18n.t("checkout.cancelled"))
     expect(analysis.reload).not_to be_full_report_unlocked
@@ -113,9 +114,9 @@ RSpec.describe "Property report journey", type: :request do
   it "does not offer checkout for non-Sofia or no-data reports" do
     analysis = create(:property_analysis, status: "partial", summary: { "outside_sofia" => true, "paid_content_available" => false })
 
-    get report_checkout_path(analysis)
+    get report_checkout_path(public_token: analysis)
 
-    expect(response).to redirect_to(report_path(analysis))
+    expect(response).to redirect_to(report_path(public_token: analysis))
   end
 
   it "does not offer checkout when any required check is incomplete" do
@@ -126,9 +127,9 @@ RSpec.describe "Property report journey", type: :request do
       summary: { "paid_content_available" => true }
     )
 
-    get report_checkout_path(analysis)
+    get report_checkout_path(public_token: analysis)
 
-    expect(response).to redirect_to(report_path(analysis))
+    expect(response).to redirect_to(report_path(public_token: analysis))
     follow_redirect!
     expect(response.body).to include(I18n.t("checkout.unavailable"))
     expect(response.body).to include(I18n.t("reports.paid_unavailable.no_charge"))
@@ -147,7 +148,7 @@ RSpec.describe "Property report journey", type: :request do
       error_message: "A reliable location is required"
     )
 
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
     panel = Nokogiri::HTML5(response.body).at_css('[data-testid="paid-report-unavailable"]').text
     expect(panel).to include(
@@ -187,7 +188,7 @@ RSpec.describe "Property report journey", type: :request do
     order = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "buyer@example.com")
     Payments::FakeGateway.new.succeed(order)
 
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
     expect(response.body).to include("Малинова долина", I18n.t("reports.full.not_calculated"))
     expect(response.body).not_to include("Gaz 17", "Adm rzp")
@@ -215,7 +216,7 @@ RSpec.describe "Property report journey", type: :request do
       }
     )
 
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
     card = Nokogiri::HTML5(response.body).at_css('[data-testid="amenity-kindergartens"]')
     expect(card.at_css("p").text.strip).to eq("-")
@@ -225,7 +226,7 @@ RSpec.describe "Property report journey", type: :request do
 
     order = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "buyer@example.com")
     Payments::FakeGateway.new.succeed(order)
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
     expect(response.body).to include(I18n.t("reports.full.historical_amenities", date: "Данни към 08.08.2018"))
     expect(response.body).not_to include(I18n.t("reports.full.amenity_count", count: 0, radius: 1000))
@@ -253,7 +254,7 @@ RSpec.describe "Property report journey", type: :request do
     )
     analysis.update!(metrics: Analysis::MetricsBuilder.new(analysis:).call)
 
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
     card = Nokogiri::HTML5(response.body).at_css('[data-testid="amenity-kindergartens"]')
     expect(card.at_css("p").text.strip).to eq("2")
@@ -263,7 +264,7 @@ RSpec.describe "Property report journey", type: :request do
 
     order = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "buyer@example.com")
     Payments::FakeGateway.new.succeed(order)
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
     expect(response.body).to include(
       I18n.t("reports.full.mapped_places"),
