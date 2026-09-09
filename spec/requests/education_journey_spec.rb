@@ -68,6 +68,24 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(response.body).not_to include(my_mesto_path)
   end
 
+  it "switches the public buyer experience to English" do
+    paths = [
+      root_path, guides_path, documents_path, glossary_path,
+      guide_path, buying_guide_path, new_build_guide_path, new_build_stage_path("akt-15"),
+      education_documents_path, education_document_path("predvaritelen-dogovor"),
+      terms_path, term_path("vazbrana"), calculators_path, purchase_calculator_path,
+      mortgage_calculator_path, budget_scenarios_path, my_mesto_path
+    ]
+
+    paths.each do |path|
+      get path, params: { locale: "en" }
+
+      expect(response).to have_http_status(:ok), "Expected #{path} to render successfully"
+      expect(response.body).to include('<html lang="en">')
+      expect(Nokogiri::HTML5(response.body).at_css("body").text).not_to match(/[А-Яа-я]/), "Untranslated copy on #{path}"
+    end
+  end
+
   it "records allowlisted education transitions without raw property or financial metadata" do
     expect {
       get root_path, params: { education_entry: "guide" }

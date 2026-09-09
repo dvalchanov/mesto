@@ -1,6 +1,10 @@
 module ApplicationHelper
   AMENITY_DATA_MAX_AGE_YEARS = 2
 
+  def localized_copy(bg, en)
+    LocalizedCopy.call(bg, en)
+  end
+
   ICON_PATHS = {
     "arrow-right" => '<path d="M5 12h14M13 6l6 6-6 6"/>',
     "arrow-up-right" => '<path d="M7 17 17 7M7 7h10v10"/>',
@@ -226,6 +230,26 @@ module ApplicationHelper
   FINANCING_LABELS = {
     "mortgage" => "Ипотечно финансиране", "own_funds" => "Собствени средства", "undecided" => "Още не съм решил"
   }.freeze
+  BUYER_STAGE_LABELS_EN = {
+    "researching" => "I'm researching and preparing", "shortlisting" => "I'm comparing options",
+    "before_deposit" => "Before a reservation or deposit", "before_preliminary_contract" => "Before the preliminary contract",
+    "preliminary_contract_signed" => "I've signed a preliminary contract", "waiting_or_payment" => "I'm waiting for the next construction stage or payment",
+    "before_notarial_transfer" => "I'm preparing for the notarial transfer", "before_handover" => "My property is about to be handed over",
+    "owner" => "I'm already an owner", "unknown" => "I'm not sure"
+  }.freeze
+  PROPERTY_TYPE_LABELS_EN = {
+    "new_build" => "New construction", "completed_home" => "Completed home", "house" => "House",
+    "land" => "Land", "undecided" => "I haven't decided yet"
+  }.freeze
+  BUILDING_STAGE_LABELS_EN = {
+    "land_planning" => "Site, planning and design", "authorization" => "Building permit",
+    "commencement" => "Commencement and foundations", "act14" => "Structure and Act 14",
+    "installations_act15" => "Installations and finishing", "act15" => "Acceptance preparation and Act 15",
+    "commissioning" => "Commissioning", "handover" => "Handover and maintenance", "unknown" => "I don't know"
+  }.freeze
+  FINANCING_LABELS_EN = {
+    "mortgage" => "Mortgage financing", "own_funds" => "Own funds", "undecided" => "I haven't decided yet"
+  }.freeze
   TERM_CATEGORY_DETAILS = {
     "cadastre_identity" => {
       label: "Идентичност на имота",
@@ -250,14 +274,14 @@ module ApplicationHelper
     "handover_operation" => {
       label: "Предаване и експлоатация",
       title: "Какво да провериш при предаването?",
-      description: "Дефекти, гаранции, партиди и управление на сградата — въпроси, които не приключват с получаването на ключовете."
+      description: "Дефекти, гаранции, партиди и управление на сградата - въпроси, които не приключват с получаването на ключовете."
     }.freeze
   }.freeze
   DOCUMENT_CATEGORY_DETAILS = {
     "planning_construction" => {
       label: "Планиране и строителство",
       title: "Как се планира, разрешава и приема строежът?",
-      description: "Планове, проекти, разрешения и приемателни актове — какво доказва всеки от тях и кога е необходим."
+      description: "Планове, проекти, разрешения и приемателни актове - какво доказва всеки от тях и кога е необходим."
     }.freeze,
     "property_identity" => {
       label: "Имот и собственост",
@@ -275,15 +299,46 @@ module ApplicationHelper
       description: "Документите за състоянието, дефектите, гаранциите, таксите и управлението на сградата."
     }.freeze
   }.freeze
+  TERM_CATEGORY_DETAILS_EN = {
+    "cadastre_identity" => { label: "Property identity", title: "What exactly is the property?", description: "Terms that help you check whether the listing, cadastre, plans and contract describe the same property." }.freeze,
+    "ownership_rights" => { label: "Ownership and use", title: "Who owns and uses what?", description: "How ownership, possession, common parts and third-party rights over the property differ." }.freeze,
+    "transaction_risk" => { label: "Transaction and registrations", title: "What could affect the acquisition?", description: "How payments, mortgages, attachments and other registered matters may affect the transaction." }.freeze,
+    "construction" => { label: "New construction", title: "What do the construction stages mean?", description: "The differences between marketing labels, construction records, project participants and the work actually completed." }.freeze,
+    "handover_operation" => { label: "Handover and operation", title: "What should you check at handover?", description: "Defects, warranties, utilities and building management: questions that do not end when you receive the keys." }.freeze
+  }.freeze
+  DOCUMENT_CATEGORY_DETAILS_EN = {
+    "planning_construction" => { label: "Planning and construction", title: "How is a project planned, authorised and accepted?", description: "Plans, designs, permits and acceptance documents: what each proves and when it is needed." }.freeze,
+    "property_identity" => { label: "Property and ownership", title: "What is being sold, and who may transfer it?", description: "Compare the exact property description, title documents, registrations and the seller's authority. One document rarely answers every question." }.freeze,
+    "agreements_finance" => { label: "Contracts and finance", title: "What obligations do you take on before completion?", description: "Reservation, brokerage, the preliminary contract and the bank valuation serve different purposes and do not replace one another." }.freeze,
+    "handover_operation" => { label: "Handover and management", title: "What happens after you receive the keys?", description: "Documents covering condition, defects, warranties, charges and building management." }.freeze
+  }.freeze
 
-  def buyer_stage_label(key) = BUYER_STAGE_LABELS[key.to_s] || BUYER_STAGE_LABELS["unknown"]
-  def property_type_label(key) = PROPERTY_TYPE_LABELS[key.to_s] || PROPERTY_TYPE_LABELS["undecided"]
-  def building_stage_label(key) = BUILDING_STAGE_LABELS[key.to_s] || BUILDING_STAGE_LABELS["unknown"]
-  def financing_label(key) = FINANCING_LABELS[key.to_s] || FINANCING_LABELS["undecided"]
+  def buyer_stage_label(key)
+    labels = localized_copy(BUYER_STAGE_LABELS, BUYER_STAGE_LABELS_EN)
+    labels[key.to_s] || labels["unknown"]
+  end
+
+  def property_type_label(key)
+    labels = localized_copy(PROPERTY_TYPE_LABELS, PROPERTY_TYPE_LABELS_EN)
+    labels[key.to_s] || labels["undecided"]
+  end
+
+  def building_stage_label(key)
+    labels = localized_copy(BUILDING_STAGE_LABELS, BUILDING_STAGE_LABELS_EN)
+    labels[key.to_s] || labels["unknown"]
+  end
+
+  def financing_label(key)
+    labels = localized_copy(FINANCING_LABELS, FINANCING_LABELS_EN)
+    labels[key.to_s] || labels["undecided"]
+  end
+
+  def education_term_category_details = localized_copy(TERM_CATEGORY_DETAILS, TERM_CATEGORY_DETAILS_EN)
+  def education_document_category_details = localized_copy(DOCUMENT_CATEGORY_DETAILS, DOCUMENT_CATEGORY_DETAILS_EN)
 
   def education_term_groups(entries)
     grouped_entries = entries.group_by { |entry| entry["category"] }
-    TERM_CATEGORY_DETAILS.filter_map do |key, details|
+    education_term_category_details.filter_map do |key, details|
       next if grouped_entries[key].blank?
 
       details.merge(key:, entries: grouped_entries[key])
@@ -291,21 +346,25 @@ module ApplicationHelper
   end
 
   def education_term_category_label(key)
-    TERM_CATEGORY_DETAILS.dig(key.to_s, :label) || "Имотно понятие"
+    education_term_category_details.dig(key.to_s, :label) || localized_copy("Имотно понятие", "Property term")
   end
 
   def education_document_groups(entries)
     grouped_entries = entries.select { |entry| entry["kind"] == "document" }.group_by { |entry| entry["category"] }
-    groups = DOCUMENT_CATEGORY_DETAILS.filter_map do |key, details|
+    groups = education_document_category_details.filter_map do |key, details|
       next if grouped_entries[key].blank?
 
       details.merge(key:, entries: grouped_entries[key])
     end
-    supplemental_groups = [
+    supplemental_groups = localized_copy([
       [ "stage", "related_stages", "Строителни етапи", "На кой етап е строежът?", "Виж какво обикновено се изпълнява, кои документи са свързани с етапа и какво още остава непроверено." ],
       [ "guide", "buyer_guides", "Път на купувача", "Какво да направиш на своя етап?", "Насоки за решенията, документите и проверките, които са важни за теб в момента." ],
       [ "term", "related_terms", "Свързани термини", "Търсиш значението на понятие?", "Кратки определения и примери за думите, които най-често ще срещнеш в документите." ]
-    ].filter_map do |kind, key, label, title, description|
+    ], [
+      [ "stage", "related_stages", "Construction stages", "What stage has the project reached?", "See what usually happens, which documents relate to the stage and what remains unverified." ],
+      [ "guide", "buyer_guides", "Buyer's journey", "What should you do at your stage?", "Guidance on the decisions, documents and checks that matter to you right now." ],
+      [ "term", "related_terms", "Related terms", "Looking for the meaning of a term?", "Short definitions and examples of the words you are most likely to encounter in property documents." ]
+    ]).filter_map do |kind, key, label, title, description|
       related_entries = entries.select { |entry| entry["kind"] == kind }
       next if related_entries.blank?
 
@@ -316,7 +375,7 @@ module ApplicationHelper
   end
 
   def education_document_category_label(key)
-    DOCUMENT_CATEGORY_DETAILS.dig(key.to_s, :label) || "Имотен документ"
+    education_document_category_details.dig(key.to_s, :label) || localized_copy("Имотен документ", "Property document")
   end
 
   def education_path_for(entry)
@@ -331,7 +390,7 @@ module ApplicationHelper
 
   def education_source_date(source)
     date = source["source_updated_at"].presence
-    date ? "Последна актуализация на източника: #{l(Date.iso8601(date), format: :short)}" : "Източникът не посочва дата на актуализация"
+    date ? "#{localized_copy("Последна актуализация на източника", "Source last updated")}: #{l(Date.iso8601(date), format: :short)}" : localized_copy("Източникът не посочва дата на актуализация", "The source does not state when it was last updated")
   end
 
   def education_prose(value, css_class: nil)
@@ -341,20 +400,28 @@ module ApplicationHelper
   end
 
   def evidence_status_label(status)
-    {
+    localized_copy({
       "directly_found" => "Открит е пряк запис", "referenced_indirectly" => "Открита е косвена препратка",
       "user_reported" => "Посочено от теб", "requested_from_seller" => "Поискай от продавача",
       "separate_official_check_needed" => "Нужна е отделна официална проверка",
       "professional_review_needed" => "Нужен е професионален преглед",
       "no_matching_record_found" => "Не открихме съвпадащ запис", "source_unavailable" => "Източникът не е достъпен"
-    }.fetch(status.to_s, "Предстои проверка")
+    }, {
+      "directly_found" => "Direct record found", "referenced_indirectly" => "Indirect reference found",
+      "user_reported" => "Reported by you", "requested_from_seller" => "Request from the seller",
+      "separate_official_check_needed" => "Separate official check needed", "professional_review_needed" => "Professional review needed",
+      "no_matching_record_found" => "No matching record found", "source_unavailable" => "Source unavailable"
+    }).fetch(status.to_s, localized_copy("Предстои проверка", "To be checked"))
   end
 
   def checklist_applicability_label(status)
-    {
+    localized_copy({
       "relevant_now" => "Важно сега", "later" => "По-късно",
       "conditional" => "При определени условия", "not_applicable" => "Вече не е приложимо"
-    }.fetch(status.to_s, "За преглед")
+    }, {
+      "relevant_now" => "Important now", "later" => "Later",
+      "conditional" => "Under certain conditions", "not_applicable" => "No longer applicable"
+    }).fetch(status.to_s, localized_copy("За преглед", "For review"))
   end
 
   private

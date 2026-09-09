@@ -1,21 +1,21 @@
-<% content_for :title, "Калкулатор за покупка на имот | #{product_name}" %>
-<% content_for :description, "Сметни в евро разходите по покупката, нужните собствени средства, ипотечната вноска и кога ще ти трябват парите." %>
+<% content_for :title, localized_copy("Калкулатор за покупка на имот | #{product_name}", "Property Purchase Calculator | #{product_name}") %>
+<% content_for :description, localized_copy("Сметни в евро разходите по покупката, нужните собствени средства, ипотечната вноска и кога ще ти трябват парите.", "Calculate your purchase costs, required own funds, mortgage payment and when each amount will be due - all in euros.") %>
 <% if @scenario %><% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %><% end %>
 
 <section class="calculator-hero calculator-hero--purchase">
   <div class="site-shell calculator-hero__inner">
     <div class="calculator-hero__copy">
-      <p class="eyebrow">Калкулатор за покупка на имот</p>
-      <h1>Колко ще ти струва покупката — и кога ще ти трябват парите?</h1>
-      <p>Сметни разходите, нужните собствени средства и плащанията за своята покупка. Можеш да започнеш и без избран имот.</p>
+      <p class="eyebrow"><%= localized_copy("Калкулатор за покупка на имот", "Property purchase calculator") %></p>
+      <h1><%= localized_copy("Колко ще ти струва покупката - и кога ще ти трябват парите?", "How much will the purchase cost you - and when will you need the money?") %></h1>
+      <p><%= localized_copy("Сметни разходите, нужните собствени средства и плащанията за своята покупка. Можеш да започнеш и без избран имот.", "Calculate the costs, required equity and payments for your purchase. You can also start without a selected property.") %></p>
       <div class="calculator-hero__actions">
-        <%= link_to "Започни сметката", "#purchase-calculator", class: "button button--primary" %>
-        <%= link_to purchase_calculator_path(example: 1), class: "text-link" do %>Виж примерна сметка<%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
+        <%= link_to localized_copy("Започни сметката", "Start calculating"), "#purchase-calculator", class: "button button--primary" %>
+        <%= link_to purchase_calculator_path(example: 1), class: "text-link" do %><%= localized_copy("Виж примерна сметка", "View an example") %><%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
       </div>
     </div>
     <div class="calculator-hero__aside">
       <div class="calculator-plan-visual" aria-hidden="true">
-        <div class="calculator-plan-visual__heading"><span>Плащанията във времето</span><b>EUR</b></div>
+        <div class="calculator-plan-visual__heading"><span><%= localized_copy("Плащанията във времето", "Payments over time") %></span><b>EUR</b></div>
         <div class="calculator-plan-visual__canvas">
           <svg viewBox="0 0 260 142" fill="none">
             <g class="calculator-plan-visual__grid">
@@ -30,140 +30,140 @@
           </svg>
         </div>
         <div class="calculator-plan-visual__steps">
-          <span><b>01</b>Цена</span>
-          <span><b>02</b>Средства</span>
-          <span><b>03</b>Плащания</span>
+          <span><b>01</b><%= localized_copy("Цена", "Price") %></span>
+          <span><b>02</b><%= localized_copy("Средства", "Funds") %></span>
+          <span><b>03</b><%= localized_copy("Плащания", "Payments") %></span>
         </div>
       </div>
-      <div class="calculator-hero__benefits" aria-label="Предимства на калкулатора">
-        <span>Безплатно</span>
-        <span>Без регистрация</span>
-        <span>Работи и без банкова оферта</span>
+      <div class="calculator-hero__benefits" aria-label="<%= localized_copy("Предимства на калкулатора", "Advantages of the calculator") %>">
+        <span><%= localized_copy("Безплатно", "Free of charge") %></span>
+        <span><%= localized_copy("Без регистрация", "No registration") %></span>
+        <span><%= localized_copy("Работи и без банкова оферта", "It also works without a bank offer") %></span>
       </div>
     </div>
   </div>
 </section>
 
 <% if @scenario %>
-  <section class="site-shell saved-scenario-bar" aria-label="Запазена сметка">
+  <section class="site-shell saved-scenario-bar" aria-label="<%= localized_copy("Запазена сметка", "Saved calculation") %>">
     <div>
-      <span>Запазена сметка</span>
+      <span><%= localized_copy("Запазена сметка", "Saved calculation") %></span>
       <strong><%= @scenario.title %></strong>
-      <small>Изчислена на <%= l(@scenario.calculated_at, format: :short) %> · версия <%= @scenario.engine_version %></small>
-      <% if @scenario.buyer_journey %><small>Свързан личен план: <%= @scenario.buyer_journey.label.presence || "без име" %></small><% end %>
+      <small><%= localized_copy("Изчислена на", "Calculated on") %> <%= l(@scenario.calculated_at, format: :short) %> · <%= localized_copy("версия", "version") %> <%= @scenario.engine_version %></small>
+      <% if @scenario.buyer_journey %><small><%= localized_copy("Свързан личен план:", "Linked personal plan:") %> <%= @scenario.buyer_journey.label.presence || localized_copy("без име", "untitled") %></small><% end %>
     </div>
     <div class="saved-scenario-bar__actions">
       <%= form_with model: @scenario, url: budget_scenario_path(@scenario), method: :patch, class: "scenario-rename" do |form| %>
-        <%= form.label :title, "Преименувай", class: "sr-only" %>
+        <%= form.label :title, localized_copy("Преименувай", "Rename"), class: "sr-only" %>
         <%= form.text_field :title, maxlength: 80 %>
-        <%= form.submit "Запази име", class: "button button--outline button--small" %>
+        <%= form.submit localized_copy("Запази име", "Save name"), class: "button button--outline button--small" %>
       <% end %>
-      <%= button_to "Дублирай", duplicate_budget_scenario_path(@scenario), class: "button button--clear button--small" %>
-      <%= button_to "Изтрий", budget_scenario_path(@scenario), method: :delete, class: "button button--small button--danger", data: { turbo_confirm: "Да изтрия ли тази сметка?" } %>
+      <%= button_to localized_copy("Дублирай", "Duplicate"), duplicate_budget_scenario_path(@scenario), class: "button button--clear button--small" %>
+      <%= button_to localized_copy("Изтрий", "Delete"), budget_scenario_path(@scenario), method: :delete, class: "button button--small button--danger", data: { turbo_confirm: localized_copy("Да изтрия ли тази сметка?", "Delete this calculation?") } %>
     </div>
     <% if @scenario.stale_rules? %>
-      <div class="calculator-warning">Правилата са обновени след тази сметка. Запазеният резултат не е променян. <%= button_to "Преизчисли по новите правила", recalculate_budget_scenario_path(@scenario), class: "text-link" %></div>
+      <div class="calculator-warning"><%= localized_copy("Правилата са обновени след тази сметка. Запазеният резултат не е променян.", "The rules have changed since this calculation was saved. The saved result has not been updated.") %> <%= button_to localized_copy("Преизчисли по новите правила", "Recalculate using the new rules"), recalculate_budget_scenario_path(@scenario), class: "text-link" %></div>
     <% end %>
   </section>
 <% end %>
 
 <div id="purchase-calculator" class="site-shell calculator-workspace" data-controller="calculator-form calculator-tabs select-menu schedule-editor" data-calculator-form-draft-key-value="purchase" data-calculator-form-draft-enabled-value="<%= request.get? && params[:example].blank? && !@scenario %>" data-calculator-form-reset-url-value="<%= purchase_calculator_path %>" data-action="turbo:before-frame-render@document->calculator-form#guard click->calculator-form#rememberInterfaceState">
   <div class="calculator-reset-bar" data-calculator-form-target="resetter" <%= "hidden" if params[:example].blank? && !@scenario && params[:calculator].blank? %>>
-    <button type="button" class="text-link calculator-reset" data-action="calculator-form#reset"><%= mesto_icon("refresh", css_class: "size-4") %><span>Започни отначало</span></button>
+    <button type="button" class="text-link calculator-reset" data-action="calculator-form#reset"><%= mesto_icon("refresh", css_class: "size-4") %><span><%= localized_copy("Започни отначало", "Start over") %></span></button>
   </div>
   <%= form_with scope: :calculator, url: calculate_purchase_calculator_path, method: :post,
     html: { class: "calculator-form", data: { calculator_form_target: "form", turbo_frame: "calculator-results", action: "input->calculator-form#rememberInput change->calculator-form#queue" } } do |form| %>
     <%= form.hidden_field :request_sequence, value: 0, data: { calculator_form_target: "sequence" } %>
-    <button type="submit" class="hidden" aria-hidden="true" tabindex="-1" data-calculator-form-target="submitter">Преизчисли</button>
+    <button type="submit" class="hidden" aria-hidden="true" tabindex="-1" data-calculator-form-target="submitter"><%= localized_copy("Преизчисли", "Recalculate") %></button>
 
-    <nav class="calculator-tabs" aria-label="Раздели на калкулатора" role="tablist">
-      <button type="button" role="tab" aria-selected="true" data-calculator-tabs-target="tab" data-section="costs" data-action="calculator-tabs#show"><span>01</span> Цена и разходи</button>
-      <button type="button" role="tab" aria-selected="false" data-calculator-tabs-target="tab" data-section="financing" data-action="calculator-tabs#show"><span>02</span> Финансиране</button>
-      <button type="button" role="tab" aria-selected="false" data-calculator-tabs-target="tab" data-section="schedule" data-action="calculator-tabs#show"><span>03</span> График на плащанията</button>
+    <nav class="calculator-tabs" aria-label="<%= localized_copy("Раздели на калкулатора", "Calculator tabs") %>" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-calculator-tabs-target="tab" data-section="costs" data-action="calculator-tabs#show"><span>01</span> <%= localized_copy("Цена и разходи", "Price and costs") %></button>
+      <button type="button" role="tab" aria-selected="false" data-calculator-tabs-target="tab" data-section="financing" data-action="calculator-tabs#show"><span>02</span> <%= localized_copy("Финансиране", "Financing") %></button>
+      <button type="button" role="tab" aria-selected="false" data-calculator-tabs-target="tab" data-section="schedule" data-action="calculator-tabs#show"><span>03</span> <%= localized_copy("График на плащанията", "Payment schedule") %></button>
     </nav>
 
     <section class="calculator-panel" data-calculator-tabs-target="panel" data-section="costs" role="tabpanel">
       <div class="calculator-panel__heading">
-        <div><span>01</span><h2>Цена и разходи</h2></div>
-        <p>Изчисляваме автоматично само онези разходи, за които разполагаме с надежден източник.</p>
+        <div><span>01</span><h2><%= localized_copy("Цена и разходи", "Price and costs") %></h2></div>
+        <p><%= localized_copy("Изчисляваме автоматично само онези разходи, за които разполагаме с надежден източник.", "We automatically calculate only those costs for which we have a reliable source.") %></p>
       </div>
 
       <div class="calculator-fields calculator-fields--two">
         <div class="calculator-field calculator-field--strong">
-          <%= form.label :property_price, "Цена по сделката" %>
+          <%= form.label :property_price, localized_copy("Цена по сделката", "Transaction price") %>
           <div class="money-field"><%= form.text_field :property_price, value: money_input_value(calculator_input("property_price_cents")), inputmode: "decimal", placeholder: "300 000,00", aria: { describedby: "price-hint" } %><span>€</span></div>
-          <small id="price-hint">Въведи общата цена. Ако гараж, паркомясто или друга част се плаща отделно, отбележи го в разбивката по-долу.</small>
+          <small id="price-hint"><%= localized_copy("Въведи общата цена. Ако гараж, паркомясто или друга част се плаща отделно, отбележи го в разбивката по-долу.", "Enter the total price. If a garage, parking space or other part is paid for separately, note it in the breakdown below.") %></small>
           <%= calculator_error(@normalizer&.errors, "property_price") %>
         </div>
         <div class="calculator-field">
-          <%= form.label :municipality, "Община" %>
-          <%= form.select :municipality, [["Столична община", "sofia"], ["Друга община", "other"]], { selected: calculator_input("municipality", "sofia") }, data: { action: "change->calculator-form#toggleMunicipality" } %>
-          <small>Автоматично проверена местна ставка засега има само за София.</small>
+          <%= form.label :municipality, localized_copy("Община", "Municipality") %>
+          <%= form.select :municipality, [[localized_copy("Столична община", "Sofia Municipality"), "sofia"], [localized_copy("Друга община", "Another municipality"), "other"]], { selected: calculator_input("municipality", "sofia") }, data: { action: "change->calculator-form#toggleMunicipality" } %>
+          <small><%= localized_copy("Автоматично проверена местна ставка засега има само за София.", "An automatically checked local rate is currently only available for Sofia.") %></small>
         </div>
         <div class="calculator-field" data-calculator-form-target="manualMunicipality" <%= 'hidden' unless calculator_input("municipality") == "other" %>>
-          <%= form.label :manual_local_tax_rate, "Ръчно въведена местна ставка" %>
-          <div class="money-field"><%= form.text_field :manual_local_tax_rate, value: calculator_input("manual_local_tax_rate"), inputmode: "decimal", placeholder: "напр. 2,5" %><span>%</span></div>
-          <small>Това е въведена от теб ставка и не е проверена от Mesto. Ставката за София няма да се приложи.</small>
+          <%= form.label :manual_local_tax_rate, localized_copy("Ръчно въведена местна ставка", "Manually entered local rate") %>
+          <div class="money-field"><%= form.text_field :manual_local_tax_rate, value: calculator_input("manual_local_tax_rate"), inputmode: "decimal", placeholder: localized_copy("напр. 2,5", "e.g. 2.5") %><span>%</span></div>
+          <small><%= localized_copy("Това е въведена от теб ставка и не е проверена от Mesto. Ставката за София няма да се приложи.", "This is a rate entered by you and has not been verified by Mesto. The rate for Sofia will not apply.") %></small>
         </div>
         <div class="calculator-field">
-          <%= form.label :transaction_date, "Дата на сделката (по избор)" %>
+          <%= form.label :transaction_date, localized_copy("Дата на сделката (по избор)", "Transaction date (optional)") %>
           <%= form.date_field :transaction_date, value: calculator_input("transaction_date") %>
-          <small>За бъдеща дата приемаме, че правилата ще останат без промяна.</small>
+          <small><%= localized_copy("За бъдеща дата приемаме, че правилата ще останат без промяна.", "For a future date, we assume that the rules will remain unchanged.") %></small>
         </div>
         <div class="calculator-field">
-          <%= form.label :tax_assessment, "Данъчна оценка (по избор)" %>
-          <div class="money-field"><%= form.text_field :tax_assessment, value: money_input_value(calculator_input("tax_assessment_cents")), inputmode: "decimal", placeholder: "Неизвестна" %><span>€</span></div>
-          <small>Нужна е за сравнение с уговорената цена. <%= education_link("document.tax_assessment", "Какво е данъчна оценка?") %></small>
+          <%= form.label :tax_assessment, localized_copy("Данъчна оценка (по избор)", "Tax valuation (optional)") %>
+          <div class="money-field"><%= form.text_field :tax_assessment, value: money_input_value(calculator_input("tax_assessment_cents")), inputmode: "decimal", placeholder: localized_copy("Неизвестна", "Unknown") %><span>€</span></div>
+          <small><%= localized_copy("Нужна е за сравнение с уговорената цена.", "It is used for comparison with the agreed price.") %> <%= education_link("document.tax_assessment", localized_copy("Какво е данъчна оценка?", "What is a tax valuation?")) %></small>
         </div>
         <div class="calculator-field">
-          <%= form.label :transaction_cost_share, "Твой планиран дял от автоматичните разходи" %>
+          <%= form.label :transaction_cost_share, localized_copy("Твой планиран дял от автоматичните разходи", "Your planned share of automatically calculated costs") %>
           <div class="money-field"><%= form.text_field :transaction_cost_share, value: calculator_input("transaction_cost_share_percent", "100"), inputmode: "decimal" %><span>%</span></div>
-          <small>Използва се само за твоята сметка. Кой действително поема разхода зависи от закона и уговореното между страните.</small>
+          <small><%= localized_copy("Използва се само за твоята сметка. Кой действително поема разхода зависи от закона и уговореното между страните.", "Used only in your calculation. Who actually bears the cost depends on the law and the agreement between the parties.") %></small>
         </div>
         <fieldset class="calculator-field calculator-field--wide">
-          <legend>Как е посочена цената?</legend>
+          <legend><%= localized_copy("Как е посочена цената?", "How is the price listed?") %></legend>
           <div class="segmented-options">
-            <% [["Крайна цена за плащане", "final"], ["Изрично без ДДС", "net"], ["Не е ясно", "uncertain"]].each do |label, value| %>
+            <% [[localized_copy("Крайна цена за плащане", "Final price payable"), "final"], [localized_copy("Изрично без ДДС", "Explicitly excluding VAT"), "net"], [localized_copy("Не е ясно", "Unclear"), "uncertain"]].each do |label, value| %>
               <label><%= form.radio_button :price_vat_treatment, value, checked: calculator_input("price_vat_treatment", "final") == value, data: { action: "change->calculator-form#togglePropertyVat" } %><span><%= label %></span></label>
             <% end %>
           </div>
           <div class="inline-confirmation" data-calculator-form-target="propertyVat" <%= 'hidden' unless calculator_input("price_vat_treatment") == "net" %>>
-            <label><%= form.check_box :property_vat_confirmed, checked: calculator_input("property_vat_confirmed") %> Потвърждавам, че ставката е приложима към тази оферта</label>
+            <label><%= form.check_box :property_vat_confirmed, checked: calculator_input("property_vat_confirmed") %> <%= localized_copy("Потвърждавам, че ставката е приложима към тази оферта", "I confirm that this VAT rate applies to the offer") %></label>
             <div class="money-field money-field--short"><%= form.text_field :property_vat_rate, value: calculator_input("property_vat_rate"), placeholder: "20", inputmode: "decimal" %><span>%</span></div>
           </div>
-          <small>Ново строителство само по себе си не добавя автоматично ДДС.</small>
+          <small><%= localized_copy("Ново строителство само по себе си не добавя автоматично ДДС.", "New construction in itself does not automatically add VAT.") %></small>
         </fieldset>
       </div>
 
       <details class="calculator-disclosure">
-        <summary><span>Разбивка на цената</span><small>Избягва двойното броене на гараж или паркомясто.</small></summary>
+        <summary><span><%= localized_copy("Разбивка на цената", "Price breakdown") %></span><small><%= localized_copy("Избягва двойното броене на гараж или паркомясто.", "Avoids double counting a garage or parking space.") %></small></summary>
         <div class="line-editor">
-          <% CalculatorsHelper::COMPONENTS.each do |key, label| %>
+          <% calculator_components.each do |key, label| %>
             <div class="line-editor__row">
               <%= hidden_field_tag "calculator[components][#{key}][key]", key %>
               <%= hidden_field_tag "calculator[components][#{key}][label]", label %>
               <strong><%= label %></strong>
               <div class="money-field"><%= text_field_tag "calculator[components][#{key}][amount]", money_input_value(component_input(key, "amount_cents")), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div>
-              <%= select_tag "calculator[components][#{key}][price_relation]", options_for_select([["Включено в общата цена", "included"], ["Допълнително към нея", "additional"]], component_input(key, "price_relation") || "included"), aria: { label: "Отношение към цената за #{label}" } %>
+              <%= select_tag "calculator[components][#{key}][price_relation]", options_for_select([[localized_copy("Включено в общата цена", "Included in the total price"), "included"], [localized_copy("Допълнително към нея", "Additional to the total price"), "additional"]], component_input(key, "price_relation") || "included"), aria: { label: localized_copy("Отношение към цената за #{label}", "Price treatment for #{label}") } %>
             </div>
           <% end %>
         </div>
       </details>
 
       <details class="calculator-disclosure" open>
-        <summary><span>Други разходи</span><small>Добави само разходите, които се отнасят за твоята покупка.</small></summary>
+        <summary><span><%= localized_copy("Други разходи", "Other expenses") %></span><small><%= localized_copy("Добави само разходите, които се отнасят за твоята покупка.", "Add only the costs that apply to your purchase.") %></small></summary>
         <div class="cost-editor" data-controller="cost-editor">
           <div class="cost-editor__intro">
-            <strong>Какво вече е включено?</strong>
-            <p>Местният данък, таксата за вписване и основната нотариална такса се изчисляват автоматично. Тук добави останалите разходи по твоята покупка. Отбележи перо и посочи с каква информация разполагаш — точна сума, процент или приблизителна оценка.</p>
+            <strong><%= localized_copy("Какво вече е включено?", "What is already included?") %></strong>
+            <p><%= localized_copy("Местният данък, таксата за вписване и основната нотариална такса се изчисляват автоматично. Тук добави останалите разходи по твоята покупка. Отбележи перо и посочи с каква информация разполагаш - точна сума, процент или приблизителна оценка.", "Local tax, the registration fee and the basic notary fee are calculated automatically. Add any other costs that apply to your purchase. Select an item and enter the information you have - an exact amount, a percentage or an estimate.") %></p>
           </div>
-          <% CalculatorsHelper::CALCULATOR_COSTS.group_by { _1[:category] }.each do |category, costs| %>
-            <% category_meta = CalculatorsHelper::COST_CATEGORIES.fetch(category) %>
+          <% calculator_costs.group_by { _1[:category] }.each do |category, costs| %>
+            <% category_meta = calculator_cost_categories.fetch(category) %>
             <% category_open = category == "acquisition" || costs.any? { cost_input(_1, "included") == true } %>
             <details class="cost-editor__group" <%= "open" if category_open %>>
               <summary>
                 <span><strong><%= category_meta[:label] %></strong><small><%= category_meta[:description] %></small></span>
-                <em><%= costs.length %> възможности</em>
+                <em><%= costs.length %> <%= localized_copy("възможности", "options") %></em>
               </summary>
               <div class="cost-editor__group-items"><%= render partial: "calculators/cost_fields", collection: costs, as: :cost %></div>
             </details>
@@ -174,61 +174,61 @@
 
     <section class="calculator-panel" data-calculator-tabs-target="panel" data-section="financing" role="tabpanel" hidden>
       <div class="calculator-panel__heading">
-        <div><span>02</span><h2>Финансиране</h2></div>
-        <p>Тук посочи откъде ще дойдат средствата. Разходите по самия кредит се добавят отделно.</p>
+        <div><span>02</span><h2><%= localized_copy("Финансиране", "Financing") %></h2></div>
+        <p><%= localized_copy("Тук посочи откъде ще дойдат средствата. Разходите по самия кредит се добавят отделно.", "Tell us where your funds will come from. Loan-related costs are added separately.") %></p>
       </div>
       <fieldset class="calculator-field calculator-field--wide">
-        <legend>Как ще финансираш покупката?</legend>
+        <legend><%= localized_copy("Как ще финансираш покупката?", "How will you finance the purchase?") %></legend>
         <div class="segmented-options">
-          <label><%= form.radio_button :financing_mode, "own_funds", checked: calculator_input("financing_mode", "own_funds") == "own_funds", data: { action: "change->calculator-form#toggleFinancing" } %><span>Само собствени средства</span></label>
-          <label><%= form.radio_button :financing_mode, "mortgage", checked: calculator_input("financing_mode") == "mortgage", data: { action: "change->calculator-form#toggleFinancing" } %><span>С ипотека</span></label>
+          <label><%= form.radio_button :financing_mode, "own_funds", checked: calculator_input("financing_mode", "own_funds") == "own_funds", data: { action: "change->calculator-form#toggleFinancing" } %><span><%= localized_copy("Само собствени средства", "Own funds only") %></span></label>
+          <label><%= form.radio_button :financing_mode, "mortgage", checked: calculator_input("financing_mode") == "mortgage", data: { action: "change->calculator-form#toggleFinancing" } %><span><%= localized_copy("С ипотека", "With a mortgage") %></span></label>
         </div>
       </fieldset>
       <div class="calculator-financing-details" data-calculator-form-target="mortgageFields" <%= 'hidden' unless calculator_input("financing_mode") == "mortgage" %>>
         <div class="calculator-fields calculator-fields--two">
           <fieldset class="calculator-field calculator-field--wide">
-            <legend>Как искаш да изчислим кредита?</legend>
+            <legend><%= localized_copy("Как искаш да изчислим кредита?", "How do you want us to calculate the credit?") %></legend>
             <div class="segmented-options">
-              <label><%= form.radio_button :loan_primary_input, "principal", checked: calculator_input(["loan", "primary_input"], "principal") == "principal" %><span>Размер на кредита</span></label>
-              <label><%= form.radio_button :loan_primary_input, "own_contribution", checked: calculator_input(["loan", "primary_input"]) == "own_contribution" %><span>Самоучастие към цената</span></label>
+              <label><%= form.radio_button :loan_primary_input, "principal", checked: calculator_input(["loan", "primary_input"], "principal") == "principal" %><span><%= localized_copy("Размер на кредита", "Amount of the loan") %></span></label>
+              <label><%= form.radio_button :loan_primary_input, "own_contribution", checked: calculator_input(["loan", "primary_input"]) == "own_contribution" %><span><%= localized_copy("Самоучастие към цената", "Own contribution toward the price") %></span></label>
             </div>
           </fieldset>
-          <div class="calculator-field"><%= form.label :loan_principal, "Размер на кредита" %><div class="money-field"><%= form.text_field :loan_principal, value: money_input_value(calculator_input(["loan", "principal_cents"])), inputmode: "decimal", placeholder: "240 000,00" %><span>€</span></div></div>
-          <div class="calculator-field"><%= form.label :own_contribution, "Самоучастие към цената" %><div class="money-field"><%= form.text_field :own_contribution, value: money_input_value(calculator_input(["loan", "own_contribution_cents"])), inputmode: "decimal", placeholder: "60 000,00" %><span>€</span></div><small>Не включва данъци, такси и други разходи.</small></div>
-          <div class="calculator-field"><%= form.label :annual_interest_rate, "Годишна номинална лихва" %><div class="money-field"><%= form.text_field :annual_interest_rate, value: calculator_input(["loan", "annual_interest_rate"]), inputmode: "decimal", placeholder: "Няма зададена стойност" %><span>%</span></div><small>Използвай примерна или предложена от банка лихва. Това не е ГПР или банкова оферта. <%= education_link("term.mortgage", "За ипотеката") %></small></div>
-          <div class="calculator-field"><%= form.label :term_years, "Срок" %><div class="money-field money-field--unit"><%= form.number_field :term_years, value: calculator_input(["loan", "term_months"]).to_i.positive? ? calculator_input(["loan", "term_months"]).to_i / 12 : nil, min: 1, max: 50 %><span>години</span></div></div>
-          <div class="calculator-field"><%= form.label :monthly_charges, "Други месечни такси по кредита" %><div class="money-field"><%= form.text_field :monthly_charges, value: money_input_value(calculator_input(["loan", "monthly_charges_cents"])), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div></div>
-          <div class="calculator-field"><%= form.label :bank_valuation, "Банкова оценка (по избор)" %><div class="money-field"><%= form.text_field :bank_valuation, value: money_input_value(calculator_input(["loan", "bank_valuation_cents"])), inputmode: "decimal", placeholder: "Може да се различава от цената" %><span>€</span></div></div>
-          <div class="calculator-field"><%= form.label :assumed_financing_percentage, "Ориентировъчен процент финансиране" %><div class="money-field"><%= form.text_field :assumed_financing_percentage, value: calculator_input(["loan", "assumed_financing_percentage"]), inputmode: "decimal", placeholder: "Няма зададена стойност" %><span>%</span></div><small>Прилагаме го върху банковата оценка само ако не си въвел размер на кредита.</small></div>
+          <div class="calculator-field"><%= form.label :loan_principal, localized_copy("Размер на кредита", "Amount of the loan") %><div class="money-field"><%= form.text_field :loan_principal, value: money_input_value(calculator_input(["loan", "principal_cents"])), inputmode: "decimal", placeholder: "240 000,00" %><span>€</span></div></div>
+          <div class="calculator-field"><%= form.label :own_contribution, localized_copy("Самоучастие към цената", "Own contribution toward the price") %><div class="money-field"><%= form.text_field :own_contribution, value: money_input_value(calculator_input(["loan", "own_contribution_cents"])), inputmode: "decimal", placeholder: "60 000,00" %><span>€</span></div><small><%= localized_copy("Не включва данъци, такси и други разходи.", "Excludes taxes, fees and other costs.") %></small></div>
+          <div class="calculator-field"><%= form.label :annual_interest_rate, localized_copy("Годишна номинална лихва", "Annual nominal interest rate") %><div class="money-field"><%= form.text_field :annual_interest_rate, value: calculator_input(["loan", "annual_interest_rate"]), inputmode: "decimal", placeholder: localized_copy("Няма зададена стойност", "No value set") %><span>%</span></div><small><%= localized_copy("Използвай примерна или предложена от банка лихва. Това не е ГПР или банкова оферта.", "Use an illustrative rate or one quoted by a bank. This is not an APR or a bank offer.") %> <%= education_link("term.mortgage", localized_copy("За ипотеката", "About mortgages")) %></small></div>
+          <div class="calculator-field"><%= form.label :term_years, localized_copy("Срок", "Term") %><div class="money-field money-field--unit"><%= form.number_field :term_years, value: calculator_input(["loan", "term_months"]).to_i.positive? ? calculator_input(["loan", "term_months"]).to_i / 12 : nil, min: 1, max: 50 %><span><%= localized_copy("години", "years") %></span></div></div>
+          <div class="calculator-field"><%= form.label :monthly_charges, localized_copy("Други месечни такси по кредита", "Other monthly loan fees") %><div class="money-field"><%= form.text_field :monthly_charges, value: money_input_value(calculator_input(["loan", "monthly_charges_cents"])), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div></div>
+          <div class="calculator-field"><%= form.label :bank_valuation, localized_copy("Банкова оценка (по избор)", "Bank valuation (optional)") %><div class="money-field"><%= form.text_field :bank_valuation, value: money_input_value(calculator_input(["loan", "bank_valuation_cents"])), inputmode: "decimal", placeholder: localized_copy("Може да се различава от цената", "It may differ from the price") %><span>€</span></div></div>
+          <div class="calculator-field"><%= form.label :assumed_financing_percentage, localized_copy("Ориентировъчен процент финансиране", "Estimated financing percentage") %><div class="money-field"><%= form.text_field :assumed_financing_percentage, value: calculator_input(["loan", "assumed_financing_percentage"]), inputmode: "decimal", placeholder: localized_copy("Няма зададена стойност", "No value set") %><span>%</span></div><small><%= localized_copy("Прилагаме го върху банковата оценка само ако не си въвел размер на кредита.", "We apply it to the bank valuation only when no loan amount has been entered.") %></small></div>
         </div>
       </div>
       <div class="calculator-fields calculator-fields--two calculator-fields--spaced calculator-fields--funding-basics">
-        <div class="calculator-field calculator-field--strong"><%= form.label :starting_cash, "С колко собствени средства разполагаш към началото на този план?" %><div class="money-field"><%= form.text_field :starting_cash, value: money_input_value(calculator_input(["funding", "starting_cash_cents"])), inputmode: "decimal", placeholder: "Налични днес" %><span>€</span></div><small>Вече направените плащания няма да се приспадат втори път.</small></div>
-        <div class="calculator-field"><%= form.label :reserve, "Желан резерв след плащанията" %><div class="money-field"><%= form.text_field :reserve, value: money_input_value(calculator_input(["funding", "reserve_cents"])), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div><small>Това са средствата, които искаш да ти останат; не ги броим като разход.</small></div>
+        <div class="calculator-field calculator-field--strong"><%= form.label :starting_cash, localized_copy("С колко собствени средства разполагаш към началото на този план?", "How much equity do you have at the start of this plan?") %><div class="money-field"><%= form.text_field :starting_cash, value: money_input_value(calculator_input(["funding", "starting_cash_cents"])), inputmode: "decimal", placeholder: localized_copy("Налични днес", "Available today") %><span>€</span></div><small><%= localized_copy("Вече направените плащания няма да се приспадат втори път.", "Payments already made will not be deducted a second time.") %></small></div>
+        <div class="calculator-field"><%= form.label :reserve, localized_copy("Желан резерв след плащанията", "Desired reserve after payments") %><div class="money-field"><%= form.text_field :reserve, value: money_input_value(calculator_input(["funding", "reserve_cents"])), inputmode: "decimal", placeholder: "0,00" %><span>€</span></div><small><%= localized_copy("Това са средствата, които искаш да ти останат; не ги броим като разход.", "These are the funds you want to keep; we do not count them as an expense.") %></small></div>
       </div>
-      <p class="calculator-financing-note" data-calculator-form-target="mortgageNote" <%= "hidden" unless calculator_input("financing_mode") == "mortgage" %>><strong>Примерна сметка, не банкова оферта.</strong> Одобрението не гарантира, че средствата са достъпни веднага.</p>
+      <p class="calculator-financing-note" data-calculator-form-target="mortgageNote" <%= "hidden" unless calculator_input("financing_mode") == "mortgage" %>><strong><%= localized_copy("Примерна сметка, не банкова оферта.", "Illustrative calculation, not a bank offer.") %></strong> <%= localized_copy("Одобрението не гарантира, че средствата са достъпни веднага.", "Approval does not guarantee that funds are immediately available.") %></p>
     </section>
 
     <section class="calculator-panel" data-calculator-tabs-target="panel" data-section="schedule" role="tabpanel" hidden>
       <div class="calculator-panel__heading">
-        <div><span>03</span><h2>График на плащанията</h2></div>
-        <p>Подреди плащанията по етапи и провери кога са нужни собствени средства или ипотека.</p>
+        <div><span>03</span><h2><%= localized_copy("График на плащанията", "Payment schedule") %></h2></div>
+        <p><%= localized_copy("Подреди плащанията по етапи и провери кога са нужни собствени средства или ипотека.", "Arrange payments in stages and check when you need equity or a mortgage.") %></p>
       </div>
       <div class="template-picker">
         <div class="calculator-field">
-          <label for="schedule-template">Примерен график</label>
+          <label for="schedule-template"><%= localized_copy("Примерен график", "Sample schedule") %></label>
           <select id="schedule-template" data-schedule-editor-target="template" data-action="change->schedule-editor#applyTemplate">
-            <option value="">Избери график…</option>
+            <option value=""><%= localized_copy("Избери график…", "Choose a schedule…") %></option>
             <option value="10-10-80">10% / 10% / 80%</option>
             <option value="20-80">20% / 80%</option>
-            <option value="custom">Създай собствен график</option>
+            <option value="custom"><%= localized_copy("Създай собствен график", "Create your own schedule") %></option>
           </select>
-          <small>Шаблоните не са законово изискване или препоръка.</small>
+          <small><%= localized_copy("Шаблоните не са законово изискване или препоръка.", "Templates are not a legal requirement or recommendation.") %></small>
         </div>
-        <button type="button" class="button button--outline button--small" data-action="schedule-editor#add">+ Добави събитие</button>
+        <button type="button" class="button button--outline button--small" data-action="schedule-editor#add"><%= localized_copy("+ Добави събитие", "+ Add event") %></button>
       </div>
       <datalist id="schedule-event-labels">
-        <% ["Резервация", "Предварителен договор", "Акт 14", "Акт 15", "Въвеждане в експлоатация", "Нотариално прехвърляне", "Предаване"].each do |label| %><option value="<%= label %>"><% end %>
+            <% [localized_copy("Резервация", "Reservation"), localized_copy("Предварителен договор", "Preliminary contract"), localized_copy("Акт 14", "Act 14"), localized_copy("Акт 15", "Act 15"), localized_copy("Въвеждане в експлоатация", "Commissioning"), localized_copy("Нотариално прехвърляне", "Notarial transfer"), localized_copy("Предаване", "Handover")].each do |label| %><option value="<%= label %>"><% end %>
       </datalist>
       <div class="schedule-editor" data-schedule-editor-target="list" data-action="input->schedule-editor#syncEventSelectors">
         <% Array(calculator_input("schedule", [])).each_with_index do |event, index| %>
@@ -237,67 +237,67 @@
       </div>
 
       <details class="calculator-disclosure" open>
-        <summary><span>Резервационно плащане или капаро</span><small>Посочи как да го отчетем в тази сметка.</small></summary>
+        <summary><span><%= localized_copy("Резервационно плащане или капаро", "Reservation payment or deposit") %></span><small><%= localized_copy("Посочи как да го отчетем в тази сметка.", "Tell us how to treat it in this calculation.") %></small></summary>
         <div class="calculator-fields calculator-fields--two">
-          <div class="calculator-field"><label for="reservation-amount">Реално платена сума</label><div class="money-field"><%= text_field_tag "calculator[reservation][amount]", money_input_value(calculator_input(["reservation", "amount_cents"])), id: "reservation-amount", inputmode: "decimal" %><span>€</span></div></div>
-          <div class="calculator-field"><label for="reservation-treatment">Как се отчита сумата?</label><%= select_tag "calculator[reservation][treatment]", options_for_select([["Не е приложимо", "not_applicable"], ["Приспада се от цената", "credited"], ["Отделна такса", "separate_fee"], ["Не е ясно", "uncertain"]], calculator_input(["reservation", "treatment"], "not_applicable")), id: "reservation-treatment" %></div>
-          <div class="calculator-field"><label for="reservation-credit-event">Към кое плащане се приспада?</label><%= select_tag "calculator[reservation][credit_event_key]", options_for_select([["Избери събитие…", ""]] + schedule_event_options, calculator_input(["reservation", "credit_event_key"])), id: "reservation-credit-event", data: { schedule_editor_target: "eventSelect" } %><small><%= education_link("document.reservation_agreement", "За резервационните споразумения") %></small></div>
-          <label class="check-field"><%= check_box_tag "calculator[reservation][paid_before_start]", "1", calculator_input(["reservation", "paid_before_start"]) %><span>Платено е преди началната точка на този план</span></label>
+          <div class="calculator-field"><label for="reservation-amount"><%= localized_copy("Реално платена сума", "Amount actually paid") %></label><div class="money-field"><%= text_field_tag "calculator[reservation][amount]", money_input_value(calculator_input(["reservation", "amount_cents"])), id: "reservation-amount", inputmode: "decimal" %><span>€</span></div></div>
+          <div class="calculator-field"><label for="reservation-treatment"><%= localized_copy("Как се отчита сумата?", "How should this amount be treated?") %></label><%= select_tag "calculator[reservation][treatment]", options_for_select([[localized_copy("Не е приложимо", "Not applicable"), "not_applicable"], [localized_copy("Приспада се от цената", "Deducted from the price"), "credited"], [localized_copy("Отделна такса", "Separate fee"), "separate_fee"], [localized_copy("Не е ясно", "Unclear"), "uncertain"]], calculator_input(["reservation", "treatment"], "not_applicable")), id: "reservation-treatment" %></div>
+          <div class="calculator-field"><label for="reservation-credit-event"><%= localized_copy("Към кое плащане се приспада?", "To which payment is it deducted?") %></label><%= select_tag "calculator[reservation][credit_event_key]", options_for_select([[localized_copy("Избери събитие…", "Select an event…"), ""]] + schedule_event_options, calculator_input(["reservation", "credit_event_key"])), id: "reservation-credit-event", data: { schedule_editor_target: "eventSelect" } %><small><%= education_link("document.reservation_agreement", localized_copy("За резервационните споразумения", "About reservation agreements")) %></small></div>
+          <label class="check-field"><%= check_box_tag "calculator[reservation][paid_before_start]", "1", calculator_input(["reservation", "paid_before_start"]) %><span><%= localized_copy("Платено е преди началната точка на този план", "It was paid before the starting point of this plan") %></span></label>
         </div>
       </details>
 
       <div class="calculator-fields calculator-fields--two calculator-fields--spaced">
-        <div class="calculator-field"><%= form.label :mortgage_availability_event_key, "От кой момент можеш да използваш ипотечния кредит?" %><%= form.select :mortgage_availability_event_key, schedule_event_options, { include_blank: "Избери плащане…", selected: calculator_input(["funding", "mortgage_availability_event_key"]) }, data: { schedule_editor_target: "eventSelect" } %><small>Средствата по кредита се използват само за допустими плащания към продавача.</small></div>
-        <div class="calculator-field"><%= form.label :mortgage_confidence, "Колко сигурно е усвояването?" %><%= form.select :mortgage_confidence, [["Само допускане", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено", "confirmed"]], { selected: calculator_input(["funding", "mortgage_confidence"], "hypothetical") } %></div>
+        <div class="calculator-field"><%= form.label :mortgage_availability_event_key, localized_copy("От кой момент можеш да използваш ипотечния кредит?", "From what moment can you use the mortgage loan?") %><%= form.select :mortgage_availability_event_key, schedule_event_options, { include_blank: localized_copy("Избери плащане…", "Select payment…"), selected: calculator_input(["funding", "mortgage_availability_event_key"]) }, data: { schedule_editor_target: "eventSelect" } %><small><%= localized_copy("Средствата по кредита се използват само за допустими плащания към продавача.", "Credit funds are used only for eligible payments to the seller.") %></small></div>
+        <div class="calculator-field"><%= form.label :mortgage_confidence, localized_copy("Колко сигурно е усвояването?", "How certain is the disbursement?") %><%= form.select :mortgage_confidence, [[localized_copy("Само допускане", "Assumption only"), "hypothetical"], [localized_copy("Очаквано", "Expected"), "expected"], [localized_copy("Потвърдено", "Confirmed"), "confirmed"]], { selected: calculator_input(["funding", "mortgage_confidence"], "hypothetical") } %></div>
       </div>
       <details class="calculator-disclosure">
-        <summary><span>Усвояване на кредита на части</span><small>По избор — въведените тук суми заменят еднократното усвояване по-горе.</small></summary>
+        <summary><span><%= localized_copy("Усвояване на кредита на части", "Loan disbursement in stages") %></span><small><%= localized_copy("По избор - въведените тук суми заменят еднократното усвояване по-горе.", "Optional - amounts entered here replace the single disbursement above.") %></small></summary>
         <div class="calculator-fields calculator-fields--two">
           <% ["draw_1", "draw_2"].each do |draw_key| %>
             <% draw = Array(calculator_input(["funding", "mortgage_disbursements"], [])).find { _1["key"] == draw_key } || {} %>
             <div class="future-inflow">
-              <strong>Ипотечно усвояване</strong>
-              <div class="money-field"><%= text_field_tag "calculator[mortgage_disbursements][#{draw_key}][amount]", money_input_value(draw["amount_cents"]), inputmode: "decimal", placeholder: "0,00", aria: { label: "Размер на ипотечно усвояване" } %><span>€</span></div>
-              <%= select_tag "calculator[mortgage_disbursements][#{draw_key}][event_key]", options_for_select([["Избери плащане…", ""]] + schedule_event_options, draw["event_key"]), aria: { label: "Събитие за ипотечно усвояване" }, data: { schedule_editor_target: "eventSelect" } %>
-              <%= select_tag "calculator[mortgage_disbursements][#{draw_key}][confidence]", options_for_select([["Само допускане", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено", "confirmed"]], draw["confidence"] || "hypothetical"), aria: { label: "Сигурност на ипотечното усвояване" } %>
+              <strong><%= localized_copy("Ипотечно усвояване", "Mortgage disbursement") %></strong>
+              <div class="money-field"><%= text_field_tag "calculator[mortgage_disbursements][#{draw_key}][amount]", money_input_value(draw["amount_cents"]), inputmode: "decimal", placeholder: "0,00", aria: { label: localized_copy("Размер на ипотечно усвояване", "Mortgage disbursement amount") } %><span>€</span></div>
+              <%= select_tag "calculator[mortgage_disbursements][#{draw_key}][event_key]", options_for_select([[localized_copy("Избери плащане…", "Select payment…"), ""]] + schedule_event_options, draw["event_key"]), aria: { label: localized_copy("Събитие за ипотечно усвояване", "Mortgage foreclosure event") }, data: { schedule_editor_target: "eventSelect" } %>
+              <%= select_tag "calculator[mortgage_disbursements][#{draw_key}][confidence]", options_for_select([[localized_copy("Само допускане", "Assumption only"), "hypothetical"], [localized_copy("Очаквано", "Expected"), "expected"], [localized_copy("Потвърдено", "Confirmed"), "confirmed"]], draw["confidence"] || "hypothetical"), aria: { label: localized_copy("Сигурност на ипотечното усвояване", "Certainty of mortgage disbursement") } %>
             </div>
           <% end %>
         </div>
       </details>
-      <p class="calculator-inline-warning">Не отчитаме одобрения кредит като налични пари преди избрания момент. Ако има няколко плащания в един ден, следваме реда, който си задал.</p>
+      <p class="calculator-inline-warning"><%= localized_copy("Не отчитаме одобрения кредит като налични пари преди избрания момент. Ако има няколко плащания в един ден, следваме реда, който си задал.", "We do not count approved credit as available cash before the selected time. If there are several payments in one day, we follow the order you set.") %></p>
 
       <details class="calculator-disclosure">
-        <summary><span>Бъдещи постъпления от собствени средства</span><small>Добави ги ръчно — калкулаторът не ги изчислява от доходите ти.</small></summary>
+        <summary><span><%= localized_copy("Бъдещи постъпления от собствени средства", "Future own-fund inflows") %></span><small><%= localized_copy("Добави ги ръчно - калкулаторът не ги изчислява от доходите ти.", "Add them manually - the calculator does not derive them from your income.") %></small></summary>
         <div class="calculator-fields calculator-fields--two">
           <% ["future_1", "future_2"].each do |inflow_key| %>
             <% inflow = Array(calculator_input(["funding", "own_inflows"], [])).find { _1["key"] == inflow_key } || {} %>
             <div class="future-inflow">
-              <strong>Постъпление</strong>
-              <div class="money-field"><%= text_field_tag "calculator[own_inflows][#{inflow_key}][amount]", money_input_value(inflow["amount_cents"]), inputmode: "decimal", placeholder: "0,00", aria: { label: "Размер на бъдещо постъпление" } %><span>€</span></div>
-              <%= select_tag "calculator[own_inflows][#{inflow_key}][event_key]", options_for_select([["Избери плащане…", ""]] + schedule_event_options, inflow["event_key"]), aria: { label: "Събитие за бъдещо постъпление" }, data: { schedule_editor_target: "eventSelect" } %>
-              <%= select_tag "calculator[own_inflows][#{inflow_key}][confidence]", options_for_select([["Само допускане", "hypothetical"], ["Очаквано", "expected"], ["Потвърдено", "confirmed"]], inflow["confidence"] || "expected"), aria: { label: "Сигурност на бъдещото постъпление" } %>
+              <strong><%= localized_copy("Постъпление", "Receipt") %></strong>
+              <div class="money-field"><%= text_field_tag "calculator[own_inflows][#{inflow_key}][amount]", money_input_value(inflow["amount_cents"]), inputmode: "decimal", placeholder: "0,00", aria: { label: localized_copy("Размер на бъдещо постъпление", "Amount of future income") } %><span>€</span></div>
+              <%= select_tag "calculator[own_inflows][#{inflow_key}][event_key]", options_for_select([[localized_copy("Избери плащане…", "Select payment…"), ""]] + schedule_event_options, inflow["event_key"]), aria: { label: localized_copy("Събитие за бъдещо постъпление", "A future receipt event") }, data: { schedule_editor_target: "eventSelect" } %>
+              <%= select_tag "calculator[own_inflows][#{inflow_key}][confidence]", options_for_select([[localized_copy("Само допускане", "Assumption only"), "hypothetical"], [localized_copy("Очаквано", "Expected"), "expected"], [localized_copy("Потвърдено", "Confirmed"), "confirmed"]], inflow["confidence"] || "expected"), aria: { label: localized_copy("Сигурност на бъдещото постъпление", "Certainty of future funds") } %>
             </div>
           <% end %>
         </div>
       </details>
 
       <details class="calculator-disclosure">
-        <summary><span>Запази сметката</span><small>Дай ѝ име, за да я отвориш отново или да я сравниш с друг вариант.</small></summary>
+        <summary><span><%= localized_copy("Запази сметката", "Save this calculation") %></span><small><%= localized_copy("Дай ѝ име, за да я отвориш отново или да я сравниш с друг вариант.", "Give it a name so you can return to it or compare it with another option.") %></small></summary>
         <div class="calculator-save-grid">
-          <div class="calculator-field"><%= form.label :title, "Име на сметката" %><%= form.text_field :title, value: calculator_input("title"), maxlength: 80, placeholder: "напр. Апартамент А" %></div>
+          <div class="calculator-field"><%= form.label :title, localized_copy("Име на сметката", "Calculation name") %><%= form.text_field :title, value: calculator_input("title"), maxlength: 80, placeholder: localized_copy("напр. Апартамент А", "e.g. Apartment A") %></div>
           <% if guest_journeys.any? %>
-            <div class="calculator-field"><%= form.label :buyer_journey_id, "Свържи с личен план (по избор)" %><%= form.select :buyer_journey_id, guest_journeys.map { |journey| [journey.label.presence || "План от #{l(journey.created_at.to_date)}", journey.id] }, { include_blank: "Без връзка", selected: calculator_input("buyer_journey_id") } %><small>Връзката не отбелязва урок или задача като завършени.</small></div>
+            <div class="calculator-field"><%= form.label :buyer_journey_id, localized_copy("Свържи с личен план (по избор)", "Connect to personal plan (optional)") %><%= form.select :buyer_journey_id, guest_journeys.map { |journey| [journey.label.presence || localized_copy("План от #{l(journey.created_at.to_date)}", "Plan by #{l(journey.created_at.to_date)}"), journey.id] }, { include_blank: localized_copy("Без връзка", "No connection"), selected: calculator_input("buyer_journey_id") } %><small><%= localized_copy("Връзката не отбелязва урок или задача като завършени.", "The link does not mark a lesson or assignment as completed.") %></small></div>
           <% end %>
-          <button type="submit" formaction="<%= @scenario ? save_budget_scenario_path(@scenario) : budget_scenarios_path %>" formtarget="_top" data-turbo="false" class="button button--secondary"><%= @scenario ? "Запази промените" : "Запази тази сметка" %></button>
-          <p class="calculator-privacy">Черновата се пази само в текущия раздел. Ако запазиш сметката, ще можеш да я отваряш, дублираш и сравняваш в този браузър до <%= Rails.application.config.x.anonymous_journey_retention_days %> дни. Тя не се синхронизира между устройства и не се публикува.</p>
+          <button type="submit" formaction="<%= @scenario ? save_budget_scenario_path(@scenario) : budget_scenarios_path %>" formtarget="_top" data-turbo="false" class="button button--secondary"><%= @scenario ? localized_copy("Запази промените", "Save changes") : localized_copy("Запази тази сметка", "Save this calculation") %></button>
+          <p class="calculator-privacy"><%= localized_copy("Черновата се пази само в текущия раздел. Ако запазиш сметката, ще можеш да я отваряш, дублираш и сравняваш в този браузър до #{Rails.application.config.x.anonymous_journey_retention_days} дни. Тя не се синхронизира между устройства и не се публикува.", "The draft is kept only in this browser tab. If you save the calculation, you can reopen, duplicate and compare it in this browser for up to #{Rails.application.config.x.anonymous_journey_retention_days} days. It is not synced across devices or made public.") %></p>
         </div>
       </details>
     </section>
 
     <div class="calculator-form__footer">
-      <button type="submit" class="button button--secondary">Преизчисли</button>
-      <%= link_to "Зареди примерните данни", purchase_calculator_path(example: 1), class: "button button--outline button--small" %>
-      <% if @scenarios&.any? %><%= link_to "Запазени сметки (#{@scenarios.size})", budget_scenarios_path, class: "text-link" %><% end %>
+      <button type="submit" class="button button--secondary"><%= localized_copy("Преизчисли", "Recalculate") %></button>
+      <%= link_to localized_copy("Зареди примерните данни", "Load the sample data"), purchase_calculator_path(example: 1), class: "button button--outline button--small" %>
+      <% if @scenarios&.any? %><%= link_to localized_copy("Запазени сметки (#{@scenarios.size})", "Saved calculations (#{@scenarios.size})"), budget_scenarios_path, class: "text-link" %><% end %>
     </div>
   <% end %>
 

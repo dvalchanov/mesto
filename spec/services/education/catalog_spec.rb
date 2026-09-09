@@ -3,12 +3,13 @@ require "rails_helper"
 RSpec.describe Education::Catalog do
   subject(:catalog) { described_class.new }
 
-  it "loads and validates the complete initial Bulgarian library" do
+  it "loads and validates the complete bilingual library" do
     expect { Education::ContentValidator.new(catalog).validate! }.not_to raise_error
     expect(catalog.published("stage").size).to eq(8)
     expect(catalog.published("document").size).to be >= 28
     expect(catalog.published("term").size).to be >= 32
-    expect(catalog.entries).to all(include("locale" => "bg", "professional_review_status" => "pending"))
+    expect(catalog.entries).to all(include("professional_review_status" => "pending"))
+    expect(catalog.entries.map { _1.fetch("locale") }.uniq).to contain_exactly("bg", "en")
   end
 
   it "organizes every term into the supported buyer-facing groups" do
@@ -47,6 +48,15 @@ RSpec.describe Education::Catalog do
       end
     end
     expect(catalog.rules.flat_map { |rule| rule.fetch("when", {}).keys }.uniq - Education::ContentValidator::CONDITION_KEYS).to be_empty
+  end
+
+  it "provides a complete English edition without untranslated Cyrillic copy" do
+    english_content = [ catalog.entries, catalog.sources, catalog.all_rules, catalog.checklist_items ]
+      .flat_map(&:itself)
+      .select { |item| item["locale"] == "en" }
+
+    expect(english_content).not_to be_empty
+    expect(english_content.to_json).not_to match(/[А-Яа-я]/)
   end
 
   it "keeps article content substantive and stage checklists genuinely useful" do

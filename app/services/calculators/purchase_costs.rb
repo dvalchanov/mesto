@@ -59,7 +59,7 @@ module Calculators
       {
         "complete" => false, "property_price_cents" => nil, "payable_property_price_cents" => nil,
         "lines" => [], "unresolved_items" => [], "included_costs_cents" => 0,
-        "combined_included_outlay_cents" => nil, "warnings" => [ "Въведи цена, за да започне изчислението." ],
+        "combined_included_outlay_cents" => nil, "warnings" => [ copy("Въведи цена, за да започне изчислението.", "Enter a property price to start the calculation.") ],
         "rule_versions" => {}
       }
     end
@@ -69,13 +69,13 @@ module Calculators
       {
         "complete" => false, "property_price_cents" => property_price_cents,
         "payable_property_price_cents" => payable_price, "tax_base_cents" => tax_base_for(payable_price),
-        "lines" => [ unresolved_line("regulatory_rules", "Законови данъци и такси", "acquisition",
-          "Няма приложима проверена версия на правилата за тази дата.") ],
+        "lines" => [ unresolved_line("regulatory_rules", copy("Законови данъци и такси", "Statutory taxes and fees"), "acquisition",
+          copy("Няма приложима проверена версия на правилата за тази дата.", "No verified version of the rules applies on this date.")) ],
         "unresolved_items" => [ { "key" => "regulatory_rules", "status" => "unresolved" } ],
         "acquisition_costs_cents" => 0, "financing_costs_cents" => 0, "after_purchase_costs_cents" => 0,
         "recurring_monthly_costs_cents" => 0, "included_costs_cents" => 0,
         "combined_included_outlay_cents" => payable_price, "rule_versions" => {},
-        "warnings" => [ "Проверените правила не важат за избраната дата. Въведи сумите ръчно по актуални оферти." ],
+        "warnings" => [ copy("Проверените правила не важат за избраната дата. Въведи сумите ръчно по актуални оферти.", "The verified rules do not apply on the selected date. Enter the amounts manually using current quotes.") ],
         "assumptions" => []
       }
     end
@@ -95,15 +95,15 @@ module Calculators
     def property_vat_line(vat_rule)
       case inputs["price_vat_treatment"]
       when "final"
-        line("property_vat", "ДДС върху цената на имота", "price_component", 0, "not_applicable", "user_confirmed_final_price")
+        line("property_vat", copy("ДДС върху цената на имота", "VAT on the property price"), "price_component", 0, "not_applicable", "user_confirmed_final_price")
       when "net"
         unless inputs["property_vat_confirmed"] && inputs["property_vat_rate"].present?
-          return unresolved_line("property_vat", "ДДС върху цената на имота", "price_component", "Потвърди приложимата ставка за нетната оферта.")
+          return unresolved_line("property_vat", copy("ДДС върху цената на имота", "VAT on the property price"), "price_component", copy("Потвърди приложимата ставка за нетната оферта.", "Confirm the VAT rate that applies to the net offer."))
         end
         amount = percent(property_price_cents + additional_components_total, inputs["property_vat_rate"])
-        line("property_vat", "ДДС върху цената на имота", "price_component", amount, "calculated", "user_confirmed_rate", vat_rule)
+        line("property_vat", copy("ДДС върху цената на имота", "VAT on the property price"), "price_component", amount, "calculated", "user_confirmed_rate", vat_rule)
       else
-        unresolved_line("property_vat", "ДДС върху цената на имота", "price_component", "Не е изяснено дали офертата е крайна или без ДДС.")
+        unresolved_line("property_vat", copy("ДДС върху цената на имота", "VAT on the property price"), "price_component", copy("Не е изяснено дали офертата е крайна или без ДДС.", "It is unclear whether the offer is a final price or excludes VAT."))
       end
     end
 
@@ -114,35 +114,35 @@ module Calculators
     def automatic_lines(rules, tax_base)
       local_tax = if municipality == "sofia"
         rule = rules.fetch("bg.sofia.acquisition_tax")
-        line("municipal_acquisition_tax", "Местен данък при придобиване", "acquisition",
+        line("municipal_acquisition_tax", copy("Местен данък при придобиване", "Local property transfer tax"), "acquisition",
           buyer_share(percent(tax_base, rule.dig("parameters", "rate_percent"))), "calculated", "verified_statutory_rule", rule,
-          explanation: "3% върху по-високата стойност между уговорената цена и данъчната оценка.")
+          explanation: copy("3% върху по-високата стойност между уговорената цена и данъчната оценка.", "3% of the higher of the agreed price and the tax valuation."))
       elsif inputs["manual_local_tax_rate"].present?
-        line("municipal_acquisition_tax", "Местен данък при придобиване", "acquisition",
+        line("municipal_acquisition_tax", copy("Местен данък при придобиване", "Local property transfer tax"), "acquisition",
           buyer_share(percent(tax_base, inputs["manual_local_tax_rate"])), "calculated", "user_entered_percentage", nil,
-          explanation: "Ръчно въведена непроверена ставка за избраната община.")
+          explanation: copy("Ръчно въведена непроверена ставка за избраната община.", "An unverified rate entered manually for the selected municipality."))
       else
-        unresolved_line("municipal_acquisition_tax", "Местен данък при придобиване", "acquisition",
-          "Ставката извън София не е проверена. Въведи я ръчно.")
+        unresolved_line("municipal_acquisition_tax", copy("Местен данък при придобиване", "Local property transfer tax"), "acquisition",
+          copy("Ставката извън София не е проверена. Въведи я ръчно.", "The rate outside Sofia has not been verified. Enter it manually."))
       end
 
       registration_rule = rules.fetch("bg.registry.sale_registration")
       conversion_rule = rules.fetch("bg.euro_conversion")
       minimum_cents = eur_from_bgn(registration_rule.dig("parameters", "minimum_bgn"), conversion_rule)
-      registration = line("sale_registration_fee", "Такса за вписване на продажбата", "acquisition",
+      registration = line("sale_registration_fee", copy("Такса за вписване на продажбата", "Sale registration fee"), "acquisition",
         buyer_share([ percent(tax_base, registration_rule.dig("parameters", "rate_percent")), minimum_cents ].max),
         "calculated", "verified_statutory_rule", registration_rule,
-        explanation: "0,1% върху материалния интерес, но не по-малко от законовия минимум.")
+        explanation: copy("0,1% върху материалния интерес, но не по-малко от законовия минимум.", "0.1% of the material interest, subject to the statutory minimum."))
 
       notary_rule = rules.fetch("bg.notary.material_interest")
       notary_amount = ProgressiveNotarialFee.new(rule: notary_rule, conversion_rule:).call(tax_base)
-      notary = line("main_notarial_fee", "Основна нотариална такса", "acquisition", buyer_share(notary_amount),
+      notary = line("main_notarial_fee", copy("Основна нотариална такса", "Basic notary fee"), "acquisition", buyer_share(notary_amount),
         "calculated", "verified_statutory_rule", notary_rule,
-        explanation: "Прогресивна тарифа върху материалния интерес; левовите прагове се прилагат преди еднократно превалутиране.")
+        explanation: copy("Прогресивна тарифа върху материалния интерес; левовите прагове се прилагат преди еднократно превалутиране.", "A progressive tariff based on the material interest; BGN thresholds are applied before a single conversion to euros."))
       vat_rule = rules.fetch("bg.vat.standard")
-      notary_vat = line("main_notarial_fee_vat", "ДДС върху нотариалната услуга", "acquisition",
+      notary_vat = line("main_notarial_fee_vat", copy("ДДС върху нотариалната услуга", "VAT on the notary service"), "acquisition",
         buyer_share(percent(notary_amount, vat_rule.dig("parameters", "rate_percent"))), "calculated", "verified_statutory_rule", vat_rule,
-        explanation: "20% върху изчислената основна нотариална такса.")
+        explanation: copy("20% върху изчислената основна нотариална такса.", "20% of the calculated basic notary fee."))
       [ local_tax, registration, notary, notary_vat ]
     end
 
@@ -154,7 +154,7 @@ module Calculators
         end
         missing_value = cost["method"] == "percentage" ? cost["rate_percent"].blank? : cost["amount_cents"].nil?
         if cost["method"] == "unknown" || missing_value
-          next [ unresolved_line(cost["key"], cost["label"], cost["category"], "Избраното перо няма въведена стойност.", cost:) ]
+          next [ unresolved_line(cost["key"], cost["label"], cost["category"], copy("Избраното перо няма въведена стойност.", "No value has been entered for this cost."), cost:) ]
         end
 
         base = case cost["base"]
@@ -164,16 +164,16 @@ module Calculators
         end
         raw_amount = cost["method"] == "percentage" ? percent(base, cost["rate_percent"]) : cost["amount_cents"].to_i
         amount = percent(raw_amount, cost["buyer_share_percent"] || "100")
-        explanation = cost["vat_treatment"] == "uncertain" ? "Въведената сума е включена, но не е ясно дали към нея трябва да се добави ДДС." : "Въведена от теб оферта или приблизителна оценка."
+        explanation = cost["vat_treatment"] == "uncertain" ? copy("Въведената сума е включена, но не е ясно дали към нея трябва да се добави ДДС.", "The entered amount is included, but it is unclear whether VAT should be added.") : copy("Въведена от теб оферта или приблизителна оценка.", "A quote or estimate entered by you.")
         provenance = cost["method"] == "percentage" ? "user_entered_percentage" : (cost["method"] == "estimate" ? "explicit_estimate" : "user_entered")
         base_line = line(cost["key"], cost["label"], cost["category"], amount, "calculated", provenance, nil,
           explanation:, cost:)
         vat_line = if cost["vat_treatment"] == "exclusive"
-          line("#{cost['key']}_vat", "ДДС — #{cost['label']}", cost["category"],
+          line("#{cost['key']}_vat", "#{copy('ДДС', 'VAT')} - #{cost['label']}", cost["category"],
             percent(amount, vat_rule.dig("parameters", "rate_percent")), "calculated", "user_confirmed_exclusive_vat", vat_rule,
-            explanation: "20% ДДС върху въведената нетна оферта.", cost: cost.merge("already_paid_cents" => 0))
+            explanation: copy("20% ДДС върху въведената нетна оферта.", "20% VAT on the entered net quote."), cost: cost.merge("already_paid_cents" => 0))
         elsif cost["vat_treatment"] == "uncertain"
-          unresolved_line("#{cost['key']}_vat", "ДДС — #{cost['label']}", cost["category"], explanation, cost:)
+          unresolved_line("#{cost['key']}_vat", "#{copy('ДДС', 'VAT')} - #{cost['label']}", cost["category"], explanation, cost:)
         end
         [ base_line, vat_line ].compact
       end
@@ -190,8 +190,8 @@ module Calculators
       return unless reservation["treatment"] == "separate_fee" && reservation["amount_cents"].present?
 
       amount = reservation["amount_cents"].to_i
-      line("reservation_separate_fee", "Резервационно плащане като отделна такса", "acquisition", amount,
-        "calculated", "user_reported", nil, explanation: "Третирано е като отделен разход, а не като приспадане от цената.",
+      line("reservation_separate_fee", copy("Резервационно плащане като отделна такса", "Reservation payment treated as a separate fee"), "acquisition", amount,
+        "calculated", "user_reported", nil, explanation: copy("Третирано е като отделен разход, а не като приспадане от цената.", "Treated as a separate cost rather than a deduction from the price."),
         cost: { "already_paid_cents" => amount, "payment_event_key" => "historical", "buyer_share_percent" => "100" })
     end
 
@@ -226,21 +226,21 @@ module Calculators
 
     def warnings(unresolved)
       result = []
-      result << "Има непопълнени разходи. Сумата не е окончателна." if unresolved.any?
-      result << "Не си въвел данъчна оценка. Затова данъкът и таксите са ориентировъчно изчислени върху цената и общата сума не е окончателна." if inputs["tax_assessment_cents"].nil?
+      result << copy("Има непопълнени разходи. Сумата не е окончателна.", "Some costs are incomplete, so the total is not final.") if unresolved.any?
+      result << copy("Не си въвел данъчна оценка. Затова данъкът и таксите са ориентировъчно изчислени върху цената и общата сума не е окончателна.", "No tax valuation has been entered. The tax and fees are therefore estimated using the price, and the total is not final.") if inputs["tax_assessment_cents"].nil?
       if inputs["transaction_cost_share_percent"] != "100.0" && inputs["transaction_cost_share_percent"] != "100"
-        result << "За автоматичните разходи е приложен въведеният от теб дял от #{inputs['transaction_cost_share_percent']}%. Той служи само за тази сметка и не определя кой по закон дължи разхода."
+        result << copy("За автоматичните разходи е приложен въведеният от теб дял от #{inputs['transaction_cost_share_percent']}%. Той служи само за тази сметка и не определя кой по закон дължи разхода.", "Your entered share of #{inputs['transaction_cost_share_percent']}% has been applied to the automatic costs. It is used only for this calculation and does not determine who is legally liable for the cost.")
       end
-      result << "За бъдеща дата се приема, че правилата няма да се променят." if date > Date.current
-      result << "Сметката приема една стандартна жилищна продажба. При смесено данъчно третиране или няколко нотариални акта въведи актуални оферти ръчно."
+      result << copy("За бъдеща дата се приема, че правилата няма да се променят.", "For a future date, the calculation assumes that the rules will not change.") if date > Date.current
+      result << copy("Сметката приема една стандартна жилищна продажба. При смесено данъчно третиране или няколко нотариални акта въведи актуални оферти ръчно.", "The calculation assumes a standard residential sale. For mixed tax treatment or multiple notarial deeds, enter current quotes manually.")
       result
     end
 
     def assumptions(tax_base:)
       assessment = inputs["tax_assessment_cents"]
       [
-        assessment ? "Материалният интерес е по-високата стойност между цената и въведената данъчна оценка." : "Няма въведена данъчна оценка, затова за ориентир е използвана цената.",
-        "Посоченият дял от разходите служи само за тази сметка и не определя кой по закон ги дължи."
+        assessment ? copy("Материалният интерес е по-високата стойност между цената и въведената данъчна оценка.", "The material interest is the higher of the price and the entered tax valuation.") : copy("Няма въведена данъчна оценка, затова за ориентир е използвана цената.", "No tax valuation has been entered, so the price is used as an estimate."),
+        copy("Посоченият дял от разходите служи само за тази сметка и не определя кой по закон ги дължи.", "The stated share of costs is used only for this calculation and does not determine who is legally liable for them.")
       ]
     end
 
@@ -256,5 +256,7 @@ module Calculators
       rate = BigDecimal(conversion_rule.dig("parameters", "bgn_per_eur"))
       (BigDecimal(amount_bgn.to_s) / rate * 100).round(0, BigDecimal::ROUND_HALF_UP).to_i
     end
+
+    def copy(bg, en) = LocalizedCopy.call(bg, en)
   end
 end

@@ -12,9 +12,9 @@ module Calculators
     end
 
     def call
-      return incomplete("Въведи размер на кредита.") if principal_cents.nil?
-      return incomplete("Въведи срок на кредита.") if term_months.nil? || term_months <= 0
-      return incomplete("Въведи годишна номинална лихва.") if annual_interest_rate.nil?
+      return incomplete(copy("Въведи размер на кредита.", "Enter the loan amount.")) if principal_cents.nil?
+      return incomplete(copy("Въведи срок на кредита.", "Enter the loan term.")) if term_months.nil? || term_months <= 0
+      return incomplete(copy("Въведи годишна номинална лихва.", "Enter the annual nominal interest rate.")) if annual_interest_rate.nil?
 
       regular_payment = rounded_payment_cents
       balance = principal_cents
@@ -45,9 +45,9 @@ module Calculators
         "total_regular_monthly_outflow_cents" => regular_payment + monthly_charges_cents,
         "schedule" => rows,
         "assumptions" => [
-          "Кредитът е усвоен изцяло, с равни месечни периоди и постоянна номинална лихва.",
-          "Вноската се закръгля до евроцент; последната се коригира, така че остатъкът по главницата да стане нула.",
-          "Сметката не включва гратисен период, балонна вноска, предсрочно погасяване или специфичен начин за начисляване на дневна лихва."
+          copy("Кредитът е усвоен изцяло, с равни месечни периоди и постоянна номинална лихва.", "The loan is fully disbursed, with equal monthly periods and a constant nominal interest rate."),
+          copy("Вноската се закръгля до евроцент; последната се коригира, така че остатъкът по главницата да стане нула.", "Payments are rounded to the nearest euro cent; the final payment is adjusted so the principal balance reaches zero."),
+          copy("Сметката не включва гратисен период, балонна вноска, предсрочно погасяване или специфичен начин за начисляване на дневна лихва.", "The calculation does not include a grace period, balloon payment, early repayment or a bank-specific daily interest method.")
         ]
       }
     end
@@ -55,6 +55,8 @@ module Calculators
     private
 
     attr_reader :principal_cents, :annual_interest_rate, :term_months, :monthly_charges_cents
+
+    def copy(bg, en) = LocalizedCopy.call(bg, en)
 
     def decimal(value)
       return if value.nil? || value.to_s.empty?

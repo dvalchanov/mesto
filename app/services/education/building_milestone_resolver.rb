@@ -24,9 +24,9 @@ module Education
       best = supported.max_by { |act| [ ORDER.fetch(MILESTONES.fetch(act.registry_kind), -1), act.issued_on || Date.new(1900) ] }
       milestone = best && MILESTONES[best.registry_kind]
       limitations = []
-      limitations << "Няма намерен съвпадащ документ в проверените източници; това не доказва, че такъв не съществува." unless best
-      limitations << "Има запис за парцела или друг обхват, който не е приложен към избраната сграда." if mismatched.any?
-      limitations << "Има отменен, оспорен или неясен запис, който не е използван като доказателство." if disputed.any?
+      limitations << copy("Няма намерен съвпадащ документ в проверените източници; това не доказва, че такъв не съществува.", "No matching document was found in the sources checked; this does not prove that no such document exists.") unless best
+      limitations << copy("Има запис за парцела или друг обхват, който не е приложен към избраната сграда.", "A record was found for the parcel or another scope, but it was not applied to the selected building.") if mismatched.any?
+      limitations << copy("Има отменен, оспорен или неясен запис, който не е използван като доказателство.", "A revoked, disputed or unclear record was found and was not used as evidence.") if disputed.any?
 
       Assessment.new(
         milestone:,
@@ -103,5 +103,7 @@ module Education
       end
       flags
     end
+
+    def copy(bg, en) = LocalizedCopy.call(bg, en)
   end
 end

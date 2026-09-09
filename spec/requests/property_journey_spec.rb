@@ -5,9 +5,14 @@ RSpec.describe "Property report journey", type: :request do
     get root_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("<title>Mesto —")
+    expect(response.body).to include("<title>Проверка на имот преди покупка | Mesto</title>")
+    expect(response.body).to include('name="description" content="Провери публичните данни за имота, строителството и района. Виж какво още да изискаш и провериш преди покупка."')
     expect(response.body).to include('property="og:site_name" content="Mesto"')
     expect(response.body).to include('/favicon.ico', '/apple-touch-icon.png', pwa_manifest_path)
+
+    header = Nokogiri::HTML5(response.body).at_css(".site-header")
+    expect(header.css(".site-nav a").map { |link| link.text.strip }).not_to include(I18n.t("navigation.check_property"))
+    expect(header.at_css(".site-actions__cta").text).to include(I18n.t("navigation.check_property"))
   end
 
   it "serves installable Mesto icons through the web app manifest" do

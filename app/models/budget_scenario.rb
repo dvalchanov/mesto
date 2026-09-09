@@ -18,7 +18,8 @@ class BudgetScenario < ApplicationRecord
   def to_param = public_token
 
   def duplicate!
-    self.class.create!(attributes.except("id", "public_token", "created_at", "updated_at").merge(title: "#{title} — копие".first(80)))
+    copy_suffix = LocalizedCopy.call("копие", "copy")
+    self.class.create!(attributes.except("id", "public_token", "created_at", "updated_at").merge(title: "#{title} - #{copy_suffix}".first(80)))
   end
 
   def stale_rules?
@@ -38,6 +39,6 @@ class BudgetScenario < ApplicationRecord
     return unless buyer_journey && property_analysis && buyer_journey.property_analysis_id.present?
     return if buyer_journey.property_analysis_id == property_analysis_id
 
-    errors.add(:property_analysis, "не съответства на избрания личен план")
+    errors.add(:property_analysis, LocalizedCopy.call("не съответства на избрания личен план", "does not match the selected personal plan"))
   end
 end

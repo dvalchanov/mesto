@@ -1,30 +1,30 @@
-<% content_for :title, "Пътят на купувача — според твоя етап | #{product_name}" %>
-<% content_for :description, "Практични насоки от ранното проучване до предаването, без да се предполага задължителна последователност или конкретен имот." %>
+<% content_for :title, localized_copy("Пътят на купувача - според твоя етап | #{product_name}", "The buyer's journey - guidance for your stage | #{product_name}") %>
+<% content_for :description, localized_copy("Практични насоки от ранното проучване до предаването, без да се предполага задължителна последователност или конкретен имот.", "Practical guidance from early research through handover, without assuming a fixed sequence or a particular property.") %>
 
 <div class="site-shell education-page">
-  <%= render "breadcrumbs", items: [["Пътят на купувача", nil]] %>
+  <%= render "breadcrumbs", items: [[localized_copy("Пътят на купувача", "The buyer's journey"), nil]] %>
   <header class="editorial-hero">
-    <p class="eyebrow"><span></span>Твоята покупка</p>
-    <h1>Започни от решението, което ти предстои</h1>
-    <p>Етапите по-долу са ориентир, а не задължителна последователност. Можеш да се върнеш назад, да прескочиш стъпка или да сравниш няколко теми. Съобразявай всяко решение с конкретния имот и своя договор.</p>
-    <%= link_to @journey ? "Отвори моя план" : "Създай личен план", my_mesto_path, class: "button button--primary" %>
+    <p class="eyebrow"><span></span><%= localized_copy("Твоята покупка", "Your purchase") %></p>
+    <h1><%= localized_copy("Започни от решението, което ти предстои", "Start with the decision ahead of you") %></h1>
+    <p><%= localized_copy("Етапите по-долу са ориентир, а не задължителна последователност. Можеш да се върнеш назад, да прескочиш стъпка или да сравниш няколко теми. Съобразявай всяко решение с конкретния имот и своя договор.", "The stages below are a guide, not a mandatory sequence. Go back, skip a step or compare several topics. Base every decision on the particular property and your own contract.") %></p>
+    <%= link_to @journey ? localized_copy("Отвори моя план", "Open my plan") : localized_copy("Създай личен план", "Create a personal plan"), my_mesto_path, class: "button button--primary" %>
   </header>
 
   <section id="buyer-guide-start" class="buyer-guide-start">
     <div class="section-heading section-heading--split">
-      <div><p class="eyebrow"><span></span>Избери откъде да започнеш</p><h2>На кой етап си?</h2></div>
-      <p>Избери ситуацията, която е най-близка до твоята. Можеш да разглеждаш всички етапи, без това да променя личния ти план.</p>
+      <div><p class="eyebrow"><span></span><%= localized_copy("Избери откъде да започнеш", "Choose where to start") %></p><h2><%= localized_copy("На кой етап си?", "What stage are you at?") %></h2></div>
+      <p><%= localized_copy("Избери ситуацията, която е най-близка до твоята. Можеш да разглеждаш всички етапи, без това да променя личния ти план.", "Choose the situation closest to yours. You can browse every stage without changing your personal plan.") %></p>
     </div>
-    <nav class="buyer-timeline" aria-label="Етапи от покупката">
+    <nav class="buyer-timeline" aria-label="<%= localized_copy("Етапи от покупката", "Purchase stages") %>">
     <% BuyerJourney::GUIDED_BUYER_STAGES.each_with_index do |stage, index| %>
       <a href="#<%= stage %>" class="<%= 'is-selected' if @journey&.buyer_stage == stage %>"><span><%= format("%02d", index + 1) %></span><%= buyer_stage_label(stage) %></a>
     <% end %>
     </nav>
-    <p class="buyer-guide-start__note">Не си сигурен откъде да започнеш? Виж <%= link_to "проучване и сравняване", buying_guide_path(anchor: "researching") %> или <%= link_to "създай личен план с три кратки въпроса", my_mesto_path %>.</p>
+    <p class="buyer-guide-start__note"><%= localized_copy("Не си сигурен откъде да започнеш? Виж", "Not sure where to start? Read about") %> <%= link_to localized_copy("проучване и сравняване", "research and comparison"), buying_guide_path(anchor: "researching") %> <%= localized_copy("или", "or") %> <%= link_to localized_copy("създай личен план с три кратки въпроса", "create a personal plan with three quick questions"), my_mesto_path %>.</p>
   </section>
 
   <section id="property-routes" class="property-routes">
-    <div><p class="eyebrow"><span></span>Според вида на имота</p><h2>Видът на имота променя проверките</h2><p>Къщата, парцелът и жилището в ново строителство поставят различни въпроси. Използвай тези насоки заедно с етапа, на който се намираш като купувач.</p></div>
+    <div><p class="eyebrow"><span></span><%= localized_copy("Според вида на имота", "By property type") %></p><h2><%= localized_copy("Видът на имота променя проверките", "The property type changes the checks") %></h2><p><%= localized_copy("Къщата, парцелът и жилището в ново строителство поставят различни въпроси. Използвай тези насоки заедно с етапа, на който се намираш като купувач.", "A house, a plot of land and a home in a new development raise different questions. Use this guidance alongside your current stage as a buyer.") %></p></div>
     <div class="property-route-grid">
       <% @property_guides.each do |guide| %>
         <%= link_to buying_guide_path(anchor: guide["slug"]) do %><span><%= Array(guide["property_types"]).map { |type| property_type_label(type) }.join(" · ") %></span><strong><%= guide["title"] %></strong><small><%= guide["summary"] %></small><% end %>
@@ -39,8 +39,8 @@
   </div>
 
   <section class="property-guide-heading">
-    <div><p class="eyebrow"><span></span>Проверки според имота</p><h2>Какво е различно при къща, парцел или ново строителство?</h2></div>
-    <p>После се върни към етапа, на който се намираш — например преди капаро или преди нотариалната сделка.</p>
+    <div><p class="eyebrow"><span></span><%= localized_copy("Проверки според имота", "Checks by property type") %></p><h2><%= localized_copy("Какво е различно при къща, парцел или ново строителство?", "What is different for a house, land or new construction?") %></h2></div>
+    <p><%= localized_copy("После се върни към етапа, на който се намираш - например преди капаро или преди нотариалната сделка.", "Then return to your current stage, such as before paying a deposit or before the notarial transfer.") %></p>
   </section>
 
   <div class="buyer-guides buyer-guides--property">
@@ -50,26 +50,20 @@
   </div>
 
   <section class="roles-section">
-    <div><p class="eyebrow"><span></span>Кой какво прави?</p><h2>Всеки участник има различна роля</h2><p>Един специалист рядко може сам да провери всички правни, технически, административни и финансови въпроси.</p></div>
+    <div><p class="eyebrow"><span></span><%= localized_copy("Кой какво прави?", "Who does what?") %></p><h2><%= localized_copy("Всеки участник има различна роля", "Each participant has a different role") %></h2><p><%= localized_copy("Един специалист рядко може сам да провери всички правни, технически, административни и финансови въпроси.", "One specialist can rarely cover every legal, technical, administrative and financial question alone.") %></p></div>
     <dl>
-      <div><dt>Инвеститор / възложител</dt><dd>Организира инвестиционния процес и носи законови и договорни отговорности според ролята си; не е непременно строителят.</dd></div>
-      <div><dt>Строител</dt><dd>Изпълнява строежа по договора и строителните книжа; не одобрява проекта и не издава окончателния административен акт.</dd></div>
-      <div><dt>Проектант</dt><dd>Разработва проектните части в своята компетентност и участва в определени строителни актове.</dd></div>
-      <div><dt>Строителен надзор</dt><dd>Контролира изпълнението и участва в съставянето на определени строителни документи според категорията на строежа. Не защитава личния интерес на купувача като негов адвокат.</dd></div>
-      <div><dt>Община</dt><dd>Одобрява устройствени планове и инвестиционни проекти и издава актове в рамките на своите правомощия.</dd></div>
-      <div><dt>ДНСК</dt><dd>Упражнява строителен контрол и при определени категории строежи издава разрешение за ползване.</dd></div>
-      <div><dt>Продавач</dt><dd>Е страната, с която сключваш сделката. Трябва да има право да продаде обещаното и може да е различен от инвеститора.</dd></div>
-      <div><dt>Брокер</dt><dd>Посредничи между страните и организира информацията и огледите според възложената му работа. Не замества независимата правна или техническа проверка.</dd></div>
-      <div><dt>Адвокат</dt><dd>Проверява правата и договорите с оглед на твоя интерес. Потърси независим съветник, преди да поемеш необратим ангажимент.</dd></div>
-      <div><dt>Нотариус</dt><dd>Извършва нотариалното производство и законовите проверки; не проектира строежа и не прави технически оглед.</dd></div>
-      <div><dt>Кредитор и оценител</dt><dd>Кредиторът решава дали и при какви условия да финансира покупката, а оценителят определя стойност за конкретна цел. Одобрението на кредит или оценка не гарантира, че имотът е правно и технически изряден.</dd></div>
+      <% roles = localized_copy(
+        [["Инвеститор / възложител", "Организира инвестиционния процес и носи законови и договорни отговорности според ролята си; не е непременно строителят."], ["Строител", "Изпълнява строежа по договора и строителните книжа; не одобрява проекта и не издава окончателния административен акт."], ["Проектант", "Разработва проектните части в своята компетентност и участва в определени строителни актове."], ["Строителен надзор", "Контролира изпълнението и участва в съставянето на определени строителни документи според категорията на строежа. Не защитава личния интерес на купувача като негов адвокат."], ["Община", "Одобрява устройствени планове и инвестиционни проекти и издава актове в рамките на своите правомощия."], ["ДНСК", "Упражнява строителен контрол и при определени категории строежи издава разрешение за ползване."], ["Продавач", "Е страната, с която сключваш сделката. Трябва да има право да продаде обещаното и може да е различен от инвеститора."], ["Брокер", "Посредничи между страните и организира информацията и огледите според възложената му работа. Не замества независимата правна или техническа проверка."], ["Адвокат", "Проверява правата и договорите с оглед на твоя интерес. Потърси независим съветник, преди да поемеш необратим ангажимент."], ["Нотариус", "Извършва нотариалното производство и законовите проверки; не проектира строежа и не прави технически оглед."], ["Кредитор и оценител", "Кредиторът решава дали и при какви условия да финансира покупката, а оценителят определя стойност за конкретна цел. Одобрението на кредит или оценка не гарантира, че имотът е правно и технически изряден."]],
+        [["Developer / contracting authority", "Organises the development process and has statutory and contractual responsibilities for that role; this is not necessarily the builder."], ["Builder", "Carries out the works under the contract and construction documents; does not approve the design or issue the final administrative act."], ["Designer", "Prepares the design sections within their expertise and participates in specified construction records."], ["Construction supervisor", "Monitors the work and participates in preparing specified construction records according to the project's category. This role does not protect the buyer's personal interests as their lawyer would."], ["Municipality", "Approves development plans and investment designs and issues acts within its statutory powers."], ["DNCC", "Exercises construction control and issues occupancy permits for certain categories of construction."], ["Seller", "The party with whom you enter into the transaction. The seller must have authority to sell what was promised and may be different from the developer."], ["Broker", "Acts as an intermediary and organises information and viewings within the agreed scope of work. A broker does not replace independent legal or technical due diligence."], ["Lawyer", "Checks rights and contracts with your interests in mind. Seek independent advice before making an irreversible commitment."], ["Notary", "Conducts the notarial proceedings and statutory checks; does not design the building or carry out a technical inspection."], ["Lender and valuer", "The lender decides whether and on what terms to finance the purchase; the valuer determines a value for a specific purpose. A loan approval or valuation does not guarantee that the property is legally and technically sound."]]
+      ) %>
+      <% roles.each do |name, description| %><div><dt><%= name %></dt><dd><%= description %></dd></div><% end %>
     </dl>
   </section>
 
-  <section class="finance-intro"><div><p class="eyebrow"><span></span>Бюджет и финансиране</p><h2>Планирай целия разход, не само обявената цена</h2></div><div><p>Предвиди данъци и такси, професионални проверки, ремонт или довършителни работи, паркиране, поддръжка и разумен резерв. Ако ползваш ипотека, потвърди с банката условията, оценката, сроковете и нужното самоучастие. Mesto не показва текущи лихви и не може да предвиди дали ще получиш одобрение.</p><%= link_to "Отвори калкулатора за покупка", purchase_calculator_path, class: "button button--secondary" %></div></section>
+  <section class="finance-intro"><div><p class="eyebrow"><span></span><%= localized_copy("Бюджет и финансиране", "Budget and finance") %></p><h2><%= localized_copy("Планирай целия разход, не само обявената цена", "Plan for the full cost, not just the asking price") %></h2></div><div><p><%= localized_copy("Предвиди данъци и такси, професионални проверки, ремонт или довършителни работи, паркиране, поддръжка и разумен резерв. Ако ползваш ипотека, потвърди с банката условията, оценката, сроковете и нужното самоучастие. Mesto не показва текущи лихви и не може да предвиди дали ще получиш одобрение.", "Allow for taxes and fees, professional checks, renovation or finishing work, parking, maintenance and a sensible reserve. If you plan to use a mortgage, confirm the terms, valuation, timing and required contribution with the bank. Mesto does not show current interest rates and cannot predict whether your application will be approved.") %></p><%= link_to localized_copy("Отвори калкулатора за покупка", "Open the purchase calculator"), purchase_calculator_path, class: "button button--secondary" %></div></section>
 
   <section class="guide-explore-again">
-    <div><p class="eyebrow eyebrow--light"><span></span>Продължи нататък</p><h2>Върни се към своя етап или потърси конкретна тема</h2><p>Разгледай строителните етапи, потърси документ или провери значението на термин. Винаги можеш да се върнеш към този преглед.</p></div>
-    <nav><%= link_to "Начало на наръчника", guide_path %><%= link_to "Строителни етапи", new_build_guide_path %><%= link_to "Всички документи", education_documents_path %><%= link_to "Всички термини", terms_path %></nav>
+    <div><p class="eyebrow eyebrow--light"><span></span><%= localized_copy("Продължи нататък", "Continue") %></p><h2><%= localized_copy("Върни се към своя етап или потърси конкретна тема", "Return to your stage or find a specific topic") %></h2><p><%= localized_copy("Разгледай строителните етапи, потърси документ или провери значението на термин. Винаги можеш да се върнеш към този преглед.", "Browse the construction stages, find a document or look up an unfamiliar term. You can always return to this overview.") %></p></div>
+    <nav><%= link_to localized_copy("Начало на наръчника", "Guide home"), guide_path %><%= link_to localized_copy("Строителни етапи", "Construction stages"), new_build_guide_path %><%= link_to localized_copy("Всички документи", "All documents"), education_documents_path %><%= link_to localized_copy("Всички термини", "All terms"), terms_path %></nav>
   </section>
 </div>

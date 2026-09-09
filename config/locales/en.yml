@@ -17,6 +17,11 @@ en:
     language_bg: "BG"
     language_en: "EN"
     new_search: "New search"
+    calculator: "Calculator"
+    purchase_calculator: "Purchase calculator"
+    mortgage_calculator: "Mortgage calculator"
+    my_mesto: "My Mesto"
+    menu: "Menu"
   layout:
     product_tagline: "Public property data"
     meta_description: "Mesto brings public property, planning and neighbourhood data into one clear analysis."
@@ -34,6 +39,8 @@ en:
     source_link: "Open source"
     back: "Back"
   home:
+    meta_title: "Property Check Before Buying | %{product_name}"
+    meta_description: "Check public data about the property, construction and neighbourhood. See what else to request and verify before buying."
     eyebrow: "Check before buying"
     headline: "Know the place before you call it home."
     headline_html: "Know the place<br> before you call it <em>home.</em>"
@@ -60,7 +67,7 @@ en:
     feature_provenance: "Visible provenance"
     feature_provenance_text: "Every statement is labelled as source fact, calculation or unverified information."
     feature_limits: "Honest limits"
-    feature_limits_text: "No match is never presented as proof that a document does not exist."
+    feature_limits_text: "No match is ever presented as proof that a document does not exist."
     discover:
       eyebrow: "The full picture"
       title: "More than an address and floor area"
@@ -216,8 +223,8 @@ en:
         other: "%{count} location-based checks were skipped because a reliable property location was unavailable. They did not fail independently."
       no_charge: "Checkout is disabled. You cannot be charged for this incomplete result."
       retry_note: "Use “Check again” on this report at least 15 minutes after the previous check. You do not need to delete it or create another report; the same link will update."
-    partial_notice: "Some checks did not complete. Missing results are marked as unavailable-not as zero-and checkout is disabled for incomplete reports."
-    partial_notice_unlocked: "Some checks did not complete. Missing results are marked as unavailable-not as zero-and the report explains which conclusions could not be calculated."
+    partial_notice: "Some checks did not complete. Missing results are marked as unavailable, not as zero, and checkout is disabled for incomplete reports."
+    partial_notice_unlocked: "Some checks did not complete. Missing results are marked as unavailable, not as zero, and the report explains which conclusions could not be calculated."
     hierarchy:
       title: "Identifier hierarchy"
       submitted: "Submitted identifier"
@@ -241,7 +248,7 @@ en:
       method_note: "‘No match found’ only means that the checked public records returned no result for the identifier used. It does not prove that a document does not exist. Spatial datasets are marked as used only when the property has a reliable location."
       issues:
         needs_location: "This source could not be applied because the property location was not resolved reliably. No count or distance was calculated."
-        cadastre_archive_unavailable: "AGKK's official open-data archive for this Sofia district is not currently published. Without it we cannot confirm the cadastral location, so location-based checks were skipped. Try this report again after AGKK republishes the district archive."
+        cadastre_archive_unavailable: "AGCC's official open-data archive for this Sofia district is not currently published. Without it we cannot confirm the cadastral location, so location-based checks were skipped. Try this report again after AGCC republishes the district archive."
         spatial_dataset: "The dataset could not be loaded for this analysis. No count or distance was calculated; the missing result is not a zero."
         dataset_not_prepared: "This shared dataset has not been prepared for the configured coverage profile. The report did not contact the source or start an import."
         outside_dataset: "The property is outside the configured search boundary. This does not mean that the cadastral object does not exist."
@@ -265,7 +272,7 @@ en:
         nag_design_visas: "NAG - design visas"
         nag_urban_planning_orders: "NAG - planning orders"
         nag_occupancy_certificates: "NAG - occupancy certificates"
-        cadastre: "AGKK - cadastral hierarchy and geometry"
+        cadastre: "AGCC - cadastral hierarchy and geometry"
         arcgis_development_potential: "SofiaPlan - development potential"
         arcgis_functional_zoning: "SofiaPlan - predominant functional zoning"
         sofiaplan_dataset_schools: "SofiaPlan - schools"
@@ -282,7 +289,7 @@ en:
       type: "Property type"
       area_labels: { parcel: "Parcel area", building: "Building area", individual_object: "Individual object area" }
       area_sources:
-        cadastre: "Official AGKK open data"
+        cadastre: "Official AGCC open data"
         geometry_calculation: "Calculated by %{product_name} from cadastral geometry"
       cadastre_data_date: "Data current to %{date}"
       missing: "Not found in the sources checked"
@@ -319,7 +326,7 @@ en:
         "68134": "Sofia"
     cadastre_hierarchy:
       eyebrow: "Official cadastral hierarchy"
-      title: "All available AGKK facts"
+      title: "All available AGCC facts"
       description: "The selected object, its building and its parcel are shown separately so you can compare the complete property identity and context-not just its area-against the cadastral scheme, title deed and listing."
       record_titles: { individual_object: "Individual object", building: "Building", parcel: "Land parcel" }
       fields:
@@ -361,12 +368,12 @@ en:
       metres: "%{value} m"
       with_code: "%{value} (code %{code})"
       geometry_available: "Official outline available; used for the map and location"
-      open_source: "Open the AGKK archive"
+      open_source: "Open the AGCC archive"
       ownership_note_title: "Important about the “ownership” field:"
       ownership_note: "The displayed category is an attribute from the cadastral archive. It does not identify the current owner or verify title, seller, encumbrances or title validity. Those require current official searches and professional review."
       cross_checks_eyebrow: "Consistency checks"
       cross_checks_title: "How the records connect"
-      cross_checks_note: "%{product_name} calculates these indicators from the exact AGKK records. They are not standalone official certificates."
+      cross_checks_note: "%{product_name} calculates these indicators from the exact AGCC records. They are not standalone official certificates."
       metrics:
         parcel_buildings_count: "Buildings registered on the parcel"
         building_objects: "Object records found in the building"

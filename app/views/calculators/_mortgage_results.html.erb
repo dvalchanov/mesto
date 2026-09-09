@@ -1,22 +1,22 @@
 <%= turbo_frame_tag "mortgage-results", data: { sequence: params.dig(:calculator, :request_sequence).to_i } do %>
   <div class="summary-card">
-    <div class="summary-card__heading"><div><span>Примерна ипотечна сметка</span><h2><%= result["complete"] ? "Месечна вноска" : "Попълни данните" %></h2></div></div>
+    <div class="summary-card__heading"><div><span><%= localized_copy("Примерна ипотечна сметка", "Illustrative mortgage calculation") %></span><h2><%= result["complete"] ? localized_copy("Месечна вноска", "Monthly payment") : localized_copy("Попълни данните", "Enter your details") %></h2></div></div>
     <% if errors.present? %><div class="calculator-warning"><%= errors.values.to_sentence %></div><% end %>
     <% if result["complete"] %>
-      <div class="mortgage-payment"><strong><%= format_eur(result["regular_payment_cents"]) %></strong><span>месечна главница и лихва</span></div>
+      <div class="mortgage-payment"><strong><%= format_eur(result["regular_payment_cents"]) %></strong><span><%= localized_copy("месечна главница и лихва", "monthly principal and interest") %></span></div>
       <dl class="summary-metrics">
-        <div><dt>Главница</dt><dd><%= format_eur(result["principal_cents"]) %></dd></div>
-        <div><dt>Обща лихва</dt><dd><%= format_eur(result["total_interest_cents"]) %></dd></div>
-        <div><dt>Общо за главница и лихва</dt><dd><%= format_eur(result["total_principal_and_interest_cents"]) %></dd></div>
-        <div><dt>Отделни месечни такси</dt><dd><%= format_eur(result["monthly_charges_cents"]) %></dd></div>
-        <div class="summary-metrics__total"><dt>Общо месечно плащане</dt><dd><%= format_eur(result["total_regular_monthly_outflow_cents"]) %></dd></div>
-        <div><dt>Последна коригирана вноска</dt><dd><%= format_eur(result["final_payment_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Главница", "Principal") %></dt><dd><%= format_eur(result["principal_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Обща лихва", "Total interest") %></dt><dd><%= format_eur(result["total_interest_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Общо за главница и лихва", "Total principal and interest") %></dt><dd><%= format_eur(result["total_principal_and_interest_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Отделни месечни такси", "Separate monthly charges") %></dt><dd><%= format_eur(result["monthly_charges_cents"]) %></dd></div>
+        <div class="summary-metrics__total"><dt><%= localized_copy("Общо месечно плащане", "Total monthly payment") %></dt><dd><%= format_eur(result["total_regular_monthly_outflow_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Последна коригирана вноска", "Adjusted final payment") %></dt><dd><%= format_eur(result["final_payment_cents"]) %></dd></div>
       </dl>
-      <section class="summary-calculation"><h3>Как е изчислено?</h3><div class="summary-explanation"><p>Използваме анюитетна схема и разделяме годишната номинална лихва на 12 месечни периода.</p><ul><% result["assumptions"].each do |assumption| %><li><%= assumption %></li><% end %></ul></div></section>
-      <details class="amortization-table-wrap"><summary>Целият погасителен план</summary><table class="amortization-table"><thead><tr><th>№</th><th>Начална главница</th><th>Лихва</th><th>Главница</th><th>Вноска</th><th>Остатък</th></tr></thead><tbody><% result["schedule"].each do |row| %><tr><td><%= row["number"] %></td><td><%= format_eur(row["opening_balance_cents"]) %></td><td><%= format_eur(row["interest_cents"]) %></td><td><%= format_eur(row["principal_cents"]) %></td><td><%= format_eur(row["payment_cents"]) %></td><td><%= format_eur(row["closing_balance_cents"]) %></td></tr><% end %></tbody></table></details>
+      <section class="summary-calculation"><h3><%= localized_copy("Как е изчислено?", "How is this calculated?") %></h3><div class="summary-explanation"><p><%= localized_copy("Използваме анюитетна схема и разделяме годишната номинална лихва на 12 месечни периода.", "We use an annuity repayment method and divide the nominal annual interest rate into 12 monthly periods.") %></p><ul><% result["assumptions"].each do |assumption| %><li><%= assumption %></li><% end %></ul></div></section>
+      <details class="amortization-table-wrap"><summary><%= localized_copy("Целият погасителен план", "Full repayment schedule") %></summary><table class="amortization-table"><thead><tr><th><%= localized_copy("№", "No.") %></th><th><%= localized_copy("Начална главница", "Opening principal") %></th><th><%= localized_copy("Лихва", "Interest") %></th><th><%= localized_copy("Главница", "Principal") %></th><th><%= localized_copy("Вноска", "Payment") %></th><th><%= localized_copy("Остатък", "Balance") %></th></tr></thead><tbody><% result["schedule"].each do |row| %><tr><td><%= row["number"] %></td><td><%= format_eur(row["opening_balance_cents"]) %></td><td><%= format_eur(row["interest_cents"]) %></td><td><%= format_eur(row["principal_cents"]) %></td><td><%= format_eur(row["payment_cents"]) %></td><td><%= format_eur(row["closing_balance_cents"]) %></td></tr><% end %></tbody></table></details>
     <% else %>
-      <div class="summary-empty"><p>Въведи размер на кредита, срок и лихва, за да видиш месечната вноска. Можеш да въведеш и лихва 0%.</p></div>
+      <div class="summary-empty"><p><%= localized_copy("Въведи размер на кредита, срок и лихва, за да видиш месечната вноска. Можеш да въведеш и лихва 0%.", "Enter the loan amount, term and interest rate to see the monthly payment. You may also enter an interest rate of 0%.") %></p></div>
     <% end %>
   </div>
-  <p class="calculator-legal-note">Сметката не включва бъдещи промени на лихвата, гратисен период, предсрочно погасяване или специфичния начин, по който банката начислява дневна лихва.</p>
+  <p class="calculator-legal-note"><%= localized_copy("Сметката не включва бъдещи промени на лихвата, гратисен период, предсрочно погасяване или специфичния начин, по който банката начислява дневна лихва.", "This calculation does not cover future interest-rate changes, grace periods, early repayment or the bank's specific method for calculating daily interest.") %></p>
 <% end %>

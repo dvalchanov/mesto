@@ -48,7 +48,7 @@ module DataSources
       end
 
       def normalize_district(value)
-        district = value.to_s.strip.sub(/\A(?:СО\s*[-–]\s*)?(?:р-н|район)\s*/i, "")
+        district = value.to_s.strip.sub(/\A(?:СО\s*[-\u2013]\s*)?(?:р-н|район)\s*/i, "")
         district if district.match?(/\A[\p{L}][\p{L}\s-]*\z/)
       end
 

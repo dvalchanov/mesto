@@ -133,8 +133,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .home-hero { position: relative; overflow: hidden; min-height: 680px; padding: 84px 0 35px; background: var(--paper); }
 .home-hero::before { content: ""; position: absolute; inset: 0 50% 0 auto; width: 50%; background: linear-gradient(135deg, rgba(231, 224, 211, .7), transparent 60%); pointer-events: none; }
 .home-hero__topography { position: absolute; right: max(-120px, calc((100vw - 1180px) / 2 - 180px)); top: -20px; width: min(54vw, 760px); color: rgba(23, 63, 52, .11); pointer-events: none; }
-.home-hero__topography svg { width: 100%; }
-.home-hero__topography path { stroke: currentColor; stroke-width: 1.1; }
+.home-hero__topography svg { display: block; width: 100%; }
+.home-hero__topography path { stroke: currentColor; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.home-hero__topography path:nth-child(2) { opacity: .82; }
+.home-hero__topography path:nth-child(3) { opacity: .66; }
+.home-hero__topography path:nth-child(4) { opacity: .5; }
 .home-hero__grid { position: relative; display: grid; grid-template-columns: 1.02fr .78fr; gap: clamp(60px, 8vw, 120px); align-items: center; }
 .home-hero__copy h1 { max-width: 700px; margin: 0; color: var(--ink); font-family: var(--font-serif); font-size: clamp(48px, 5.6vw, 76px); font-weight: 500; line-height: 1.02; letter-spacing: -.055em; }
 .home-hero__copy h1 em { color: var(--clay); font-style: italic; font-weight: 500; }

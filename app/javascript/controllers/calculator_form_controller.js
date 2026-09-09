@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
+const localizedCopy = (bg, en) => document.documentElement.lang.toLowerCase().startsWith("en") ? en : bg
+
 export default class extends Controller {
   static targets = ["form", "sequence", "submitter", "resetter", "mortgageFields", "mortgageNote", "manualMunicipality", "propertyVat"]
   static values = {
@@ -81,7 +83,10 @@ export default class extends Controller {
   }
 
   reset() {
-    if (!window.confirm("Да започнем ли нова празна сметка? Текущите незапазени данни ще бъдат изчистени. Запазените сметки няма да бъдат изтрити.")) return
+    if (!window.confirm(localizedCopy(
+      "Да започнем ли нова празна сметка? Текущите незапазени данни ще бъдат изчистени. Запазените сметки няма да бъдат изтрити.",
+      "Start a new blank calculation? Your current unsaved data will be cleared. Saved calculations will not be deleted."
+    ))) return
 
     this.draftEnabledValue = false
     this.draftDirty = false

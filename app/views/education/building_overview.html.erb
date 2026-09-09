@@ -1,14 +1,14 @@
-<% content_for :title, "Новото строителство — осем етапа | #{product_name}" %>
-<% content_for :description, "Ясен преглед на новото строителство: какво се изпълнява на всеки етап, кои документи са свързани с него и какво да провери купувачът." %>
+<% content_for :title, localized_copy("Новото строителство - осем етапа | #{product_name}", "New construction - eight stages | #{product_name}") %>
+<% content_for :description, localized_copy("Ясен преглед на новото строителство: какво се изпълнява на всеки етап, кои документи са свързани с него и какво да провери купувачът.", "A clear overview of new construction: what happens at each stage, the related documents and what a buyer should check.") %>
 
 <div class="site-shell education-page">
-  <%= render "breadcrumbs", items: [["Ново строителство", nil]] %>
+  <%= render "breadcrumbs", items: [[localized_copy("Ново строителство", "New construction"), nil]] %>
   <header class="editorial-hero">
-    <p class="eyebrow"><span></span>Ново строителство</p>
-    <h1>Как се развива строежът — от терена до предаването</h1>
-    <p>Това е общ преглед на процеса. Някои дейности могат да се припокриват, а точният ред зависи от проекта. Видимият напредък на строежа не доказва сам по себе си, че необходимите документи са издадени.</p>
+    <p class="eyebrow"><span></span><%= localized_copy("Ново строителство", "New construction") %></p>
+    <h1><%= localized_copy("Как се развива строежът - от терена до предаването", "How construction progresses, from the site to handover") %></h1>
+    <p><%= localized_copy("Това е общ преглед на процеса. Някои дейности могат да се припокриват, а точният ред зависи от проекта. Видимият напредък на строежа не доказва сам по себе си, че необходимите документи са издадени.", "This is a general overview. Some activities may overlap, and the exact sequence depends on the project. Visible progress on site does not by itself prove that the required documents have been issued.") %></p>
     <% if @journey&.user_reported_building_stage %>
-      <div class="context-chip">Отбелязан етап за твоя имот: <strong><%= building_stage_label(@journey.user_reported_building_stage) %></strong></div>
+      <div class="context-chip"><%= localized_copy("Отбелязан етап за твоя имот:", "Stage recorded for your property:") %> <strong><%= building_stage_label(@journey.user_reported_building_stage) %></strong></div>
     <% end %>
   </header>
 
@@ -17,27 +17,27 @@
   </section>
 
   <section class="separation-note">
-    <div><span>Какво се строи</span><p>Работите по изкопа, конструкцията, фасадата, инсталациите и довършването могат да се застъпват.</p></div>
-    <div><span>Какво доказват документите</span><p>Всеки документ се отнася до определен имот, сграда, част от строежа или конкретно събитие и трябва да се провери в този обхват.</p></div>
-    <div><span>Къде си ти като купувач</span><p>Твоят етап от покупката е различен от етапа на строежа. Можеш да разглеждаш всички теми, без това да променя личния ти план.</p></div>
+    <div><span><%= localized_copy("Какво се строи", "What is being built") %></span><p><%= localized_copy("Работите по изкопа, конструкцията, фасадата, инсталациите и довършването могат да се застъпват.", "Excavation, structural, facade, installation and finishing work may overlap.") %></p></div>
+    <div><span><%= localized_copy("Какво доказват документите", "What the documents prove") %></span><p><%= localized_copy("Всеки документ се отнася до определен имот, сграда, част от строежа или конкретно събитие и трябва да се провери в този обхват.", "Each document concerns a particular property, building, part of the works or event. It must be checked within that specific scope.") %></p></div>
+    <div><span><%= localized_copy("Къде си ти като купувач", "Where you are as a buyer") %></span><p><%= localized_copy("Твоят етап от покупката е различен от етапа на строежа. Можеш да разглеждаш всички теми, без това да променя личния ти план.", "Your purchase stage is different from the construction stage. You can browse every topic without changing your personal plan.") %></p></div>
   </section>
 
   <section class="building-stage-directory">
-    <header class="section-heading section-heading--split"><div><p class="eyebrow"><span></span>Подробно за всеки етап</p><h2>Избери етапа, за който имаш въпрос</h2></div><p>За всеки етап ще видиш какво обикновено се изпълнява, кои документи са свързани с него и какво да провериш като купувач.</p></header>
+    <header class="section-heading section-heading--split"><div><p class="eyebrow"><span></span><%= localized_copy("Подробно за всеки етап", "Each stage in detail") %></p><h2><%= localized_copy("Избери етапа, за който имаш въпрос", "Choose the stage you have a question about") %></h2></div><p><%= localized_copy("За всеки етап ще видиш какво обикновено се изпълнява, кои документи са свързани с него и какво да провериш като купувач.", "For each stage, see what usually happens, which documents are connected to it and what you should check as a buyer.") %></p></header>
     <div>
       <% @stages.each do |stage| %>
-        <%= link_to new_build_stage_path(stage["slug"]) do %><span>Етап <%= format("%02d", stage["position"]) %></span><h3><%= stage["title"] %></h3><p><%= stage["summary"] %></p><small>Отвори етапа</small><% end %>
+        <%= link_to new_build_stage_path(stage["slug"]) do %><span><%= localized_copy("Етап", "Stage") %> <%= format("%02d", stage["position"]) %></span><h3><%= stage["title"] %></h3><p><%= stage["summary"] %></p><small><%= localized_copy("Отвори етапа", "Open this stage") %></small><% end %>
       <% end %>
     </div>
   </section>
 
   <section class="education-bottom-cta">
-    <div><h2>Искаш план според твоята ситуация?</h2><p>Отговори на три кратки въпроса, за да получиш подредени следващи стъпки. Можеш да започнеш и без избран имот.</p></div>
-    <%= link_to @journey ? "Отвори моя план" : "Създай личен план", my_mesto_path, class: "button button--primary" %>
+    <div><h2><%= localized_copy("Искаш план според твоята ситуация?", "Want a plan tailored to your situation?") %></h2><p><%= localized_copy("Отговори на три кратки въпроса, за да получиш подредени следващи стъпки. Можеш да започнеш и без избран имот.", "Answer three quick questions to get an ordered set of next steps. You can start before choosing a property.") %></p></div>
+    <%= link_to @journey ? localized_copy("Отвори моя план", "Open my plan") : localized_copy("Създай личен план", "Create a personal plan"), my_mesto_path, class: "button button--primary" %>
   </section>
 
   <section class="guide-explore-again guide-explore-again--light">
-    <div><p class="eyebrow"><span></span>Покупката е отделен процес</p><h2>Виж какво е важно за теб като купувач</h2><p>Избери дали още проучваш, предстои ти плащане или се подготвяш за сделка. Ще получиш насоки според решението, което стои пред теб.</p></div>
-    <nav><%= link_to "Начало на наръчника", guide_path %><%= link_to "Пътят на купувача", buying_guide_path %><%= link_to "Документи", education_documents_path %><%= link_to "Термини", terms_path %></nav>
+    <div><p class="eyebrow"><span></span><%= localized_copy("Покупката е отделен процес", "The purchase is a separate journey") %></p><h2><%= localized_copy("Виж какво е важно за теб като купувач", "See what matters to you as a buyer") %></h2><p><%= localized_copy("Избери дали още проучваш, предстои ти плащане или се подготвяш за сделка. Ще получиш насоки според решението, което стои пред теб.", "Choose whether you're still researching, preparing to pay or getting ready to complete. You'll see guidance for the decision in front of you.") %></p></div>
+    <nav><%= link_to localized_copy("Начало на наръчника", "Guide home"), guide_path %><%= link_to localized_copy("Пътят на купувача", "The buyer's journey"), buying_guide_path %><%= link_to t("navigation.documents"), education_documents_path %><%= link_to localized_copy("Термини", "Terms"), terms_path %></nav>
   </section>
 </div>

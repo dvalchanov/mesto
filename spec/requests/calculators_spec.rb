@@ -40,6 +40,23 @@ RSpec.describe "Property-purchase calculators", type: :request do
     expect(response.body).to include("Въведи положително число")
   end
 
+  it "keeps calculated results and validation messages in English" do
+    english_params = complete_params.deep_dup
+    english_params[:title] = "Apartment A"
+    english_params[:schedule][:first][:label] = "Preliminary contract"
+    english_params[:schedule][:second][:label] = "Act 14"
+    english_params[:schedule][:closing][:label] = "Notarial transfer"
+
+    post calculate_purchase_calculator_path, params: { locale: "en", calculator: english_params }
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Your calculation", "Total planned payments", "Notarial transfer")
+    expect(Nokogiri::HTML5(response.body).at_css("body").text).not_to match(/[А-Яа-я]/)
+
+    post calculate_purchase_calculator_path, params: { locale: "en", calculator: { property_price: "1.234" } }
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.body).to include("Enter a positive number")
+  end
+
   it "uses the same mortgage engine on the focused entry point" do
     post calculate_mortgage_calculator_path, params: { calculator: {
       principal: "100000", annual_interest_rate: "6", term_years: "30"

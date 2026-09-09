@@ -20,7 +20,7 @@ RSpec.describe "Standalone calculators", type: :system do
 
   it "supports a visitor with no property and an explicit example scenario" do
     visit purchase_calculator_path
-    expect(page).to have_css("h1", text: "Колко ще ти струва покупката — и кога ще ти трябват парите?")
+    expect(page).to have_css("h1", text: "Колко ще ти струва покупката - и кога ще ти трябват парите?")
     expect(page).to have_css(".calculator-plan-visual")
     expect(page).to have_link("Започни сметката", href: "#purchase-calculator")
     expect(page).to have_link("Виж примерна сметка", href: purchase_calculator_path(example: 1))

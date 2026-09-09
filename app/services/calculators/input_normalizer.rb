@@ -68,8 +68,8 @@ module Calculators
         "title" => data["title"].to_s.strip.first(80),
         "buyer_journey_id" => capture("buyer_journey_id", data["buyer_journey_id"]) { self.class.integer(_1, minimum: 1) }
       }
-      errors["property_price"] = "Цената трябва да е по-голяма от нула." if normalized["property_price_cents"] == 0
-      errors["tax_assessment"] = "Данъчната оценка трябва да е по-голяма от нула." if normalized["tax_assessment_cents"] == 0
+      errors["property_price"] = copy("Цената трябва да е по-голяма от нула.", "The property price must be greater than zero.") if normalized["property_price_cents"] == 0
+      errors["tax_assessment"] = copy("Данъчната оценка трябва да е по-голяма от нула.", "The tax valuation must be greater than zero.") if normalized["tax_assessment_cents"] == 0
       normalized
     end
 
@@ -103,7 +103,7 @@ module Calculators
     def capture(key, value)
       yield(value)
     rescue ArgumentError
-      errors[key] = "Въведи положително число, например 300 000,50."
+      errors[key] = copy("Въведи положително число, например 300 000,50.", "Enter a positive number, for example 300,000.50.")
       nil
     end
 
@@ -116,7 +116,7 @@ module Calculators
 
       Date.iso8601(value.to_s).iso8601
     rescue Date::Error
-      errors["transaction_date"] = "Въведи валидна дата."
+      errors["transaction_date"] = copy("Въведи валидна дата.", "Enter a valid date.")
       nil
     end
 
@@ -130,6 +130,8 @@ module Calculators
           "amount_cents" => amount, "price_relation" => row["price_relation"].presence_in(%w[included additional]) || "included" }
       end
     end
+
+    def copy(bg, en) = LocalizedCopy.call(bg, en)
 
     def normalize_costs(raw)
       collection(raw).first(30).map do |key, value|

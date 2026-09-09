@@ -1,18 +1,23 @@
 <% included = cost_input(cost, "included") == true %>
 <% method = cost_input(cost, "method") || (cost[:percentage] ? "percentage" : "fixed_quote") %>
-<% method_help = {
+<% method_help = localized_copy({
   "fixed_quote" => "Въведи крайната сума от офертата, договора или фактурата.",
   "percentage" => "Въведи процента и върху коя сума се изчислява.",
   "estimate" => "Въведи ориентировъчна сума за собственото си планиране.",
   "unknown" => "Можеш да продължиш без сума; ще я покажем като неизвестна, а не като нула."
-}.fetch(method, "Избери с каква информация разполагаш.") %>
+}, {
+  "fixed_quote" => "Enter the final amount shown in the quote, contract or invoice.",
+  "percentage" => "Enter the percentage and the amount on which it is calculated.",
+  "estimate" => "Enter an estimated amount for your own planning.",
+  "unknown" => "You can continue without an amount; it will remain unknown rather than being counted as zero."
+}).fetch(method, localized_copy("Избери с каква информация разполагаш.", "Choose the information you have.")) %>
 <% field_prefix = "cost_#{cost[:key]}" %>
 <% event_value = cost_input(cost, "payment_event_key").presence || cost[:event] %>
-<% event_options = [["Обичайно — #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}", cost[:event]]] %>
+<% event_options = [["#{localized_copy("Обичайно", "Usually")} - #{calculator_cost_event_labels.fetch(cost[:event])}", cost[:event]]] %>
 <% schedule_event_options.each do |label, value| %>
   <% event_options << [label, value] unless event_options.any? { _1.last == value } %>
 <% end %>
-<% event_options << ["Запазено по-рано", event_value] unless event_options.any? { _1.last == event_value } %>
+<% event_options << [localized_copy("Запазено по-рано", "Previously saved"), event_value] unless event_options.any? { _1.last == event_value } %>
 
 <article class="cost-editor__item" data-cost-editor-target="row">
   <%= hidden_field_tag "calculator[costs][#{cost[:key]}][key]", cost[:key] %>
@@ -28,62 +33,62 @@
         <small><%= cost[:description] %></small>
       </span>
     </label>
-    <span class="cost-editor__status <%= 'is-included' if included %>" data-cost-status><%= included ? "Добавено към сметката" : "Не е включено" %></span>
+    <span class="cost-editor__status <%= 'is-included' if included %>" data-cost-status><%= included ? localized_copy("Добавено към сметката", "Added to the calculation") : localized_copy("Не е включено", "Not included") %></span>
   </header>
 
   <div class="cost-editor__fields" data-cost-fields <%= "hidden" unless included %>>
     <div class="cost-editor__primary-fields">
       <div class="cost-editor__field">
-        <%= label_tag "#{field_prefix}_method", "Каква информация имаш?" %>
-        <%= select_tag "calculator[costs][#{cost[:key]}][method]", options_for_select([["Точна сума или оферта", "fixed_quote"], ["Процент", "percentage"], ["Приблизителна сума", "estimate"], ["Още не знам сумата", "unknown"]], method), id: "#{field_prefix}_method", data: { cost_field: "method", action: "change->cost-editor#changeMethod" } %>
+        <%= label_tag "#{field_prefix}_method", localized_copy("Каква информация имаш?", "What information do you have?") %>
+        <%= select_tag "calculator[costs][#{cost[:key]}][method]", options_for_select(localized_copy([["Точна сума или оферта", "fixed_quote"], ["Процент", "percentage"], ["Приблизителна сума", "estimate"], ["Още не знам сумата", "unknown"]], [["Exact amount or quote", "fixed_quote"], ["Percentage", "percentage"], ["Estimated amount", "estimate"], ["I don't know the amount yet", "unknown"]]), method), id: "#{field_prefix}_method", data: { cost_field: "method", action: "change->cost-editor#changeMethod" } %>
         <small data-cost-method-help><%= method_help %></small>
       </div>
 
       <div class="cost-editor__field" data-cost-method-field="fixed_quote estimate" <%= "hidden" unless %w[fixed_quote estimate].include?(method) %>>
-        <%= label_tag "#{field_prefix}_amount", method == "estimate" ? "Приблизителна сума" : "Сума от офертата", data: { cost_amount_label: true } %>
-        <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][amount]", money_input_value(cost_input(cost, "amount_cents")), id: "#{field_prefix}_amount", inputmode: "decimal", placeholder: cost[:category] == "recurring" ? "напр. 80,00" : "напр. 1 200,00" %><span>€</span></div>
-        <small><%= cost[:category] == "recurring" ? "Въведи сумата за един месец." : "Въведи само сумата, която искаш да включиш в бюджета." %></small>
+        <%= label_tag "#{field_prefix}_amount", method == "estimate" ? localized_copy("Приблизителна сума", "Estimated amount") : localized_copy("Сума от офертата", "Quoted amount"), data: { cost_amount_label: true } %>
+        <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][amount]", money_input_value(cost_input(cost, "amount_cents")), id: "#{field_prefix}_amount", inputmode: "decimal", placeholder: cost[:category] == "recurring" ? localized_copy("напр. 80,00", "e.g. 80.00") : localized_copy("напр. 1 200,00", "e.g. 1,200.00") %><span>€</span></div>
+        <small><%= cost[:category] == "recurring" ? localized_copy("Въведи сумата за един месец.", "Enter the amount for one month.") : localized_copy("Въведи само сумата, която искаш да включиш в бюджета.", "Enter only the amount you want to include in the budget.") %></small>
       </div>
 
       <div class="cost-editor__percentage" data-cost-method-field="percentage" <%= "hidden" unless method == "percentage" %>>
         <div class="cost-editor__field">
-          <%= label_tag "#{field_prefix}_rate", "Процент" %>
-          <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][rate]", cost_input(cost, "rate_percent"), id: "#{field_prefix}_rate", inputmode: "decimal", placeholder: "напр. 3" %><span>%</span></div>
+          <%= label_tag "#{field_prefix}_rate", localized_copy("Процент", "Percentage") %>
+          <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][rate]", cost_input(cost, "rate_percent"), id: "#{field_prefix}_rate", inputmode: "decimal", placeholder: localized_copy("напр. 3", "e.g. 3") %><span>%</span></div>
         </div>
         <div class="cost-editor__field">
-          <%= label_tag "#{field_prefix}_base", "Върху коя сума?" %>
-          <%= select_tag "calculator[costs][#{cost[:key]}][base]", options_for_select([["Цената на имота", "property_price"], ["По-високата от цена и данъчна оценка", "tax_base"], ["Размерът на кредита", "loan_amount"]], cost_input(cost, "base") || "property_price"), id: "#{field_prefix}_base" %>
+          <%= label_tag "#{field_prefix}_base", localized_copy("Върху коя сума?", "Percentage of which amount?") %>
+          <%= select_tag "calculator[costs][#{cost[:key]}][base]", options_for_select([[localized_copy("Цената на имота", "Property price"), "property_price"], [localized_copy("По-високата от цена и данъчна оценка", "The higher of the price and tax valuation"), "tax_base"], [localized_copy("Размерът на кредита", "Loan amount"), "loan_amount"]], cost_input(cost, "base") || "property_price"), id: "#{field_prefix}_base" %>
         </div>
       </div>
 
       <div class="cost-editor__unknown" data-cost-method-field="unknown" <%= "hidden" unless method == "unknown" %>>
-        <strong>Оставяме сумата неизвестна</strong>
-        <p>Разходът ще остане видим с липсваща стойност и няма да бъде отчетен като 0 €.</p>
+        <strong><%= localized_copy("Оставяме сумата неизвестна", "Amount left unknown") %></strong>
+        <p><%= localized_copy("Разходът ще остане видим с липсваща стойност и няма да бъде отчетен като 0 €.", "The cost will remain visible without a value and will not be counted as €0.") %></p>
       </div>
     </div>
 
     <details class="cost-editor__advanced">
-      <summary><span>Допълнителни настройки</span><small>Попълни ги само ако са нужни за твоя случай</small></summary>
+      <summary><span><%= localized_copy("Допълнителни настройки", "Additional settings") %></span><small><%= localized_copy("Попълни ги само ако са нужни за твоя случай", "Fill them in only if they are necessary for your case") %></small></summary>
       <div class="cost-editor__advanced-grid">
         <div class="cost-editor__field">
-          <%= label_tag "#{field_prefix}_vat", "Как е посочена сумата спрямо ДДС?" %>
-          <%= select_tag "calculator[costs][#{cost[:key]}][vat_treatment]", options_for_select([["Сумата включва ДДС", "inclusive"], ["Сумата е без ДДС", "exclusive"], ["Не съм сигурен", "uncertain"], ["ДДС не се прилага", "not_applicable"]], cost_input(cost, "vat_treatment") || "inclusive"), id: "#{field_prefix}_vat" %>
-          <small>Избери „без ДДС“ само ако офертата изрично е нетна.</small>
+          <%= label_tag "#{field_prefix}_vat", localized_copy("Как е посочена сумата спрямо ДДС?", "How is VAT shown?") %>
+          <%= select_tag "calculator[costs][#{cost[:key]}][vat_treatment]", options_for_select([[localized_copy("Сумата включва ДДС", "VAT included"), "inclusive"], [localized_copy("Сумата е без ДДС", "VAT excluded"), "exclusive"], [localized_copy("Не съм сигурен", "I'm not sure"), "uncertain"], [localized_copy("ДДС не се прилага", "VAT does not apply"), "not_applicable"]], cost_input(cost, "vat_treatment") || "inclusive"), id: "#{field_prefix}_vat" %>
+          <small><%= localized_copy("Избери „без ДДС“ само ако офертата изрично е нетна.", "Select \"without VAT\" only if the offer is explicitly net.") %></small>
         </div>
         <div class="cost-editor__field">
-          <%= label_tag "#{field_prefix}_buyer_share", "Какъв дял плащаш ти?" %>
+          <%= label_tag "#{field_prefix}_buyer_share", localized_copy("Какъв дял плащаш ти?", "What share do you pay?") %>
           <div class="money-field money-field--short"><%= text_field_tag "calculator[costs][#{cost[:key]}][buyer_share]", cost_input(cost, "buyer_share_percent") || "100", id: "#{field_prefix}_buyer_share", inputmode: "decimal" %><span>%</span></div>
-          <small>Остави 100%, ако поемаш целия разход.</small>
+          <small><%= localized_copy("Остави 100%, ако поемаш целия разход.", "Leave 100% if you cover the entire cost.") %></small>
         </div>
         <div class="cost-editor__field">
-          <%= label_tag "#{field_prefix}_event", "Кога ще го платиш?" %>
-          <%= select_tag "calculator[costs][#{cost[:key]}][payment_event_key]", options_for_select(event_options, event_value), id: "#{field_prefix}_event", data: { schedule_editor_target: "eventSelect", schedule_editor_fallback_key: cost[:event], schedule_editor_fallback_label: "Обичайно — #{CalculatorsHelper::COST_EVENT_LABELS.fetch(cost[:event])}" } %>
-          <small>Това поставя разхода в графика на плащанията.</small>
+          <%= label_tag "#{field_prefix}_event", localized_copy("Кога ще го платиш?", "When will you pay it?") %>
+          <%= select_tag "calculator[costs][#{cost[:key]}][payment_event_key]", options_for_select(event_options, event_value), id: "#{field_prefix}_event", data: { schedule_editor_target: "eventSelect", schedule_editor_fallback_key: cost[:event], schedule_editor_fallback_label: "#{localized_copy("Обичайно", "Usually")} - #{calculator_cost_event_labels.fetch(cost[:event])}" } %>
+          <small><%= localized_copy("Това поставя разхода в графика на плащанията.", "This puts the expense on the payment schedule.") %></small>
         </div>
         <div class="cost-editor__field">
-          <%= label_tag "#{field_prefix}_already_paid", "Колко вече е платено?" %>
+          <%= label_tag "#{field_prefix}_already_paid", localized_copy("Колко вече е платено?", "How much has already been paid?") %>
           <div class="money-field"><%= text_field_tag "calculator[costs][#{cost[:key]}][already_paid]", money_input_value(cost_input(cost, "already_paid_cents")), id: "#{field_prefix}_already_paid", inputmode: "decimal", placeholder: "0,00" %><span>€</span></div>
-          <small>Остави празно, ако още не си платил нищо.</small>
+          <small><%= localized_copy("Остави празно, ако още не си платил нищо.", "Leave blank if you haven't paid anything yet.") %></small>
         </div>
       </div>
     </details>

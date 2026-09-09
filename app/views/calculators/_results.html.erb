@@ -4,22 +4,22 @@
   <% funding = result.fetch("funding", {}) %>
   <div class="summary-card">
     <div class="summary-card__heading">
-      <div><span>Твоята сметка</span><h2><%= result["complete"] ? "Обобщение" : "Междинен резултат" %></h2></div>
-      <i class="summary-status <%= result['complete'] ? 'summary-status--complete' : '' %>"><%= result["complete"] ? "Изчислено" : "За уточняване" %></i>
+      <div><span><%= localized_copy("Твоята сметка", "Your calculation") %></span><h2><%= result["complete"] ? localized_copy("Обобщение", "Summary") : localized_copy("Междинен резултат", "Interim result") %></h2></div>
+      <i class="summary-status <%= result['complete'] ? 'summary-status--complete' : '' %>"><%= result["complete"] ? localized_copy("Изчислено", "Calculated") : localized_copy("За уточняване", "To clarify") %></i>
     </div>
-    <% if errors.present? %><div class="calculator-warning"><strong>Провери въведените стойности.</strong><%= errors.values.to_sentence %></div><% end %>
+    <% if errors.present? %><div class="calculator-warning"><strong><%= localized_copy("Провери въведените стойности.", "Check the entered values.") %></strong><%= errors.values.to_sentence %></div><% end %>
     <dl class="summary-metrics">
-      <div><dt>Цена за плащане</dt><dd><%= format_eur(costs["payable_property_price_cents"]) %></dd></div>
-      <div><dt><%= costs.fetch("unresolved_items", []).any? ? "Изчислени и въведени разходи" : "Включени допълнителни разходи" %></dt><dd><%= format_eur(costs["included_costs_cents"]) %></dd></div>
-      <div class="summary-metrics__total"><dt>Общо планирани плащания</dt><dd><%= format_eur(costs["combined_included_outlay_cents"]) %></dd></div>
-      <div><dt>Нужни собствени средства</dt><dd><%= format_eur(result["required_own_funds_cents"]) %></dd></div>
-      <div><dt>Месечна вноска</dt><dd><%= format_eur(mortgage["regular_payment_cents"]) %></dd></div>
-      <div><dt>Най-голям недостиг</dt><dd class="<%= 'is-negative' if funding['largest_funding_shortfall_cents'].to_i.positive? %>"><%= format_eur(funding["largest_funding_shortfall_cents"]) %></dd></div>
+      <div><dt><%= localized_copy("Цена за плащане", "Price to pay") %></dt><dd><%= format_eur(costs["payable_property_price_cents"]) %></dd></div>
+      <div><dt><%= costs.fetch("unresolved_items", []).any? ? localized_copy("Изчислени и въведени разходи", "Calculated and entered costs") : localized_copy("Включени допълнителни разходи", "Additional costs included") %></dt><dd><%= format_eur(costs["included_costs_cents"]) %></dd></div>
+      <div class="summary-metrics__total"><dt><%= localized_copy("Общо планирани плащания", "Total planned payments") %></dt><dd><%= format_eur(costs["combined_included_outlay_cents"]) %></dd></div>
+      <div><dt><%= localized_copy("Нужни собствени средства", "Own funds required") %></dt><dd><%= format_eur(result["required_own_funds_cents"]) %></dd></div>
+      <div><dt><%= localized_copy("Месечна вноска", "Monthly payment") %></dt><dd><%= format_eur(mortgage["regular_payment_cents"]) %></dd></div>
+      <div><dt><%= localized_copy("Най-голям недостиг", "Largest funding shortfall") %></dt><dd class="<%= 'is-negative' if funding['largest_funding_shortfall_cents'].to_i.positive? %>"><%= format_eur(funding["largest_funding_shortfall_cents"]) %></dd></div>
     </dl>
     <% if result.fetch("warnings", []).any? %>
       <% warning_count = result["warnings"].size %>
       <details class="summary-warnings">
-        <summary><strong>Какво остава да уточниш</strong><em><%= warning_count %> <%= warning_count == 1 ? "уточнение" : "уточнения" %></em></summary>
+        <summary><strong><%= localized_copy("Какво остава да уточниш", "What remains to be specified") %></strong><em><%= warning_count %> <%= warning_count == 1 ? localized_copy("уточнение", "clarification") : localized_copy("уточнения", "clarifications") %></em></summary>
         <ul><% result["warnings"].each do |warning| %><li><%= warning %></li><% end %></ul>
       </details>
     <% end %>
@@ -27,56 +27,56 @@
 
   <% if costs.fetch("lines", []).any? %>
     <details class="summary-detail" open>
-      <summary>Цена и разходи <span><%= format_eur(costs["included_costs_cents"]) %></span></summary>
+      <summary><%= localized_copy("Цена и разходи", "Price and costs") %> <span><%= format_eur(costs["included_costs_cents"]) %></span></summary>
       <div class="summary-lines">
         <% costs["lines"].each do |line| %>
           <div class="summary-line <%= 'summary-line--unknown' if line['status'] == 'unresolved' %>">
-            <div><strong><%= line["label"] %></strong><small><%= line["status"] == "unresolved" ? "Неизвестно" : calculator_provenance_label(line["provenance"]) %></small></div>
-            <span><%= line["status"] == "unresolved" ? "непопълнено" : format_eur(line["amount_cents"]) %></span>
-            <% if line["explanation"].present? %><details><summary>Как е изчислено?</summary><p><%= line["explanation"] %></p><% if line["source_url"].present? %><%= link_to "Официален източник", line["source_url"], target: "_blank", rel: "noopener" %><% end %></details><% end %>
+            <div><strong><%= line["label"] %></strong><small><%= line["status"] == "unresolved" ? localized_copy("Неизвестно", "Unknown") : calculator_provenance_label(line["provenance"]) %></small></div>
+            <span><%= line["status"] == "unresolved" ? localized_copy("непопълнено", "not entered") : format_eur(line["amount_cents"]) %></span>
+            <% if line["explanation"].present? %><details><summary><%= localized_copy("Как е изчислено?", "How is it calculated?") %></summary><p><%= line["explanation"] %></p><% if line["source_url"].present? %><%= link_to localized_copy("Официален източник", "Official source"), line["source_url"], target: "_blank", rel: "noopener" %><% end %></details><% end %>
           </div>
         <% end %>
       </div>
       <dl class="summary-subtotals">
-        <div><dt>Придобиване</dt><dd><%= format_eur(costs["acquisition_costs_cents"]) %></dd></div>
-        <div><dt>Финансиране</dt><dd><%= format_eur(costs["financing_costs_cents"]) %></dd></div>
-        <div><dt>След покупката</dt><dd><%= format_eur(costs["after_purchase_costs_cents"]) %></dd></div>
-        <div><dt>Отделни месечни разходи</dt><dd><%= format_eur(costs["recurring_monthly_costs_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Придобиване", "Acquisition") %></dt><dd><%= format_eur(costs["acquisition_costs_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Финансиране", "Financing") %></dt><dd><%= format_eur(costs["financing_costs_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("След покупката", "After purchase") %></dt><dd><%= format_eur(costs["after_purchase_costs_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Отделни месечни разходи", "Separate monthly costs") %></dt><dd><%= format_eur(costs["recurring_monthly_costs_cents"]) %></dd></div>
       </dl>
     </details>
   <% end %>
 
   <% if mortgage["complete"] && mortgage["principal_cents"].to_i.positive? %>
     <details class="summary-detail">
-      <summary>Финансиране <span><%= format_eur(mortgage["regular_payment_cents"]) %> / мес.</span></summary>
+      <summary><%= localized_copy("Финансиране", "Financing") %> <span><%= format_eur(mortgage["regular_payment_cents"]) %> / <%= localized_copy("мес.", "mo.") %></span></summary>
       <dl class="summary-subtotals">
-        <div><dt>Главница</dt><dd><%= format_eur(mortgage["principal_cents"]) %></dd></div>
-        <div><dt>Обща лихва</dt><dd><%= format_eur(mortgage["total_interest_cents"]) %></dd></div>
-        <div><dt>Последна коригирана вноска</dt><dd><%= format_eur(mortgage["final_payment_cents"]) %></dd></div>
-        <div><dt>Вноска + включени месечни такси</dt><dd><%= format_eur(mortgage["total_regular_monthly_outflow_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Главница", "Principal") %></dt><dd><%= format_eur(mortgage["principal_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Обща лихва", "Total interest") %></dt><dd><%= format_eur(mortgage["total_interest_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Последна коригирана вноска", "Adjusted final payment") %></dt><dd><%= format_eur(mortgage["final_payment_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Вноска + включени месечни такси", "Payment plus included monthly charges") %></dt><dd><%= format_eur(mortgage["total_regular_monthly_outflow_cents"]) %></dd></div>
       </dl>
-      <p class="summary-explanation">Анюитетна схема при постоянна номинална лихва за целия срок. Това не е ГПР, одобрение или официален погасителен план.</p>
-      <div class="amortization-visual" role="img" aria-label="Дял на главницата и лихвата в общо платената сума">
+      <p class="summary-explanation"><%= localized_copy("Анюитетна схема при постоянна номинална лихва за целия срок. Това не е ГПР, одобрение или официален погасителен план.", "Payments are calculated using an annuity method and a constant nominal interest rate for the full term. This is not an APR, loan approval or official repayment schedule.") %></p>
+      <div class="amortization-visual" role="img" aria-label="<%= localized_copy("Дял на главницата и лихвата в общо платената сума", "Share of the principal and interest in the total amount paid") %>">
         <% total = mortgage["total_principal_and_interest_cents"].to_i %>
         <% principal_width = total.positive? ? (mortgage["principal_cents"].to_d / total * 100).round(1) : 0 %>
         <span style="width: <%= principal_width %>%"></span><i style="width: <%= 100 - principal_width %>%"></i>
       </div>
-      <details class="amortization-table-wrap"><summary>Покажи погасителния план</summary><table class="amortization-table"><thead><tr><th>№</th><th>Начална главница</th><th>Лихва</th><th>Главница</th><th>Вноска</th><th>Остатък</th></tr></thead><tbody><% mortgage["schedule"].each do |row| %><tr><td><%= row["number"] %></td><td><%= format_eur(row["opening_balance_cents"]) %></td><td><%= format_eur(row["interest_cents"]) %></td><td><%= format_eur(row["principal_cents"]) %></td><td><%= format_eur(row["payment_cents"]) %></td><td><%= format_eur(row["closing_balance_cents"]) %></td></tr><% end %></tbody></table></details>
+      <details class="amortization-table-wrap"><summary><%= localized_copy("Покажи погасителния план", "Show repayment schedule") %></summary><table class="amortization-table"><thead><tr><th><%= localized_copy("№", "No.") %></th><th><%= localized_copy("Начална главница", "Opening principal") %></th><th><%= localized_copy("Лихва", "Interest") %></th><th><%= localized_copy("Главница", "Principal") %></th><th><%= localized_copy("Вноска", "Payment") %></th><th><%= localized_copy("Остатък", "Balance") %></th></tr></thead><tbody><% mortgage["schedule"].each do |row| %><tr><td><%= row["number"] %></td><td><%= format_eur(row["opening_balance_cents"]) %></td><td><%= format_eur(row["interest_cents"]) %></td><td><%= format_eur(row["principal_cents"]) %></td><td><%= format_eur(row["payment_cents"]) %></td><td><%= format_eur(row["closing_balance_cents"]) %></td></tr><% end %></tbody></table></details>
     </details>
   <% end %>
 
   <% if funding.fetch("rows", []).any? %>
     <details class="summary-detail">
-      <summary>График и налични средства <span><%= funding["complete"] ? "по реда на плащанията" : "ориентировъчно" %></span></summary>
-      <div class="ledger-table-wrap"><table class="ledger-table"><thead><tr><th>Събитие</th><th>Към продавача</th><th>Разходи</th><th>Ипотека</th><th>Собствени средства</th><th>Оставаща наличност</th></tr></thead><tbody><% funding["rows"].each do |row| %><tr><th><%= row["label"].presence || row["event_key"] %><small><%= row["date"].presence || "по ред на етапа" %></small></th><td><%= format_eur(row["seller_payment_cents"]) %></td><td><%= format_eur(row["additional_costs_cents"]) %></td><td><%= format_eur(row["mortgage_applied_cents"]) %></td><td><%= format_eur(row["own_cash_required_cents"]) %></td><td class="<%= 'is-negative' if row['projected_own_cash_cents'].negative? %>"><%= format_eur(row["projected_own_cash_cents"]) %></td></tr><% end %></tbody></table></div>
+      <summary><%= localized_copy("График и налични средства", "Schedule and available funds") %> <span><%= funding["complete"] ? localized_copy("по реда на плащанията", "in payment order") : localized_copy("ориентировъчно", "estimated") %></span></summary>
+      <div class="ledger-table-wrap"><table class="ledger-table"><thead><tr><th><%= localized_copy("Събитие", "Event") %></th><th><%= localized_copy("Към продавача", "To the seller") %></th><th><%= localized_copy("Разходи", "Costs") %></th><th><%= localized_copy("Ипотека", "Mortgage") %></th><th><%= localized_copy("Собствени средства", "Own funds") %></th><th><%= localized_copy("Оставаща наличност", "Remaining funds") %></th></tr></thead><tbody><% funding["rows"].each do |row| %><tr><th><%= row["label"].presence || row["event_key"] %><small><%= row["date"].presence || localized_copy("по ред на етапа", "in stage order") %></small></th><td><%= format_eur(row["seller_payment_cents"]) %></td><td><%= format_eur(row["additional_costs_cents"]) %></td><td><%= format_eur(row["mortgage_applied_cents"]) %></td><td><%= format_eur(row["own_cash_required_cents"]) %></td><td class="<%= 'is-negative' if row['projected_own_cash_cents'].negative? %>"><%= format_eur(row["projected_own_cash_cents"]) %></td></tr><% end %></tbody></table></div>
       <dl class="summary-subtotals">
-        <div><dt>Оставащи нужни собствени средства</dt><dd><%= format_eur(funding["remaining_own_funding_cents"]) %></dd></div>
-        <div><dt>Собствени средства преди първото усвояване</dt><dd><%= format_eur(funding["own_funds_before_first_mortgage_cents"]) %></dd></div>
-        <div><dt>Най-ниска прогнозна наличност</dt><dd><%= format_eur(funding["minimum_projected_cash_cents"]) %></dd></div>
-        <div><dt>Допълнителни средства за запазване на резерва</dt><dd><%= format_eur(funding["additional_funding_for_reserve_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Оставащи нужни собствени средства", "Remaining own funds required") %></dt><dd><%= format_eur(funding["remaining_own_funding_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Собствени средства преди първото усвояване", "Own funds before the first mortgage drawdown") %></dt><dd><%= format_eur(funding["own_funds_before_first_mortgage_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Най-ниска прогнозна наличност", "Lowest projected balance") %></dt><dd><%= format_eur(funding["minimum_projected_cash_cents"]) %></dd></div>
+        <div><dt><%= localized_copy("Допълнителни средства за запазване на резерва", "Additional funds to preserve the reserve") %></dt><dd><%= format_eur(funding["additional_funding_for_reserve_cents"]) %></dd></div>
       </dl>
     </details>
   <% end %>
 
-  <p class="calculator-legal-note">Тази сметка е ориентир за планиране. Официалните източници са проверени на 06.09.2026 г., но съдържанието все още не е прегледано от правен и данъчен специалист. Потвърди договорните суми, данъчното третиране и приложимите такси със страните и специалистите по сделката.</p>
+  <p class="calculator-legal-note"><%= localized_copy("Тази сметка е ориентир за планиране. Официалните източници са проверени на 06.09.2026 г., но съдържанието все още не е прегледано от правен и данъчен специалист. Потвърди договорните суми, данъчното третиране и приложимите такси със страните и специалистите по сделката.", "This calculation is a planning aid. The official sources were checked on 6 September 2026, but the content has not yet been reviewed by a legal or tax specialist. Confirm contractual amounts, tax treatment and applicable fees with the parties and professionals involved in the transaction.") %></p>
 <% end %>

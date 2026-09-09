@@ -19,12 +19,12 @@ class BuyerJourneysController < ApplicationController
   def create
     identifier = params.dig(:buyer_journey, :cadastral_identifier).to_s.first(100).strip
     if identifier.present? && !RequestThrottle.allowed?("analysis/#{request.remote_ip}", limit: 10, period: 1.minute)
-      @onboarding_error = "Направени са твърде много проверки. Изчакай малко и опитай отново."
+      @onboarding_error = LocalizedCopy.call("Направени са твърде много проверки. Изчакай малко и опитай отново.", "Too many checks have been submitted. Wait a moment and try again.")
       @form_values = journey_params.to_h
       return render :show, status: :too_many_requests
     end
     if identifier.present? && !CadastralIdentifier.new(identifier).valid?
-      @onboarding_error = "Въведи валиден кадастрален идентификатор с 3 до 5 числови части."
+      @onboarding_error = LocalizedCopy.call("Въведи валиден кадастрален идентификатор с 3 до 5 числови части.", "Enter a valid cadastral identifier with 3 to 5 numeric parts.")
       @form_values = journey_params.to_h
       return render :show, status: :unprocessable_content
     end
@@ -43,7 +43,7 @@ class BuyerJourneysController < ApplicationController
       end
       remember_current_journey(@journey)
       ProductEvent.record("journey_started", property_analysis: @journey.property_analysis, metadata: { mode: journey_mode(@journey) })
-      redirect_to my_mesto_path, notice: "Планът ти е запазен в този браузър."
+      redirect_to my_mesto_path, notice: LocalizedCopy.call("Планът ти е запазен в този браузър.", "Your plan has been saved in this browser.")
     else
       @onboarding_error = @journey.errors.full_messages.to_sentence
       @form_values = journey_params.to_h
@@ -59,7 +59,7 @@ class BuyerJourneysController < ApplicationController
       if params[:suggestion_action].in?(%w[accepted dismissed])
         ProductEvent.record("building_stage_suggestion_#{params[:suggestion_action]}", property_analysis: @journey.property_analysis, metadata: { mode: journey_mode(@journey) })
       end
-      redirect_back fallback_location: my_mesto_path, notice: "Информацията в плана ти е обновена."
+      redirect_back fallback_location: my_mesto_path, notice: LocalizedCopy.call("Информацията в плана ти е обновена.", "Your plan has been updated.")
     else
       redirect_back fallback_location: my_mesto_path, alert: @journey.errors.full_messages.to_sentence
     end
@@ -78,20 +78,20 @@ class BuyerJourneysController < ApplicationController
     @journey.touch(:last_active_at)
     event = kind == "lesson" ? "lesson_marked_read" : "checklist_item_updated"
     ProductEvent.record(event, property_analysis: @journey.property_analysis, metadata: { status:, mode: journey_mode(@journey) })
-    redirect_back fallback_location: my_mesto_path, notice: "Напредъкът ти е запазен."
+    redirect_back fallback_location: my_mesto_path, notice: LocalizedCopy.call("Напредъкът ти е запазен.", "Your progress has been saved.")
   end
 
   def reset
     @journey.journey_item_progresses.delete_all
     @journey.touch(:last_active_at)
-    redirect_to my_mesto_path, notice: "Отметките са нулирани. Избраната информация и свързаният имот са запазени."
+    redirect_to my_mesto_path, notice: LocalizedCopy.call("Отметките са нулирани. Избраната информация и свързаният имот са запазени.", "Your progress has been reset. Your selected details and linked property have been kept.")
   end
 
   def destroy
     @journey.destroy!
     next_journey = guest_journeys.first
     next_journey ? remember_current_journey(next_journey) : forget_current_journey
-    redirect_to guide_path, notice: "Личният ти план и отбелязаният напредък са изтрити."
+    redirect_to guide_path, notice: LocalizedCopy.call("Личният ти план и отбелязаният напредък са изтрити.", "Your personal plan and recorded progress have been deleted.")
   end
 
   def select
@@ -114,7 +114,7 @@ class BuyerJourneysController < ApplicationController
     journey.update!(property_analysis: analysis, last_active_at: Time.current) unless journey.property_analysis == analysis
     remember_current_journey(journey)
     ProductEvent.record("property_attached", property_analysis: analysis, metadata: { mode: "property_connected" })
-    redirect_to my_mesto_path, notice: "Имотът е добавен, а досегашният ти напредък е запазен."
+    redirect_to my_mesto_path, notice: LocalizedCopy.call("Имотът е добавен, а досегашният ти напредък е запазен.", "The property has been added and your existing progress has been kept.")
   end
 
   private
