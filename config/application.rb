@@ -17,6 +17,7 @@ require "action_cable/engine"
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+require_relative "../lib/mesto/redis_connection"
 
 module Mesto
   class Application < Rails::Application
@@ -44,6 +45,9 @@ module Mesto
     config.x.payment_provider = ENV.fetch("PAYMENT_PROVIDER", "fake")
     config.x.fake_payments_enabled = ActiveModel::Type::Boolean.new.cast(
       ENV.fetch("FAKE_PAYMENTS_ENABLED", Rails.env.production? ? "false" : "true")
+    )
+    config.x.checkout_enabled = ActiveModel::Type::Boolean.new.cast(
+      ENV.fetch("CHECKOUT_ENABLED", Rails.env.production? ? "false" : "true")
     )
     config.x.map_style_url = ENV["MAP_STYLE_URL"].presence || "https://tiles.openfreemap.org/styles/liberty"
     config.x.development_pressure_years = ENV.fetch("DEVELOPMENT_PRESSURE_YEARS", 5).to_i

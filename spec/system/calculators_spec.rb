@@ -323,6 +323,7 @@ RSpec.describe "Standalone calculators", type: :system do
     fill_in "Име на сметката", with: "Свързан сценарий"
     click_button "Запази тази сметка"
 
+    expect(page).to have_current_path(%r{\A/kalkulator/scenarii/[0-9a-f-]+\z})
     expect(page).to have_text("Свързан личен план: Тест план")
     expect(journey.journey_item_progresses).to be_empty
   end

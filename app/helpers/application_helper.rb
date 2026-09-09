@@ -19,6 +19,10 @@ module ApplicationHelper
     Rails.env.production? ? "https://#{Rails.application.config.x.app_host}" : request.base_url
   end
 
+  def checkout_enabled?
+    Rails.application.config.x.checkout_enabled
+  end
+
   ICON_PATHS = {
     "arrow-right" => '<path d="M5 12h14M13 6l6 6-6 6"/>',
     "arrow-up-right" => '<path d="M7 17 17 7M7 7h10v10"/>',

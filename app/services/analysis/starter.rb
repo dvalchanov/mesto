@@ -1,7 +1,5 @@
 module Analysis
   class Starter
-    REUSE_WINDOW = 24.hours
-
     def initialize(identifier)
       @identifier = identifier
     end
@@ -14,7 +12,7 @@ module Analysis
 
     def reusable
       candidates = PropertyAnalysis.completed.where(submitted_identifier: @identifier.to_s)
-        .where(completed_at: REUSE_WINDOW.ago..).order(completed_at: :desc)
+        .order(completed_at: :desc)
       candidates.find { |analysis| current_revision?(analysis) }
     end
 

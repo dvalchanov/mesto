@@ -827,5 +827,6 @@ en:
     success_body: "The test payment completed successfully. Anyone with the public report link can now see the full content."
     back_to_report: "Open the full analysis"
     unavailable: "This result does not contain enough content for a paid analysis."
+    disabled: "Checkout is not available yet."
     already_unlocked: "The full analysis is already unlocked."
     invalid_transition: "This test payment has already finished."

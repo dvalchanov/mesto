@@ -1,5 +1,6 @@
 class CheckoutsController < ApplicationController
   before_action :set_order
+  before_action :require_checkout_enabled
   before_action :require_fake_payments, only: %i[succeed fail cancel]
 
   def show
@@ -42,5 +43,11 @@ class CheckoutsController < ApplicationController
     return if Rails.application.config.x.fake_payments_enabled
 
     head :not_found
+  end
+
+  def require_checkout_enabled
+    return if Rails.application.config.x.checkout_enabled
+
+    redirect_to report_path(public_token: @analysis), alert: t("checkout.disabled")
   end
 end

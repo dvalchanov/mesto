@@ -1,4 +1,18 @@
 Rails.application.routes.draw do
+  if Rails.env.development? || Rails.env.production?
+    require "sidekiq/web"
+
+    if Rails.env.production?
+      require "rack/auth/basic"
+
+      Sidekiq::Web.use Rack::Auth::Basic, "Mesto Sidekiq" do |username, password|
+        Mesto::SidekiqWebAuthentication.valid?(username, password)
+      end
+    end
+
+    mount Sidekiq::Web => "/sidekiq"
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

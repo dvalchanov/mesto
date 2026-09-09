@@ -1,7 +1,7 @@
 class RefreshPreparedDataJob < ApplicationJob
   queue_as :ingestion
 
-  REFRESH_INTERVAL = 1.day
+  REFRESH_INTERVAL = 1.week
 
   def perform(coverage_profile_key: DataCoverage.profile.key)
     profile = DataCoverage::Profile.find(coverage_profile_key)

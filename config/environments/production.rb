@@ -46,8 +46,18 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
-  # config.cache_store = :mem_cache_store
+  # Share throttles and cache entries across web and worker processes.
+  config.cache_store = [
+    :redis_cache_store,
+    {
+      **Mesto::RedisConnection.options,
+      namespace: "mesto",
+      pool: {
+        size: ENV.fetch("REDIS_CACHE_POOL", 2).to_i,
+        timeout: 1
+      }
+    }
+  ]
 
   config.active_job.queue_adapter = :sidekiq
 
