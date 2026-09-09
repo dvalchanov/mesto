@@ -15,10 +15,8 @@ class PropertyAnalysesController < ApplicationController
       return render "home/show", status: :unprocessable_content
     end
 
-    existing = PropertyAnalysis.completed.where(submitted_identifier: identifier.to_s)
-      .where(completed_at: 24.hours.ago..).exists?
     analysis = Analysis::Starter.new(identifier).call
-    reused = existing
+    reused = !analysis.previously_new_record?
     ProductEvent.record("search_submitted", property_analysis: analysis, metadata: { reused: })
     if params[:attach_to_journey] == "1"
       ProductEvent.record("property_attachment_started", property_analysis: analysis, metadata: { mode: "personalized_no_property" })

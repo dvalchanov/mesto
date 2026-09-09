@@ -4,8 +4,12 @@
       <p class="eyebrow eyebrow--light"><span></span><%= t("reports.locked.eyebrow") %></p>
       <h2><%= t("reports.locked.title") %></h2>
       <p><%= t("reports.locked.description") %></p>
-      <%= link_to report_checkout_path(public_token: analysis), class: "button button--subtle mt-6" do %>
-        <%= mesto_icon("lock", css_class: "size-4") %><%= t("reports.locked.cta") %><%= mesto_icon("arrow-right", css_class: "size-4") %>
+      <% if checkout_enabled? %>
+        <%= link_to report_checkout_path(public_token: analysis), class: "button button--subtle mt-6" do %>
+          <%= mesto_icon("lock", css_class: "size-4") %><%= t("reports.locked.cta") %><%= mesto_icon("arrow-right", css_class: "size-4") %>
+        <% end %>
+      <% else %>
+        <p class="mt-6"><%= t("checkout.disabled") %></p>
       <% end %>
     </div>
     <ul>

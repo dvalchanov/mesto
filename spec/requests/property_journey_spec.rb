@@ -136,6 +136,35 @@ RSpec.describe "Property report journey", type: :request do
     expect(response.body).not_to include(I18n.t("reports.locked.cta"))
   end
 
+  it "hides and rejects checkout while the production kill switch is off" do
+    analysis = create(
+      :property_analysis,
+      status: "ready",
+      coverage_status: "complete",
+      summary: { "paid_content_available" => true }
+    )
+    order = Payments::FakeGateway.new.create_order(property_analysis: analysis, email: "buyer@example.com")
+    previous_value = Rails.application.config.x.checkout_enabled
+
+    begin
+      Rails.application.config.x.checkout_enabled = false
+
+      get report_path(public_token: analysis)
+      expect(response.body).to include(I18n.t("checkout.disabled"))
+      expect(response.body).not_to include(I18n.t("reports.locked.cta"))
+
+      expect {
+        post report_orders_path(public_token: analysis), params: { order: { email: "another@example.com" } }
+      }.not_to change(Order, :count)
+      expect(response).to redirect_to(report_path(public_token: analysis))
+
+      get checkout_path(public_token: order)
+      expect(response).to redirect_to(report_path(public_token: analysis))
+    ensure
+      Rails.application.config.x.checkout_enabled = previous_value
+    end
+  end
+
   it "separates a blocking location failure from spatial checks skipped because of it" do
     analysis = create(:property_analysis, status: "partial", coverage_status: "good")
     analysis.source_runs.create!(

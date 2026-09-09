@@ -25,5 +25,11 @@ RSpec.describe Mesto::RecurringJobs do
         "PruneAnonymousJourneysJob"
       )
     end
+
+    it "refreshes prepared datasets once a week during the Sofia night" do
+      refresh_job = described_class::JOBS.fetch("Mesto: refresh prepared data - Sundays at 03:00")
+
+      expect(refresh_job.fetch(:cron)).to eq("0 3 * * 0 Europe/Sofia")
+    end
   end
 end

@@ -1,11 +1,11 @@
-redis_config = { url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0") }
+redis_config = Mesto::RedisConnection.options
 
 module Mesto
   module RecurringJobs
     NAME_PREFIX = "Mesto: ".freeze
     JOBS = {
-      "#{NAME_PREFIX}refresh prepared data - daily at 03:00" => {
-        cron: "0 3 * * * Europe/Sofia",
+      "#{NAME_PREFIX}refresh prepared data - Sundays at 03:00" => {
+        cron: "0 3 * * 0 Europe/Sofia",
         class: "RefreshPreparedDataJob",
         queue: "ingestion",
         active_job: true,
@@ -31,7 +31,12 @@ module Mesto
 end
 
 Sidekiq.configure_server do |config|
-  config.redis = redis_config
+  config.redis = redis_config.merge(size: ENV.fetch("SIDEKIQ_REDIS_POOL", 3).to_i)
+
+  config.capsule("ingestion") do |capsule|
+    capsule.concurrency = ENV.fetch("INGESTION_CONCURRENCY", 1).to_i
+    capsule.queues = [ "ingestion" ]
+  end
 
   config.on(:startup) do
     Mesto::RecurringJobs.sync!
@@ -39,5 +44,5 @@ Sidekiq.configure_server do |config|
 end
 
 Sidekiq.configure_client do |config|
-  config.redis = redis_config
+  config.redis = redis_config.merge(size: ENV.fetch("SIDEKIQ_CLIENT_REDIS_POOL", 2).to_i)
 end

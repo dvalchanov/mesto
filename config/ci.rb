@@ -3,6 +3,8 @@
 CI.run do
   step "Setup", "bin/setup --skip-server"
 
+  step "Assets: Tailwind CSS", "bin/rails tailwindcss:build"
+
   step "Tests: RSpec", "bin/rspec"
 
   step "Style: Ruby", "bin/rubocop"

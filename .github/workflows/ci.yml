@@ -46,15 +46,8 @@ jobs:
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
 
-      - name: Install gems
-        run: bundle install --jobs 4 --retry 3
-
-      - name: Set up database
-        run: bin/rails db:prepare
-
-      - name: Run specs
-        run: bin/rspec
-
-      - name: Run RuboCop
-        run: bin/rubocop
+      - name: Run CI
+        run: bin/ci

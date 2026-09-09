@@ -7,6 +7,11 @@ test:
   adapter: test
 
 production:
+  <% redis_options = Mesto::RedisConnection.options %>
   adapter: redis
-  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  url: <%= redis_options.fetch(:url) %>
+  <% if redis_options[:ssl_params] %>
+  ssl_params:
+    verify_mode: <%= redis_options.dig(:ssl_params, :verify_mode) %>
+  <% end %>
   channel_prefix: mesto_production

@@ -1,4 +1,5 @@
 class OrdersController < ApplicationController
+  before_action :require_checkout_enabled
   before_action :set_analysis
 
   def new
@@ -26,6 +27,12 @@ class OrdersController < ApplicationController
   end
 
   private
+
+  def require_checkout_enabled
+    return if Rails.application.config.x.checkout_enabled
+
+    redirect_to report_path(public_token: params[:public_token]), alert: t("checkout.disabled")
+  end
 
   def set_analysis
     @analysis = PropertyAnalysis.find_by!(public_token: params[:public_token])
