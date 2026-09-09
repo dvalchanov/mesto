@@ -1,10 +1,12 @@
 <% content_for :title, "#{t('checkout.success_title')} - #{product_name}" %>
+<% content_for :description, localized_copy("Плащането е потвърдено и пълният личен отчет в Mesto е отключен.", "Payment confirmed. Your full private Mesto report is now unlocked.") %>
+<% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="site-shell checkout-page">
   <div class="checkout-state">
     <span class="checkout-state__icon"><%= mesto_icon("check", css_class: "size-8") %></span>
     <p class="eyebrow mt-6 justify-center"><span></span><%= t("payments.products.full_property_report.name") %><span></span></p>
     <h1><%= t("checkout.success_title") %></h1>
     <p><%= t("checkout.success_body") %></p>
-    <%= link_to report_path(@analysis), class: "button button--secondary mt-8" do %><%= t("checkout.back_to_report") %><%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
+    <%= link_to report_path(public_token: @analysis), class: "button button--secondary mt-8" do %><%= t("checkout.back_to_report") %><%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
   </div>
 </section>

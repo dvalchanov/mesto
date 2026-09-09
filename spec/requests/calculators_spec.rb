@@ -18,7 +18,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
   it "serves the free standalone routes with distinct server-rendered content" do
     get calculators_path
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("От цена на имота до реален план за плащане")
+    expect(response.body).to include("От цената на имота до ясен план за плащане")
 
     get purchase_calculator_path
     expect(response).to have_http_status(:ok)
@@ -37,7 +37,24 @@ RSpec.describe "Property-purchase calculators", type: :request do
 
     post calculate_purchase_calculator_path, params: { calculator: { property_price: "1.234" } }
     expect(response).to have_http_status(:unprocessable_content)
-    expect(response.body).to include("Въведи еднозначно положително число")
+    expect(response.body).to include("Въведи положително число")
+  end
+
+  it "keeps calculated results and validation messages in English" do
+    english_params = complete_params.deep_dup
+    english_params[:title] = "Apartment A"
+    english_params[:schedule][:first][:label] = "Preliminary contract"
+    english_params[:schedule][:second][:label] = "Act 14"
+    english_params[:schedule][:closing][:label] = "Notarial transfer"
+
+    post calculate_purchase_calculator_path(locale: :en), params: { calculator: english_params }
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Your calculation", "Total planned payments", "Notarial transfer")
+    expect(Nokogiri::HTML5(response.body).at_css("body").text).not_to match(/[А-Яа-я]/)
+
+    post calculate_purchase_calculator_path(locale: :en), params: { calculator: { property_price: "1.234" } }
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.body).to include("Enter a positive number")
   end
 
   it "uses the same mortgage engine on the focused entry point" do
@@ -54,7 +71,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
       post budget_scenarios_path, params: { calculator: complete_params }
     }.to change(BudgetScenario, :count).by(1)
     scenario = BudgetScenario.last
-    expect(response).to redirect_to(budget_scenario_path(scenario))
+    expect(response).to redirect_to(budget_scenario_path(public_token: scenario))
     expect(scenario.validated_inputs["property_price_cents"]).to eq(30_000_000)
     expect(scenario.financial_rule_versions).to include("bg.sofia.acquisition_tax" => "2026-01-01.1")
 
@@ -63,26 +80,26 @@ RSpec.describe "Property-purchase calculators", type: :request do
 
     get budget_scenarios_path
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Запазени сметки", "Апартамент А", "Сравни избраните две", "noindex,nofollow")
+    expect(response.body).to include("Запазени сметки", "Апартамент А", "Сравни двете сметки", "noindex,nofollow")
 
-    patch budget_scenario_path(scenario), params: { budget_scenario: { title: "Вариант Б" } }
+    patch budget_scenario_path(public_token: scenario), params: { budget_scenario: { title: "Вариант Б" } }
     expect(scenario.reload.title).to eq("Вариант Б")
 
-    expect { post duplicate_budget_scenario_path(scenario) }.to change(BudgetScenario, :count).by(1)
+    expect { post duplicate_budget_scenario_path(public_token: scenario) }.to change(BudgetScenario, :count).by(1)
     copy = BudgetScenario.order(:created_at).last
     expect(copy.title).to include("копие")
 
     post compare_budget_scenarios_path, params: { scenario_tokens: [ scenario.public_token, copy.public_token ] }
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Сравнение без победител", "Моделирана лихва")
+    expect(response.body).to include("Само ти можеш да прецениш", "Обща лихва")
 
     expect {
-      post save_budget_scenario_path(scenario), params: { calculator: complete_params.merge(property_price: "310000", title: "Обновен вариант") }
+      post save_budget_scenario_path(public_token: scenario), params: { calculator: complete_params.merge(property_price: "310000", title: "Обновен вариант") }
     }.not_to change(BudgetScenario, :count)
     expect(scenario.reload).to have_attributes(title: "Обновен вариант")
     expect(scenario.validated_inputs["property_price_cents"]).to eq(31_000_000)
 
-    expect { delete budget_scenario_path(copy) }.to change(BudgetScenario, :count).by(-1)
+    expect { delete budget_scenario_path(public_token: copy) }.to change(BudgetScenario, :count).by(-1)
   end
 
   it "does not authorize a private scenario by its random URL alone" do
@@ -92,7 +109,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
       financial_rule_versions: {}, calculated_at: Time.current
     )
 
-    get budget_scenario_path(scenario)
+    get budget_scenario_path(public_token: scenario)
     expect(response).to have_http_status(:not_found)
   end
 
@@ -120,7 +137,7 @@ RSpec.describe "Property-purchase calculators", type: :request do
       financial_rule_versions: {}, calculated_at: Time.current
     )
 
-    get report_path(analysis)
+    get report_path(public_token: analysis)
     expect(response.body).not_to include("PRIVATE-SCENARIO-NAME", "SECRET-CASH-NOTE", "987 654,32")
   end
 

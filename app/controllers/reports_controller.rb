@@ -28,15 +28,15 @@ class ReportsController < ApplicationController
 
   def refresh
     if !RequestThrottle.allowed?("refresh/#{request.remote_ip}/#{@analysis.public_token}", limit: 3, period: 1.hour)
-      redirect_to report_path(@analysis), alert: t("reports.refresh.rate_limited")
+      redirect_to report_path(public_token: @analysis), alert: t("reports.refresh.rate_limited")
     elsif @analysis.running?
-      redirect_to report_path(@analysis), notice: t("reports.refresh.already_running")
+      redirect_to report_path(public_token: @analysis), notice: t("reports.refresh.already_running")
     elsif @analysis.completed_at && @analysis.completed_at > 15.minutes.ago
-      redirect_to report_path(@analysis), alert: t("reports.refresh.too_soon")
+      redirect_to report_path(public_token: @analysis), alert: t("reports.refresh.too_soon")
     else
       @analysis.update!(status: "queued", failed_at: nil, failure_message: nil)
       AnalyzePropertyJob.perform_later(@analysis.id)
-      redirect_to report_path(@analysis), notice: t("reports.refresh.started")
+      redirect_to report_path(public_token: @analysis), notice: t("reports.refresh.started")
     end
   end
 

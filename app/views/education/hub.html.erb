@@ -1,19 +1,19 @@
-<% content_for :title, "Наръчник за покупка на имот - #{product_name}" %>
-<% content_for :description, "Практичен наръчник за покупка на имот: строителни етапи, важни документи, термини и насоки според твоята ситуация." %>
+<% content_for :title, localized_copy("Покупка на имот: наръчник за купувача | #{product_name}", "Buying Property in Bulgaria: Buyer Guide | #{product_name}") %>
+<% content_for :description, localized_copy("Практичен наръчник за покупка на имот с проверки преди капаро и сделка, етапи на новото строителство, документи и важни термини.", "A practical guide to buying property in Bulgaria, including checks before a deposit or contract, new-build stages, documents and key terms.") %>
 
 <section class="education-hero">
   <div class="site-shell education-hero__grid">
     <div>
-      <p class="eyebrow"><span></span>Наръчник на Mesto</p>
-      <h1>Покупката на имот, стъпка по стъпка.</h1>
-      <p>Можеш да започнеш и без избран имот. Избери темата според своята ситуация, вида на имота или етапа на строителството.</p>
+      <p class="eyebrow"><span></span><%= localized_copy("Наръчник на Mesto", "Mesto guide") %></p>
+      <h1><%= localized_copy("Подготви покупката си стъпка по стъпка", "Prepare for your purchase, step by step") %></h1>
+      <p><%= localized_copy("Не е нужно вече да си избрал имот. Започни от своята ситуация, от вида на имота или от етапа на строителството.", "You don't need to have chosen a property yet. Start with your situation, the type of property or its stage of construction.") %></p>
       <div class="education-actions">
-        <%= link_to "Избери моята ситуация", buying_guide_path(anchor: "buyer-guide-start"), class: "button button--primary" %>
-        <%= link_to "Виж строителните етапи", new_build_guide_path, class: "button button--secondary" %>
+        <%= link_to localized_copy("Избери моята ситуация", "Choose my situation"), buying_guide_path(anchor: "buyer-guide-start"), class: "button button--primary" %>
+        <%= link_to localized_copy("Виж строителните етапи", "View the construction stages"), new_build_guide_path, class: "button button--secondary" %>
       </div>
     </div>
-    <div class="education-principle" aria-label="Подходът на Mesto">
-      <% %w[Разбери Провери Действай Продължи].each_with_index do |word, index| %>
+    <div class="education-principle" aria-label="<%= localized_copy("Подходът на Mesto", "The Mesto approach") %>">
+      <% localized_copy(%w[Разбери Провери Действай Продължи], %w[Understand Verify Act Continue]).each_with_index do |word, index| %>
         <span><b><%= format("%02d", index + 1) %></b><%= word %></span>
       <% end %>
     </div>
@@ -23,67 +23,67 @@
 <div class="site-shell education-page">
   <% if current_buyer_journey %>
     <section class="resume-card">
-      <div><p class="eyebrow"><span></span>Запазен план</p><h2>Продължи личния си план</h2><p><%= property_type_label(current_buyer_journey.property_type) %> · <%= buyer_stage_label(current_buyer_journey.buyer_stage) %></p></div>
-      <%= link_to "Отвори Моето място", my_mesto_path, class: "button button--primary" %>
+      <div><p class="eyebrow"><span></span><%= localized_copy("Запазен план", "Saved plan") %></p><h2><%= localized_copy("Продължи личния си план", "Continue your personal plan") %></h2><p><%= property_type_label(current_buyer_journey.property_type) %> · <%= buyer_stage_label(current_buyer_journey.buyer_stage) %></p></div>
+      <%= link_to localized_copy("Отвори Моето място", "Open My Mesto"), my_mesto_path, class: "button button--primary" %>
     </section>
   <% end %>
 
   <section class="education-section">
     <div class="section-heading section-heading--split">
-      <div><p class="eyebrow"><span></span>Два отделни процеса</p><h2>Къде е сградата и къде си ти?</h2></div>
-      <p>Етапът на строителството и твоят етап като купувач са различни. Разглеждай ги отделно, за да не правиш изводи за единия само по другия.</p>
+      <div><p class="eyebrow"><span></span><%= localized_copy("Два отделни процеса", "Two separate journeys") %></p><h2><%= localized_copy("Докъде е стигнал строежът и докъде си стигнал ти?", "How far has construction progressed, and where are you in your purchase?") %></h2></div>
+      <p><%= localized_copy("Етапът на строителството и твоят етап като купувач не са едно и също. Разглеждай ги отделно, за да не правиш прибързани изводи.", "The construction stage and your stage as a buyer are not the same. Consider them separately so you don't jump to conclusions.") %></p>
     </div>
     <div class="dual-journeys">
       <article>
-        <span class="dual-journeys__label">01 · Сграда и проект</span>
-        <h3>Новото строителство</h3>
-        <p>Осем етапа - от подготовката на терена до предаването на имота. Ще видиш какво се строи, кои документи са важни и какво да провериш.</p>
-        <ol><% @stages.each do |stage| %><li><%= link_to stage["title"], new_build_stage_path(stage["slug"]) %></li><% end %></ol>
-        <%= link_to "Виж всички строителни етапи", new_build_guide_path, class: "text-link" %>
+        <span class="dual-journeys__label"><%= localized_copy("01 · Сграда и проект", "01 · Building and project") %></span>
+        <h3><%= localized_copy("Новото строителство", "New construction") %></h3>
+        <p><%= localized_copy("Осем етапа - от подготовката на терена до предаването на имота. Ще разбереш какво се строи, кои документи са важни и какво да провериш.", "Eight stages, from preparing the site to handing over the property. Learn what is being built, which documents matter and what you need to check.") %></p>
+        <ol><% @stages.each do |stage| %><li><%= link_to stage["title"], new_build_stage_path(stage: stage["slug"]) %></li><% end %></ol>
+        <%= link_to localized_copy("Виж всички строителни етапи", "View all construction stages"), new_build_guide_path, class: "text-link" %>
       </article>
       <article>
-        <span class="dual-journeys__label">02 · Твоето решение</span>
-        <h3>Пътят на купувача</h3>
-        <p>Насоки според решението, което ти предстои. Можеш да започнеш от всеки етап, да се върнеш назад или да прескочиш тема, която не се отнася за теб.</p>
+        <span class="dual-journeys__label"><%= localized_copy("02 · Твоето решение", "02 · Your decision") %></span>
+        <h3><%= localized_copy("Пътят на купувача", "The buyer's journey") %></h3>
+        <p><%= localized_copy("Насоки според решението, което ти предстои. Можеш да започнеш от всеки етап, да се върнеш назад или да прескочиш тема, която не се отнася за теб.", "Guidance for the decision ahead of you. Start at any stage, go back or skip a topic that does not apply to your situation.") %></p>
         <ol><% @buyer_guides.each do |guide| %><li><%= link_to guide["title"], buying_guide_path(anchor: guide["buyer_stage"]) %></li><% end %></ol>
-        <%= link_to "Разгледай пътя на купувача", buying_guide_path, class: "text-link" %>
+        <%= link_to localized_copy("Разгледай пътя на купувача", "Explore the buyer's journey"), buying_guide_path, class: "text-link" %>
       </article>
     </div>
     <div class="property-route-preview">
-      <div><span>Според вида на имота</span><strong>Виж кои проверки са различни</strong></div>
+      <div><span><%= localized_copy("Според вида на имота", "By property type") %></span><strong><%= localized_copy("Виж кои проверки са различни", "See which checks are different") %></strong></div>
       <% @property_guides.each do |guide| %><%= link_to buying_guide_path(anchor: guide["slug"]) do %><span><%= Array(guide["property_types"]).map { |type| property_type_label(type) }.join(" · ") %></span><strong><%= guide["title"] %></strong><% end %><% end %>
     </div>
   </section>
 
   <section class="education-section situations">
-    <div class="section-heading"><p class="eyebrow"><span></span>Чести отправни точки</p><h2>Започни от въпроса, който имаш сега</h2></div>
+    <div class="section-heading"><p class="eyebrow"><span></span><%= localized_copy("Чести отправни точки", "Common starting points") %></p><h2><%= localized_copy("Започни от въпроса, който имаш сега", "Start with the question you have right now") %></h2></div>
     <div class="situation-grid">
-      <%= link_to buying_guide_path(anchor: "researching") do %><span>Само проучвам</span><strong>Тепърва започвам</strong><small>Критерии, бюджет и сравнение</small><% end %>
-      <%= link_to buying_guide_path(anchor: "shortlisting") do %><span>Сравнявам</span><strong>Имам няколко варианта</strong><small>Идентичност, състояние и общ разход</small><% end %>
-      <%= link_to buying_guide_path(anchor: "before_deposit") do %><span>Преди плащане</span><strong>Предстои ми капаро</strong><small>На кого плащаш и кога сумата се връща</small><% end %>
-      <%= link_to buying_guide_path(anchor: "before_preliminary_contract") do %><span>Преди договор</span><strong>Получих проект за подписване</strong><small>Имот, приложения, плащания и условия за прекратяване</small><% end %>
-      <%= link_to buying_guide_path(anchor: "waiting_or_payment") do %><span>След договор</span><strong>Чакам следващо плащане</strong><small>Провери условията и доказателствата по своя договор</small><% end %>
-      <%= link_to buying_guide_path(anchor: "before_notarial_transfer") do %><span>Преди сделка</span><strong>Подготвям нотариално прехвърляне</strong><small>Собственост, тежести и начин на плащане</small><% end %>
-      <%= link_to buying_guide_path(anchor: "before_handover") do %><span>Преди ключове</span><strong>Предстои ми предаване</strong><small>Оглед, протокол, дефекти и показания</small><% end %>
-      <%= link_to buying_guide_path(anchor: "owner") do %><span>След покупката</span><strong>Вече съм собственик</strong><small>Партиди, гаранции и общи части</small><% end %>
+      <%= link_to buying_guide_path(anchor: "researching") do %><span><%= localized_copy("Само проучвам", "Researching") %></span><strong><%= localized_copy("Тепърва започвам", "I'm just getting started") %></strong><small><%= localized_copy("Критерии, бюджет и сравнение", "Criteria, budget and comparison") %></small><% end %>
+      <%= link_to buying_guide_path(anchor: "shortlisting") do %><span><%= localized_copy("Сравнявам", "Comparing") %></span><strong><%= localized_copy("Имам няколко варианта", "I have a shortlist") %></strong><small><%= localized_copy("Идентичност, състояние и общ разход", "Identity, condition and total cost") %></small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_deposit") do %><span><%= localized_copy("Преди плащане", "Before payment") %></span><strong><%= localized_copy("Предстои ми капаро", "I'm about to pay a deposit") %></strong><small><%= localized_copy("На кого ще платиш и кога сумата се връща", "Who receives the payment and when it is refundable") %></small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_preliminary_contract") do %><span><%= localized_copy("Преди договор", "Before a contract") %></span><strong><%= localized_copy("Получих проект за подписване", "I've received a draft to sign") %></strong><small><%= localized_copy("Имот, приложения, плащания и условия за прекратяване", "Property, appendices, payments and termination terms") %></small><% end %>
+      <%= link_to buying_guide_path(anchor: "waiting_or_payment") do %><span><%= localized_copy("След договор", "After signing") %></span><strong><%= localized_copy("Чакам следващо плащане", "I'm waiting for the next payment") %></strong><small><%= localized_copy("Провери условията и доказателствата по своя договор", "Check the conditions and evidence required by your contract") %></small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_notarial_transfer") do %><span><%= localized_copy("Преди сделка", "Before completion") %></span><strong><%= localized_copy("Подготвям нотариално прехвърляне", "I'm preparing for the notarial transfer") %></strong><small><%= localized_copy("Собственост, тежести и начин на плащане", "Title, encumbrances and payment method") %></small><% end %>
+      <%= link_to buying_guide_path(anchor: "before_handover") do %><span><%= localized_copy("Преди ключове", "Before receiving the keys") %></span><strong><%= localized_copy("Предстои ми предаване", "My property is about to be handed over") %></strong><small><%= localized_copy("Оглед, протокол, дефекти и показания", "Inspection, handover record, defects and meter readings") %></small><% end %>
+      <%= link_to buying_guide_path(anchor: "owner") do %><span><%= localized_copy("След покупката", "After the purchase") %></span><strong><%= localized_copy("Вече съм собственик", "I'm already an owner") %></strong><small><%= localized_copy("Партиди, гаранции и общи части", "Utilities, warranties and common areas") %></small><% end %>
     </div>
-    <p class="hypothesis-note">Избери темата, която е най-близо до твоята ситуация. Отварянето ѝ няма да промени личния ти план. Ако не си сигурен откъде да започнеш, <%= link_to "отговори на три кратки въпроса", my_mesto_path %>.</p>
+    <p class="hypothesis-note"><%= localized_copy("Избери темата, която е най-близо до твоята ситуация. Отварянето ѝ няма да промени личния ти план. Ако не си сигурен откъде да започнеш,", "Choose the topic closest to your situation. Opening it will not change your personal plan. If you're unsure where to start,") %> <%= link_to localized_copy("отговори на три кратки въпроса", "answer three quick questions"), my_mesto_path %>.</p>
   </section>
 
   <section class="education-section guide-library-preview">
-    <div class="section-heading section-heading--split"><div><p class="eyebrow"><span></span>Документи и термини</p><h2>Намери ясно обяснение</h2></div><p>Провери какво доказва даден документ или какво означава непознат термин, преди да вземеш решение въз основа на него.</p></div>
+    <div class="section-heading section-heading--split"><div><p class="eyebrow"><span></span><%= localized_copy("Документи и термини", "Documents and terms") %></p><h2><%= localized_copy("Намери ясно обяснение", "Find a clear explanation") %></h2></div><p><%= localized_copy("Провери какво доказва даден документ или какво означава непознат термин, преди да вземеш решение въз основа на него.", "Check what a document proves or what an unfamiliar term means before relying on it for a decision.") %></p></div>
     <div class="guide-library-preview__grid">
-      <section><header><span>Документи</span><h3>Какво доказва този документ?</h3></header><div><% @documents.each do |document| %><%= link_to education_document_path(document["slug"]) do %><strong><%= document["title"] %></strong><small><%= document["summary"] %></small><% end %><% end %></div><%= link_to "Виж всички документи", education_documents_path, class: "text-link" %></section>
-      <section><header><span>Термини</span><h3>Какво означава тази дума?</h3></header><div><% @terms.each do |term| %><%= link_to term_path(term["slug"]) do %><strong><%= term["title"] %></strong><small><%= term["summary"] %></small><% end %><% end %></div><%= link_to "Виж всички термини", terms_path, class: "text-link" %></section>
+      <section><header><span><%= t("navigation.documents") %></span><h3><%= localized_copy("Какво доказва този документ?", "What does this document prove?") %></h3></header><div><% @documents.each do |document| %><%= link_to education_document_path(slug: document["slug"]) do %><strong><%= document["title"] %></strong><small><%= document["summary"] %></small><% end %><% end %></div><%= link_to localized_copy("Виж всички документи", "View all documents"), education_documents_path, class: "text-link" %></section>
+      <section><header><span><%= localized_copy("Термини", "Terms") %></span><h3><%= localized_copy("Какво означава тази дума?", "What does this term mean?") %></h3></header><div><% @terms.each do |term| %><%= link_to term_path(slug: term["slug"]) do %><strong><%= term["title"] %></strong><small><%= term["summary"] %></small><% end %><% end %></div><%= link_to localized_copy("Виж всички термини", "View all terms"), terms_path, class: "text-link" %></section>
     </div>
   </section>
 
   <section class="education-section education-search-block">
-    <div><p class="eyebrow"><span></span>Търсене в наръчника</p><h2>Какво искаш да провериш?</h2><p>Можеш да търсиш по име, съкращение или израз - например „акт16“, „акт 16“ или „въвеждане в експлоатация“.</p></div>
+    <div><p class="eyebrow"><span></span><%= localized_copy("Търсене в наръчника", "Search the guide") %></p><h2><%= localized_copy("Какво искаш да провериш?", "What would you like to check?") %></h2><p><%= localized_copy("Търси по име, съкращение или израз - например „акт16“, „акт 16“ или „въвеждане в експлоатация“.", "Search by name, abbreviation or phrase, such as “Act 16”, “occupancy permit” or “commissioning”.") %></p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
-      <%= form.label :q, "Търси документ или термин", class: "form-label" %>
-      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: "Напр. Акт 15, УПИ, тежести…" %><%= form.submit "Търси", class: "button button--secondary" %></div>
+      <%= form.label :q, localized_copy("Търси документ или термин", "Search documents or terms"), class: "form-label" %>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: localized_copy("Напр. Акт 15, УПИ, тежести…", "E.g. Act 15, regulated plot, encumbrances…") %><%= form.submit localized_copy("Търси", "Search"), class: "button button--secondary" %></div>
     <% end %>
-    <div class="library-links"><%= link_to "Всички документи", education_documents_path %><%= link_to "Всички термини", terms_path %></div>
+    <div class="library-links"><%= link_to localized_copy("Всички документи", "All documents"), education_documents_path %><%= link_to localized_copy("Всички термини", "All terms"), terms_path %></div>
   </section>
 </div>

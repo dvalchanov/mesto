@@ -1,4 +1,6 @@
 <% content_for :title, "#{t('reports.title', identifier: @analysis.submitted_identifier)} - #{product_name}" %>
+<% content_for :description, localized_copy("Личен отчет на Mesto за публичните данни, свързани с имот #{@analysis.submitted_identifier}.", "A private Mesto report covering public data associated with property #{@analysis.submitted_identifier}.") %>
+<% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <%= turbo_stream_from @analysis, I18n.locale %>
 
 <section class="site-shell report-page">

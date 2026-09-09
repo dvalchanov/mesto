@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 const NATIVE_PICKER_QUERY = "(max-width: 760px), (pointer: coarse), (forced-colors: active)"
+const localizedCopy = (bg, en) => document.documentElement.lang.toLowerCase().startsWith("en") ? en : bg
 
 export default class extends Controller {
   connect() {
@@ -123,7 +124,7 @@ export default class extends Controller {
     if (labelIds.length) {
       trigger.setAttribute("aria-labelledby", `${labelIds.join(" ")} ${value.id}`)
     } else {
-      trigger.setAttribute("aria-label", select.getAttribute("aria-label") || "Избери опция")
+      trigger.setAttribute("aria-label", select.getAttribute("aria-label") || localizedCopy("Избери опция", "Choose an option"))
     }
 
     const widget = { select, wrapper, trigger, value, menu, original, labelHandlers }
@@ -151,7 +152,7 @@ export default class extends Controller {
     const { select, trigger, value, menu } = widget
     const selected = select.options[select.selectedIndex] || select.options[0]
 
-    const selectedText = selected?.text || "Избери опция"
+    const selectedText = selected?.text || localizedCopy("Избери опция", "Choose an option")
     if (value.textContent !== selectedText) value.textContent = selectedText
     if (trigger.disabled !== select.disabled) trigger.disabled = select.disabled
     trigger.classList.toggle("is-placeholder", !selected?.value)

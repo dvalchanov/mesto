@@ -3,6 +3,7 @@ require "bigdecimal"
 module Calculators
   class PaymentSchedule
     ROUNDING_POLICY = "Процентните вноски се закръглят до евроцент; само един ред „остатък“ поема валидната разлика.".freeze
+    ROUNDING_POLICY_EN = "Percentage-based payments are rounded to the nearest euro cent; a single remaining-balance row absorbs any valid difference.".freeze
 
     def initialize(property_price_cents:, events:, reservation: {})
       @property_price_cents = property_price_cents
@@ -11,12 +12,12 @@ module Calculators
     end
 
     def call
-      return incomplete("Въведи цена на имота.") unless property_price_cents
-      return incomplete("Избери хипотетичен шаблон или добави свой график.") if events.empty?
+      return incomplete(copy("Въведи цена на имота.", "Enter the property price.")) unless property_price_cents
+      return incomplete(copy("Избери примерен график или добави свой.", "Choose a sample schedule or create your own.")) if events.empty?
 
       remaining_rows = events.count { |event| event["amount_type"] == "remaining" }
       errors = []
-      errors << "Може да има само една вноска „остатък“." if remaining_rows > 1
+      errors << copy("Може да има само една вноска „остатък“.", "The schedule can contain only one remaining-balance payment.") if remaining_rows > 1
       allocated_before_remaining = 0
       calculated = events.map do |event|
         amount = case event["amount_type"]
@@ -24,7 +25,7 @@ module Calculators
         when "percentage" then percentage_amount(event["percentage"])
         when "remaining" then [ property_price_cents - allocated_before_remaining, 0 ].max
         end
-        errors << "Липсва стойност за #{event['label'].presence || 'вноска'}." if amount.nil?
+        errors << copy("Липсва стойност за #{event['label'].presence || 'вноска'}.", "Enter an amount for #{event['label'].presence || 'the payment'}.") if amount.nil?
         allocated_before_remaining += amount.to_i
         event.merge("total_cents" => amount)
       end
@@ -32,10 +33,10 @@ module Calculators
       apply_reservation_credit!(calculated, errors)
       total_allocated = calculated.sum { _1["total_cents"].to_i }
       difference = property_price_cents - total_allocated
-      errors << "Графикът разпределя повече от цената с #{difference.abs} евроцента." if difference.negative?
+      errors << copy("Графикът разпределя повече от цената с #{difference.abs} евроцента.", "The schedule exceeds the price by #{difference.abs} euro cents.") if difference.negative?
       warnings = []
-      warnings << "Остават неразпределени #{difference} евроцента от цената." if difference.positive?
-      warnings << "Не е изяснено дали резервационното плащане се приспада от цената." if reservation["treatment"] == "uncertain"
+      warnings << copy("Остават неразпределени #{difference} евроцента от цената.", "#{difference} euro cents of the price remain unallocated.") if difference.positive?
+      warnings << copy("Не е изяснено дали резервационното плащане се приспада от цената.", "It is unclear whether the reservation payment is deducted from the price.") if reservation["treatment"] == "uncertain"
 
       calculated.each do |event|
         own_paid = event["already_paid_cents"].to_i
@@ -54,7 +55,7 @@ module Calculators
         "reservation_separate_fee_cents" => reservation["treatment"] == "separate_fee" ? reservation["amount_cents"].to_i : 0,
         "errors" => errors,
         "warnings" => warnings,
-        "rounding_policy" => ROUNDING_POLICY
+        "rounding_policy" => rounding_policy
       }
     end
 
@@ -65,7 +66,7 @@ module Calculators
     def incomplete(message)
       { "complete" => false, "events" => [], "errors" => [], "warnings" => [ message ], "total_allocated_cents" => 0,
         "unallocated_cents" => property_price_cents.to_i, "overallocated_cents" => 0, "historical_price_paid_cents" => 0,
-        "reservation_separate_fee_cents" => 0, "rounding_policy" => ROUNDING_POLICY }
+        "reservation_separate_fee_cents" => 0, "rounding_policy" => rounding_policy }
     end
 
     def percentage_amount(rate)
@@ -79,11 +80,11 @@ module Calculators
 
       target = calculated.find { _1["key"] == reservation["credit_event_key"] }
       unless target
-        errors << "Избери вноска, към която се приспада резервационното плащане."
+        errors << copy("Избери вноска, към която се приспада резервационното плащане.", "Choose the payment from which the reservation amount should be deducted.")
         return
       end
       if reservation["amount_cents"].to_i > target["total_cents"].to_i
-        errors << "Резервационният кредит е по-голям от избраната вноска."
+        errors << copy("Резервационният кредит е по-голям от избраната вноска.", "The reservation credit exceeds the selected payment.")
         return
       end
       target["reservation_credit_cents"] = reservation["amount_cents"].to_i
@@ -94,5 +95,8 @@ module Calculators
       paid += reservation["amount_cents"].to_i if reservation["treatment"] == "credited" && reservation["paid_before_start"]
       paid
     end
+
+    def rounding_policy = I18n.locale == :en ? ROUNDING_POLICY_EN : ROUNDING_POLICY
+    def copy(bg, en) = LocalizedCopy.call(bg, en)
   end
 end

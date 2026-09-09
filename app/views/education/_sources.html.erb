@@ -1,17 +1,17 @@
 <section class="education-sources" aria-labelledby="sources-title">
   <div>
-    <p class="eyebrow"><span></span>Източници</p>
-    <h2 id="sources-title">Провери официалния източник</h2>
-    <p>Съдържанието е образователно и не замества преглед на конкретните документи от квалифициран специалист.</p>
+    <p class="eyebrow"><span></span><%= localized_copy("Източници", "Sources") %></p>
+    <h2 id="sources-title"><%= localized_copy("Провери официалния източник", "Check the official source") %></h2>
+    <p><%= localized_copy("Съдържанието е образователно и не замества преглед на конкретните документи от квалифициран специалист.", "This content is educational and does not replace a qualified professional's review of the documents for a specific property.") %></p>
   </div>
   <ul>
     <% Array(entry["source_ids"]).each do |source_id| %>
       <% source = catalog.source(source_id) %>
       <li>
         <%= link_to source["title"], source["url"], target: "_blank", rel: "noopener noreferrer" %>
-        <span><%= education_source_date(source) %> · Проверено от Mesto: <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
+        <span><%= education_source_date(source) %> · <%= localized_copy("Проверено от Mesto на", "Checked by Mesto on") %> <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
       </li>
     <% end %>
   </ul>
-  <p class="education-sources__status">Версия <%= entry["content_version"] %> · Съдържанието е публикувано · Предстои преглед от специалист</p>
+  <p class="education-sources__status"><%= localized_copy("Версия", "Version") %> <%= entry["content_version"] %> · <%= localized_copy("Съдържанието е публикувано, но все още не е прегледано от специалист.", "The content is published but has not yet been reviewed by a specialist.") %></p>
 </section>

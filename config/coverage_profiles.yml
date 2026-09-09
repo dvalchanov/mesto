@@ -22,7 +22,7 @@ test:
 
 production:
   key: sofia_district_catalog
-  label: "София — активирани райони"
+  label: "София - активирани райони"
   mode: catalog
   import_behavior: scheduled
   supporting_buffer_metres: 2000

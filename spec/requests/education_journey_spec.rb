@@ -5,16 +5,16 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     get guide_path
     expect(response).to have_http_status(:ok)
     expect(response.body).to include(
-      "Покупката на имот, стъпка по стъпка", "<summary>Меню</summary>",
+      "Подготви покупката си стъпка по стъпка", "<summary>Меню</summary>",
       "Сравняване на конкретни имоти", "Първите месеци като собственик", "Намери ясно обяснение"
     )
 
-    get new_build_stage_path("akt-15")
+    get new_build_stage_path(stage: "akt-15")
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Акт образец 15", "Какво този етап НЕ означава?", "Какво обикновено следва?", "Преди да продължиш")
+    expect(response.body).to include("Акт образец 15", "Какво не означава този етап?", "Какво обикновено следва?", "Преди да продължиш")
     expect(response.body).not_to include("Твоят избран контекст")
 
-    get new_build_stage_path("akt-14")
+    get new_build_stage_path(stage: "akt-14")
     expect(response.body).to include("Апартаментът може още да няма замазки", "Общото търговско название не замества конкретната клауза")
 
     get education_documents_path, params: { q: "акт16" }
@@ -33,7 +33,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
       "Предаване и управление", "Удостоверение за степен „груб строеж“", "Пълномощно за имотна сделка"
     )
 
-    get education_document_path("odobren-investitsionen-proekt")
+    get education_document_path(slug: "odobren-investitsionen-proekt")
     expect(response.body).to include("Какво можеш да установиш от него?", "Провери тези подробности", "договорните приложения")
 
     get terms_path
@@ -45,10 +45,10 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     get terms_path, params: { q: "възбрана" }
     expect(response.body).to include("Намерени резултати за „възбрана“:", "Възбрана")
 
-    get education_document_path("akt-15")
-    expect(response.body).to include("Какво НЕ установява?", "Провери тези подробности", "Предстои преглед от специалист")
+    get education_document_path(slug: "akt-15")
+    expect(response.body).to include("Какво не установява?", "Провери тези подробности", "все още не е прегледано от специалист")
 
-    get term_path("garazh-sreshtu-parkomyasto")
+    get term_path(slug: "garazh-sreshtu-parkomyasto")
     expect(response.body).to include("Често объркване", "самостоятелен недвижим имот")
 
     get buying_guide_path
@@ -56,7 +56,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(response.body).to include(
       "Всеки участник има различна роля", "Инвеститор / възложител", "Кредитор и оценител",
       "Провери, преди да продължиш", "Свързани документи, термини и етапи", "Избери друга ситуация",
-      "Официални източници и редакционен статус", "Предстои преглед от специалист"
+      "Официални източници и редакционен статус", "все още не е прегледано от специалист"
     )
     expect(buyer_page.css(".buyer-guide").size).to eq(11)
     expect(buyer_page.at_css("#shortlisting")).to be_present
@@ -64,8 +64,27 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(buyer_page.at_css('a[href="#unknown"]')).to be_nil
 
     get "/sitemap.xml"
-    expect(response.body).to include(new_build_stage_path("akt-15"), education_document_path("akt-16-vavezhdane-v-eksploatatsiya"))
+    expect(response.body).to include(new_build_stage_path(stage: "akt-15"), education_document_path(slug: "akt-16-vavezhdane-v-eksploatatsiya"))
     expect(response.body).not_to include(my_mesto_path)
+  end
+
+  it "switches the public buyer experience to English" do
+    paths = [
+      root_path,
+      guide_path, buying_guide_path, new_build_guide_path, new_build_stage_path(stage: "akt-15"),
+      education_documents_path, education_document_path(slug: "predvaritelen-dogovor"),
+      terms_path, term_path(slug: "vazbrana"), calculators_path, purchase_calculator_path,
+      mortgage_calculator_path, budget_scenarios_path, my_mesto_path
+    ]
+
+    paths.each do |path|
+      english_path = path == "/" ? "/en" : "/en#{path}"
+      get english_path
+
+      expect(response).to have_http_status(:ok), "Expected #{english_path} to render successfully"
+      expect(response.body).to include('<html lang="en">')
+      expect(Nokogiri::HTML5(response.body).at_css("body").text).not_to match(/[А-Яа-я]/), "Untranslated copy on #{english_path}"
+    end
   end
 
   it "records allowlisted education transitions without raw property or financial metadata" do
@@ -115,7 +134,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     post buyer_journeys_path, params: { buyer_journey: { property_type: "new_build", buyer_stage: "researching", property_presence: "none" } }
     journey = BuyerJourney.last
 
-    get new_build_stage_path("vavezhdane-v-eksploatatsiya"), params: { buyer_stage: "before_notarial_transfer" }
+    get new_build_stage_path(stage: "vavezhdane-v-eksploatatsiya"), params: { buyer_stage: "before_notarial_transfer" }
 
     expect(response.body).to include("Текуща тема", "Този избор променя само съвета на страницата")
     expect(journey.reload.buyer_stage).to eq("researching")
@@ -128,7 +147,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     patch buyer_journey_progress_path, params: { item_kind: "task", item_key: "task.compare_identity", status: "done", content_version: 1 }
     first_analysis = create(:property_analysis, status: "ready", completed_at: Time.current)
 
-    post attach_report_to_journey_path(first_analysis)
+    post attach_report_to_journey_path(public_token: first_analysis)
 
     expect(original.reload.property_analysis).to eq(first_analysis)
     expect(original.journey_item_progresses.find_by(item_key: "task.define_needs").status).to eq("done")
@@ -136,7 +155,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(response.body).to include(first_analysis.submitted_identifier, "Етап според последния открит документ")
 
     second_analysis = create(:property_analysis, submitted_identifier: "68134.1000.2000.2.6", building_identifier: "68134.1000.2000.2", individual_object_identifier: "68134.1000.2000.2.6", status: "ready", completed_at: Time.current)
-    expect { post attach_report_to_journey_path(second_analysis) }.to change(BuyerJourney, :count).by(1)
+    expect { post attach_report_to_journey_path(public_token: second_analysis) }.to change(BuyerJourney, :count).by(1)
     expect(BuyerJourney.order(:created_at).last.journey_item_progresses.find_by(item_key: "task.define_needs").status).to eq("done")
     expect(BuyerJourney.order(:created_at).last.journey_item_progresses.find_by(item_key: "task.compare_identity")).to be_nil
     expect(BuyerJourney.order(:created_at).last.user_reported_building_stage).to be_nil
@@ -150,7 +169,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     analysis = create(:property_analysis, status: "ready", completed_at: Time.current)
     act = create(:administrative_act, registry_kind: "occupancy_certificates", issued_on: Date.current, title: "Удостоверение за въвеждане в експлоатация")
     act.administrative_act_references.create!(cadastral_identifier: analysis.building_identifier, reference_level: "building", match_basis: "document")
-    post attach_report_to_journey_path(analysis)
+    post attach_report_to_journey_path(public_token: analysis)
 
     get my_mesto_path
 
@@ -164,7 +183,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     post buyer_journeys_path, params: { buyer_journey: { property_type: "new_build", buyer_stage: "waiting_or_payment", property_presence: "none" } }
     analysis = create(:property_analysis, status: "partial", completed_at: Time.current)
     analysis.source_runs.create!(source_key: "nag_building_permits", status: "unavailable", error_message: "timeout")
-    post attach_report_to_journey_path(analysis)
+    post attach_report_to_journey_path(public_token: analysis)
 
     get my_mesto_path
 
@@ -182,9 +201,9 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     hidden = create(:administrative_act, registry_kind: "occupancy_certificates", issued_on: 1.year.ago, title: "СКРИТ ЗАПИС 991")
     hidden.administrative_act_references.create!(cadastral_identifier: analysis.building_identifier, reference_level: "building")
 
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
-    expect(response.body).to include("Разбери този вид документ", "Какво означава?", education_document_path("razreshenie-za-stroezh"))
+    expect(response.body).to include("Разбери този вид документ", "Какво означава?", education_document_path(slug: "razreshenie-za-stroezh"))
     expect(response.body).not_to include("СКРИТ ЗАПИС 991")
   end
 
@@ -192,7 +211,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     post buyer_journeys_path, params: { buyer_journey: { property_type: "new_build", buyer_stage: "waiting_or_payment", financing_context: "mortgage", label: "Личен вариант", property_presence: "none" } }
     private_journey = BuyerJourney.last
     analysis = create(:property_analysis, status: "ready", completed_at: Time.current)
-    post attach_report_to_journey_path(analysis)
+    post attach_report_to_journey_path(public_token: analysis)
 
     stranger = ActionDispatch::Integration::Session.new(Rails.application)
     stranger.get my_mesto_path, params: { journey: private_journey.public_token }
@@ -202,7 +221,7 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     expect(stranger.response).to have_http_status(:not_found)
     expect(private_journey.reload.buyer_stage).to eq("waiting_or_payment")
 
-    stranger.get report_path(analysis)
+    stranger.get report_path(public_token: analysis)
     expect(stranger.response.body).not_to include("Личен вариант", "Ипотечно финансиране", "Чакам следващ етап или плащане")
   end
 end

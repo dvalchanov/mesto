@@ -1,24 +1,26 @@
 <% content_for :title, "#{t('checkout.processing_title')} - #{product_name}" %>
+<% content_for :description, localized_copy("Статус на плащането за твоя личен отчет в Mesto.", "Payment status for your private Mesto report.") %>
+<% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="site-shell checkout-page">
   <div class="checkout-state">
     <% if @outcome %>
       <span class="checkout-state__icon is-error"><%= mesto_icon("lock", css_class: "size-7") %></span>
       <h1><%= t("checkout.#{@outcome}") %></h1>
-      <%= link_to t("checkout.try_again"), report_checkout_path(@analysis), class: "button button--secondary mt-7" %>
+      <%= link_to t("checkout.try_again"), report_checkout_path(public_token: @analysis), class: "button button--secondary mt-7" %>
     <% elsif @order.status == "paid" %>
       <span class="checkout-state__icon"><%= mesto_icon("check", css_class: "size-8") %></span>
       <h1><%= t("checkout.success_title") %></h1>
-      <%= link_to t("checkout.back_to_report"), report_path(@analysis), class: "button button--secondary mt-7" %>
+      <%= link_to t("checkout.back_to_report"), report_path(public_token: @analysis), class: "button button--secondary mt-7" %>
     <% else %>
       <span class="checkout-state__icon"><%= mesto_icon("shield", css_class: "size-8") %></span>
       <h1><%= t("checkout.processing_title") %></h1>
       <p><%= t("checkout.processing_body") %></p>
       <% if Rails.application.config.x.fake_payments_enabled %>
         <div class="mt-8 space-y-3">
-          <%= button_to fake_checkout_succeed_path(@order), method: :post, form_class: "w-full" , class: "button button--primary button--wide" do %><%= t("checkout.success_action") %><%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
+          <%= button_to fake_checkout_succeed_path(public_token: @order), method: :post, form_class: "w-full" , class: "button button--primary button--wide" do %><%= t("checkout.success_action") %><%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
           <div class="grid gap-3 sm:grid-cols-2">
-            <%= button_to t("checkout.fail_action"), fake_checkout_fail_path(@order), method: :post, class: "button button--danger button--wide" %>
-            <%= button_to t("checkout.cancel_action"), fake_checkout_cancel_path(@order), method: :post, class: "button button--outline button--wide" %>
+            <%= button_to t("checkout.fail_action"), fake_checkout_fail_path(public_token: @order), method: :post, class: "button button--danger button--wide" %>
+            <%= button_to t("checkout.cancel_action"), fake_checkout_cancel_path(public_token: @order), method: :post, class: "button button--outline button--wide" %>
           </div>
         </div>
       <% end %>

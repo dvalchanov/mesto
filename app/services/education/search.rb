@@ -24,7 +24,7 @@ module Education
     private
 
     def normalize(value)
-      value.to_s.downcase.tr("–—_", "---").gsub(/[^[:alnum:]а-я]+/i, " ").squish
+      value.to_s.downcase.tr("\u2013\u2014_", "---").gsub(/[^[:alnum:]а-я]+/i, " ").squish
     end
 
     def normalize_compact(value)

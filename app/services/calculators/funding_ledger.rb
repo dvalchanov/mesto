@@ -9,8 +9,8 @@ module Calculators
 
     def call
       events = schedule.fetch("events", [])
-      return incomplete("Няма пълен график, върху който да се провери финансирането.") if events.empty?
-      return incomplete("Въведи наличните собствени средства към началото на плана.") if funding["starting_cash_cents"].nil?
+      return incomplete(copy("Няма пълен график, върху който да се провери финансирането.", "A complete payment schedule is required to check the financing.")) if events.empty?
+      return incomplete(copy("Въведи наличните собствени средства към началото на плана.", "Enter the own funds available at the start of the plan.")) if funding["starting_cash_cents"].nil?
 
       sources = mortgage_sources
       event_keys = events.map { _1["key"] }
@@ -113,10 +113,10 @@ module Calculators
 
     def ledger_warnings(timing_unknown:, unscheduled_costs:)
       warnings = []
-      warnings << "Не е посочено кога ипотечните средства стават достъпни; не са използвани като налични пари." if timing_unknown
-      warnings << "Сборът на планираните ипотечни усвоявания е над размера на кредита; използването е ограничено до главницата." if mortgage_sources.sum { _1["amount_cents"].to_i } > mortgage_principal_cents
-      warnings << "Има разходи без съвпадащо събитие в графика." if unscheduled_costs.positive?
-      warnings << "Отрицателното салдо е липсващо финансиране, а не автоматично получен овърдрафт." if warnings.empty? || rows_negative?
+      warnings << copy("Не си посочил от кой момент можеш да използваш ипотечните средства, затова не сме ги включили като налични.", "You have not specified when the mortgage funds become available, so they are not included in the available balance.") if timing_unknown
+      warnings << copy("Сборът на планираните ипотечни усвоявания е над размера на кредита; използването е ограничено до главницата.", "The planned mortgage disbursements exceed the loan amount, so their use is capped at the principal.") if mortgage_sources.sum { _1["amount_cents"].to_i } > mortgage_principal_cents
+      warnings << copy("Има разходи без съвпадащо събитие в графика.", "Some costs do not have a matching event in the payment schedule.") if unscheduled_costs.positive?
+      warnings << copy("Отрицателното салдо показва недостиг на средства. То не означава, че разполагаш с овърдрафт.", "A negative balance indicates a funding shortfall. It does not mean that an overdraft is available.") if warnings.empty? || rows_negative?
       warnings
     end
 
@@ -126,5 +126,7 @@ module Calculators
       { "complete" => false, "rows" => [], "warnings" => [ message ], "largest_funding_shortfall_cents" => nil,
         "additional_funding_for_reserve_cents" => nil, "remaining_own_funding_cents" => nil }
     end
+
+    def copy(bg, en) = LocalizedCopy.call(bg, en)
   end
 end

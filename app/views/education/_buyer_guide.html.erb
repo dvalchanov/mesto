@@ -4,52 +4,52 @@
 
 <article id="<%= anchor %>" class="buyer-guide">
   <header>
-    <span class="buyer-guide__kicker"><b><%= format("%02d", index + 1) %></b><%= guide["category"] == "property_type" ? "Според вида на имота" : "Етап от покупката" %></span>
+    <span class="buyer-guide__kicker"><b><%= format("%02d", index + 1) %></b><%= guide["category"] == "property_type" ? localized_copy("Според вида на имота", "By property type") : localized_copy("Етап от покупката", "Purchase stage") %></span>
     <h2><%= guide["title"] %></h2>
     <p><%= guide["summary"] %></p>
   </header>
 
   <div class="buyer-guide__body">
     <section class="buyer-guide__opening">
-      <span>Какво означава това за теб</span>
+      <span><%= localized_copy("Какво означава това за теб", "What this means for you") %></span>
       <%= education_prose(guide.dig("sections", "understand")) %>
     </section>
 
     <div class="buyer-guide__evidence">
       <section>
-        <span>Какво трябва да установиш</span>
-        <h3>Провери фактите</h3>
+        <span><%= localized_copy("Какво трябва да установиш", "What you need to establish") %></span>
+        <h3><%= localized_copy("Провери фактите", "Check the facts") %></h3>
         <%= education_prose(guide.dig("sections", "verify")) %>
       </section>
       <section>
-        <span>Какво да събереш</span>
-        <h3>Документи, които да събереш</h3>
+        <span><%= localized_copy("Какво да събереш", "What to collect") %></span>
+        <h3><%= localized_copy("Подготви нужните документи", "Prepare the documents you need") %></h3>
         <%= education_prose(guide.dig("sections", "documents")) %>
       </section>
     </div>
 
     <section class="buyer-guide__money">
-      <div><span>Разходи и договорени условия</span><h3>Какво може да промени крайната цена?</h3></div>
+      <div><span><%= localized_copy("Разходи и договорени условия", "Costs and agreed terms") %></span><h3><%= localized_copy("Какво може да промени крайната цена?", "What could change the final price?") %></h3></div>
       <div class="buyer-guide__prose"><%= education_prose(guide.dig("sections", "money")) %></div>
     </section>
 
     <section class="buyer-guide__risk">
-      <div><span>Сигнали за внимание</span><h3>Кога да не бързаш?</h3></div>
+      <div><span><%= localized_copy("Сигнали за внимание", "Warning signs") %></span><h3><%= localized_copy("Кога да не бързаш?", "When should you slow down?") %></h3></div>
       <div class="buyer-guide__prose"><%= education_prose(guide.dig("sections", "risks")) %></div>
     </section>
 
     <div class="buyer-guide__support">
-      <section><span>Кой може да помогне?</span><%= education_prose(guide.dig("sections", "professionals")) %></section>
-      <section><span>Как да действаш?</span><%= education_prose(guide.dig("sections", "act")) %></section>
+      <section><span><%= localized_copy("Кой може да помогне?", "Who can help?") %></span><%= education_prose(guide.dig("sections", "professionals")) %></section>
+      <section><span><%= localized_copy("Как да действаш?", "How should you proceed?") %></span><%= education_prose(guide.dig("sections", "act")) %></section>
     </div>
 
     <% if related.any? %>
       <section class="buyer-guide__related">
-        <div><span>Полезно за тази стъпка</span><h3>Свързани документи, термини и етапи</h3></div>
+        <div><span><%= localized_copy("Полезно за тази стъпка", "Useful at this step") %></span><h3><%= localized_copy("Свързани документи, термини и етапи", "Related documents, terms and stages") %></h3></div>
         <div>
           <% related.each do |item| %>
             <%= link_to education_path_for(item), target: "_blank", rel: "noopener noreferrer" do %>
-              <small><%= { "document" => "Документ", "term" => "Термин", "stage" => "Строителен етап" }.fetch(item["kind"], "Насока") %></small>
+              <small><%= localized_copy({ "document" => "Документ", "term" => "Термин", "stage" => "Строителен етап" }, { "document" => "Document", "term" => "Term", "stage" => "Construction stage" }).fetch(item["kind"], localized_copy("Насока", "Guidance")) %></small>
               <strong><%= item["title"] %></strong>
             <% end %>
           <% end %>
@@ -58,28 +58,28 @@
     <% end %>
 
     <section class="buyer-guide__next">
-      <div><span>Следваща стъпка</span><h3>Какво следва оттук?</h3></div>
+      <div><span><%= localized_copy("Следваща стъпка", "Next step") %></span><h3><%= localized_copy("Какво следва оттук?", "What comes next?") %></h3></div>
       <div class="buyer-guide__prose"><%= education_prose(guide.dig("sections", "next")) %></div>
     </section>
 
     <details class="buyer-guide__sources">
-      <summary>Официални източници и редакционен статус</summary>
+      <summary><%= localized_copy("Официални източници и редакционен статус", "Official sources and editorial status") %></summary>
       <div>
-        <p>Насоката е образователна. Преди плащане или подписване приложимостта към конкретния имот и договор трябва да бъде прегледана от квалифициран специалист.</p>
+        <p><%= localized_copy("Насоката е с образователна цел. Преди плащане или подписване потвърди със специалист как се прилага към конкретния имот и договор.", "This guidance is educational. Before paying or signing, ask a specialist how it applies to the particular property and contract.") %></p>
         <ul>
           <% guide_sources.each do |source| %>
             <li>
               <%= link_to source["title"], source["url"], target: "_blank", rel: "noopener noreferrer" %>
-              <span><%= education_source_date(source) %> · Проверено от Mesto: <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
+              <span><%= education_source_date(source) %> · <%= localized_copy("Проверено от Mesto на", "Checked by Mesto on") %> <%= l(Date.iso8601(source["checked_at"]), format: :short) %></span>
             </li>
           <% end %>
         </ul>
-        <p class="buyer-guide__sources-status">Версия <%= guide["content_version"] %> · Съдържанието е публикувано · Предстои преглед от специалист</p>
+        <p class="buyer-guide__sources-status"><%= localized_copy("Версия", "Version") %> <%= guide["content_version"] %> · <%= localized_copy("Съдържанието е публикувано, но все още не е прегледано от специалист.", "The content is published but has not yet been reviewed by a specialist.") %></p>
       </div>
     </details>
 
     <section class="buyer-guide__checks">
-      <div><span>Преди следващата стъпка</span><h3>Провери, преди да продължиш</h3><p>Списъкът ще ти помогне да се подготвиш за решение или разговор със специалист. Самото отбелязване не потвърждава състоянието на имота.</p></div>
+      <div><span><%= localized_copy("Преди следващата стъпка", "Before the next step") %></span><h3><%= localized_copy("Провери, преди да продължиш", "Check before you continue") %></h3><p><%= localized_copy("Използвай списъка, за да се подготвиш за решение или разговор със специалист. Отметките показват напредъка ти, но не удостоверяват състоянието на имота.", "Use the list to prepare for a decision or a conversation with a specialist. Ticks show your progress but do not verify the condition of the property.") %></p></div>
       <ol>
         <% Array(guide.dig("sections", "buyer_checks")).each_with_index do |check, check_index| %>
           <li><span><%= format("%02d", check_index + 1) %></span><p><%= check %></p></li>
@@ -87,10 +87,10 @@
       </ol>
     </section>
 
-    <nav class="buyer-guide__navigation" aria-label="Навигация от <%= guide['title'] %>">
-      <% if previous_guide %><%= link_to buying_guide_path(anchor: previous_guide["buyer_stage"].presence || previous_guide["slug"]) do %><span>Назад</span><strong><%= previous_guide["title"] %></strong><% end %><% else %><%= link_to buying_guide_path(anchor: "buyer-guide-start") do %><span>Назад</span><strong>Избери етап</strong><% end %><% end %>
-      <%= link_to buying_guide_path(anchor: "buyer-guide-start"), class: "buyer-guide__all" do %><span>Всички етапи</span><strong>Избери друга ситуация</strong><% end %>
-      <% if next_guide %><%= link_to buying_guide_path(anchor: next_guide["buyer_stage"].presence || next_guide["slug"]) do %><span>Напред</span><strong><%= next_guide["title"] %></strong><% end %><% else %><%= link_to guide_path do %><span>Разгледай отново</span><strong>Начало на наръчника</strong><% end %><% end %>
+    <nav class="buyer-guide__navigation" aria-label="<%= localized_copy("Навигация от", "Navigation from") %> <%= guide['title'] %>">
+      <% if previous_guide %><%= link_to buying_guide_path(anchor: previous_guide["buyer_stage"].presence || previous_guide["slug"]) do %><span><%= localized_copy("Назад", "Back") %></span><strong><%= previous_guide["title"] %></strong><% end %><% else %><%= link_to buying_guide_path(anchor: "buyer-guide-start") do %><span><%= localized_copy("Назад", "Back") %></span><strong><%= localized_copy("Избери етап", "Choose a stage") %></strong><% end %><% end %>
+      <%= link_to buying_guide_path(anchor: "buyer-guide-start"), class: "buyer-guide__all" do %><span><%= localized_copy("Всички етапи", "All stages") %></span><strong><%= localized_copy("Избери друга ситуация", "Choose another situation") %></strong><% end %>
+      <% if next_guide %><%= link_to buying_guide_path(anchor: next_guide["buyer_stage"].presence || next_guide["slug"]) do %><span><%= localized_copy("Напред", "Next") %></span><strong><%= next_guide["title"] %></strong><% end %><% else %><%= link_to guide_path do %><span><%= localized_copy("Разгледай отново", "Explore again") %></span><strong><%= localized_copy("Начало на наръчника", "Guide home") %></strong><% end %><% end %>
     </nav>
   </div>
 </article>

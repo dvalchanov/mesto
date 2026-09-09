@@ -18,7 +18,7 @@ checklist_items:
     question: "Какъв е пълният кадастрален идентификатор и в кои документи мога да го проверя?"
     content_version: 1
   - key: task.request_document_pack
-    title: "Поискай основния документен пакет"
+    title: "Поискай основния комплект документи"
     reason: "Проверката преди плащане изисква конкретни документи, а не само уверение, че всичко е наред."
     relevant_stage: before_deposit
     responsible: "продавач / инвеститор"
@@ -60,7 +60,7 @@ checklist_items:
     responsible: "ти / адвокат"
     related_content_keys: [guide.after_signing, document.preliminary_contract]
     default_evidence: user_reported
-    question: "Имам ли подписано копие на всяко приложение и запазена кореспонденция за промените?"
+    question: "Имам ли подписано копие от всяко приложение и запазена кореспонденция за промените?"
     content_version: 1
   - key: task.check_payment_clause
     title: "Провери клаузата преди следващо плащане"
@@ -119,7 +119,7 @@ checklist_items:
     content_version: 1
   - key: task.completed_home_inspection
     title: "Провери реалното състояние и значимите преустройства"
-    reason: "Завършеното жилище има текущи технически факти, които не се виждат от титула или обявата."
+    reason: "Завършеното жилище има текущи технически характеристики, които не се виждат от документа за собственост или обявата."
     relevant_stage: shortlisting
     responsible: "независим технически специалист"
     related_content_keys: [guide.completed_home, document.cadastral_sketch_scheme]
@@ -145,8 +145,8 @@ checklist_items:
     question: "Кои проверки за граници, достъп, строителни книжа, мрежи и ограничения са нужни за този имот?"
     content_version: 1
   - key: task.organize_owner_documents
-    title: "Подреди постоянното досие на имота"
-    reason: "Титулът, схемата, протоколът, гаранциите и договорите трябва да останат достъпни и проследими след сделката."
+    title: "Подреди постоянния архив на имота"
+    reason: "Документът за собственост, схемата, протоколът, гаранциите и договорите трябва да останат достъпни и добре подредени след сделката."
     relevant_stage: owner
     responsible: "ти / адвокат"
     related_content_keys: [guide.owner, document.title_deed, document.warranty_documents]

@@ -83,9 +83,9 @@ class CalculatorsController < ApplicationController
       "price_vat_treatment" => "final", "loan_principal" => "240000", "annual_interest_rate" => "3,5",
       "term_years" => "30", "starting_cash" => "70000",
       "schedule" => {
-        "first" => { "key" => "first", "label" => "Предварителен договор", "order" => "1", "amount_type" => "percentage", "percentage" => "10" },
-        "second" => { "key" => "second", "label" => "Акт 14", "order" => "2", "amount_type" => "percentage", "percentage" => "10" },
-        "notarial_transfer" => { "key" => "notarial_transfer", "label" => "Нотариално прехвърляне", "order" => "3", "amount_type" => "remaining" }
+        "first" => { "key" => "first", "label" => LocalizedCopy.call("Предварителен договор", "Preliminary contract"), "order" => "1", "amount_type" => "percentage", "percentage" => "10" },
+        "second" => { "key" => "second", "label" => LocalizedCopy.call("Акт 14", "Act 14"), "order" => "2", "amount_type" => "percentage", "percentage" => "10" },
+        "notarial_transfer" => { "key" => "notarial_transfer", "label" => LocalizedCopy.call("Нотариално прехвърляне", "Notarial transfer"), "order" => "3", "amount_type" => "remaining" }
       },
       "mortgage_availability_event_key" => "notarial_transfer"
     }

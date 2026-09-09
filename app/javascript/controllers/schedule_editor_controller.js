@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
+const localizedCopy = (bg, en) => document.documentElement.lang.toLowerCase().startsWith("en") ? en : bg
+
 export default class extends Controller {
   static targets = ["list", "template", "row", "eventSelect"]
 
@@ -13,13 +15,13 @@ export default class extends Controller {
   applyTemplate() {
     const templates = {
       "10-10-80": [
-        { key: "first", label: "Предварителен договор", amount_type: "percentage", percentage: "10" },
-        { key: "second", label: "Акт 14", amount_type: "percentage", percentage: "10" },
-        { key: "notarial_transfer", label: "Нотариално прехвърляне", amount_type: "remaining", percentage: "" }
+        { key: "first", label: localizedCopy("Предварителен договор", "Preliminary contract"), amount_type: "percentage", percentage: "10" },
+        { key: "second", label: localizedCopy("Акт 14", "Act 14"), amount_type: "percentage", percentage: "10" },
+        { key: "notarial_transfer", label: localizedCopy("Нотариално прехвърляне", "Notarial transfer"), amount_type: "remaining", percentage: "" }
       ],
       "20-80": [
-        { key: "first", label: "Предварителен договор", amount_type: "percentage", percentage: "20" },
-        { key: "notarial_transfer", label: "Нотариално прехвърляне", amount_type: "remaining", percentage: "" }
+        { key: "first", label: localizedCopy("Предварителен договор", "Preliminary contract"), amount_type: "percentage", percentage: "20" },
+        { key: "notarial_transfer", label: localizedCopy("Нотариално прехвърляне", "Notarial transfer"), amount_type: "remaining", percentage: "" }
       ],
       "custom": [{}]
     }
@@ -81,7 +83,7 @@ export default class extends Controller {
 
     const options = this.rowTargets.map((row, index) => {
       const key = row.querySelector("[data-field='key']")?.value
-      const label = row.querySelector("[data-field='label']")?.value.trim() || `Събитие ${index + 1}`
+      const label = row.querySelector("[data-field='label']")?.value.trim() || `${localizedCopy("Събитие", "Event")} ${index + 1}`
       return { key, label }
     }).filter(({ key }) => key)
 

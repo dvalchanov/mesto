@@ -1,19 +1,20 @@
-<% content_for :title, "Имотни термини на разбираем български | #{product_name}" %>
-<% content_for :description, "Имотни понятия за кадастър, собственост, вписвания, сделки, ново строителство и предаване - с примери и практическо значение за купувача." %>
+<% content_for :title, localized_copy("Имотни термини и понятия | #{product_name}", "Bulgarian Property Terms Explained | #{product_name}") %>
+<% content_for :description, localized_copy("Ясни обяснения на кадастрални, правни и строителни термини, които срещаш при проверка и покупка на имот, с примери за купувачи.", "Clear explanations of Bulgarian cadastral, legal and construction terms, with practical examples for property buyers.") %>
+<% if @query.present? %><% content_for :head do %><meta name="robots" content="noindex,follow"><% end %><% end %>
 
 <div class="site-shell education-page library-page">
-  <%= render "breadcrumbs", items: [["Термини", nil]] %>
+  <%= render "breadcrumbs", items: [[localized_copy("Термини", "Terms"), nil]] %>
   <header class="library-hero">
-    <div><p class="eyebrow"><span></span>Термини</p><h1>Точният термин помага да зададеш точния въпрос</h1><p>За всяко понятие ще намериш ясно определение, практически пример, често объркване и обяснение защо е важно за купувача.</p></div>
+    <div><p class="eyebrow"><span></span><%= localized_copy("Термини", "Terms") %></p><h1><%= localized_copy("Точният термин помага да зададеш точния въпрос", "The right term helps you ask the right question") %></h1><p><%= localized_copy("За всяко понятие ще намериш ясно определение, практически пример, често объркване и обяснение защо е важно за купувача.", "Each entry includes a clear definition, a practical example, a common misconception and an explanation of why it matters to a buyer.") %></p></div>
     <%= form_with url: terms_path, method: :get, class: "education-search" do |form| %>
-      <%= form.label :q, "Търси термин", class: "form-label" %>
-      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. УПИ, паркомясто…" %><%= form.submit "Търси", class: "button button--secondary" %></div>
+      <%= form.label :q, localized_copy("Търси термин", "Search terms"), class: "form-label" %>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: localized_copy("Напр. УПИ, паркомясто…", "E.g. regulated plot, parking space…") %><%= form.submit localized_copy("Търси", "Search"), class: "button button--secondary" %></div>
     <% end %>
   </header>
   <% groups = education_term_groups(@entries) %>
   <% if groups.any? %>
-    <% if @query.present? %><p class="search-summary">Намерени резултати за „<%= @query %>“: <strong><%= @entries.length %></strong></p><% end %>
-    <nav class="library-category-nav" aria-label="Групи термини">
+    <% if @query.present? %><p class="search-summary"><%= localized_copy("Намерени резултати за „#{@query}“:", "Results for “#{@query}”:") %> <strong><%= @entries.length %></strong></p><% end %>
+    <nav class="library-category-nav" aria-label="<%= localized_copy("Групи термини", "Term groups") %>">
       <% groups.each do |group| %><a href="#terms-<%= group[:key] %>"><span><%= format("%02d", group[:entries].length) %></span><%= group[:label] %></a><% end %>
     </nav>
     <div class="library-groups">
@@ -21,12 +22,12 @@
         <section id="terms-<%= group[:key] %>" class="library-group">
           <header class="library-group__heading"><div><p class="eyebrow"><span></span><%= group[:label] %></p><h2><%= group[:title] %></h2></div><p><%= group[:description] %></p></header>
           <div class="content-index content-index--terms">
-            <% group[:entries].each do |entry| %><%= link_to term_path(entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><small>Определение · Пример</small><% end %><% end %>
+            <% group[:entries].each do |entry| %><%= link_to term_path(slug: entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><small><%= localized_copy("Определение · Пример", "Definition · Example") %></small><% end %><% end %>
           </div>
         </section>
       <% end %>
     </div>
   <% else %>
-    <section class="empty-state"><h2>Не намерихме такъв термин</h2><p>Провери изписването или потърси с по-кратка или по-обща дума.</p></section>
+    <section class="empty-state"><h2><%= localized_copy("Не намерихме такъв термин", "We couldn't find that term") %></h2><p><%= localized_copy("Провери изписването или потърси с по-кратка или по-обща дума.", "Check the spelling or try a shorter, more general search term.") %></p></section>
   <% end %>
 </div>

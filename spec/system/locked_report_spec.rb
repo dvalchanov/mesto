@@ -9,7 +9,7 @@ RSpec.describe "Locked report upsell", type: :system do
       summary: { "paid_content_available" => true }
     )
 
-    visit report_path(analysis)
+    visit report_path(public_token: analysis)
 
     expect(page).to have_text(I18n.t("reports.locked.cta"))
     expect(panel_background).to eq("rgb(23, 63, 52)")

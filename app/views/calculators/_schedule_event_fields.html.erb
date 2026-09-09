@@ -10,44 +10,44 @@
   <div class="schedule-row__main">
     <span class="schedule-row__number" data-schedule-number><%= index == "NEW_INDEX" ? "01" : format("%02d", index.to_i + 1) %></span>
     <div class="calculator-field schedule-row__event">
-      <%= label_tag "#{field_prefix}_label", "Събитие" %>
-      <%= text_field_tag "calculator[schedule][#{index}][label]", schedule_event_value(event, "label"), id: "#{field_prefix}_label", list: "schedule-event-labels", placeholder: "напр. Предварителен договор", data: { controller: "combobox", field: "label" } %>
+      <%= label_tag "#{field_prefix}_label", localized_copy("Събитие", "Event") %>
+      <%= text_field_tag "calculator[schedule][#{index}][label]", schedule_event_value(event, "label"), id: "#{field_prefix}_label", list: "schedule-event-labels", placeholder: localized_copy("напр. Предварителен договор", "e.g. Preliminary contract"), data: { controller: "combobox", field: "label" } %>
     </div>
     <div class="calculator-field schedule-row__method">
-      <%= label_tag "#{field_prefix}_amount_type", "Как се определя сумата?" %>
-      <%= select_tag "calculator[schedule][#{index}][amount_type]", options_for_select([["Процент от цената", "percentage"], ["Фиксирана сума", "fixed"], ["Целият остатък", "remaining"]], amount_type), id: "#{field_prefix}_amount_type", data: { field: "amount_type", action: "change->schedule-editor#changeAmountType" } %>
+      <%= label_tag "#{field_prefix}_amount_type", localized_copy("Как се определя сумата?", "How is the amount determined?") %>
+      <%= select_tag "calculator[schedule][#{index}][amount_type]", options_for_select([[localized_copy("Процент от цената", "Percentage of the price"), "percentage"], [localized_copy("Фиксирана сума", "Fixed amount"), "fixed"], [localized_copy("Целият остатък", "Remaining balance"), "remaining"]], amount_type), id: "#{field_prefix}_amount_type", data: { field: "amount_type", action: "change->schedule-editor#changeAmountType" } %>
     </div>
     <div class="calculator-field schedule-row__value" data-amount-type-field="percentage" <%= "hidden" unless amount_type == "percentage" %>>
-      <%= label_tag "#{field_prefix}_percentage", "Процент от цената" %>
+      <%= label_tag "#{field_prefix}_percentage", localized_copy("Процент от цената", "Percentage of the price") %>
       <div class="money-field money-field--short"><%= text_field_tag "calculator[schedule][#{index}][percentage]", schedule_event_value(event, "percentage"), id: "#{field_prefix}_percentage", inputmode: "decimal", placeholder: "10", data: { field: "percentage" } %><span>%</span></div>
     </div>
     <div class="calculator-field schedule-row__value" data-amount-type-field="fixed" <%= "hidden" unless amount_type == "fixed" %>>
-      <%= label_tag "#{field_prefix}_amount", "Сума" %>
+      <%= label_tag "#{field_prefix}_amount", localized_copy("Сума", "Amount") %>
       <div class="money-field"><%= text_field_tag "calculator[schedule][#{index}][amount]", money_input_value(schedule_event_value(event, "amount_cents")), id: "#{field_prefix}_amount", inputmode: "decimal", placeholder: "0,00", data: { field: "amount" } %><span>€</span></div>
     </div>
     <div class="schedule-row__remaining" data-amount-type-field="remaining" <%= "hidden" unless amount_type == "remaining" %>>
-      <strong>Остатъкът</strong><span>Изчислява се автоматично</span>
+      <strong><%= localized_copy("Остатъкът", "Remaining balance") %></strong><span><%= localized_copy("Изчислява се автоматично", "Calculated automatically") %></span>
     </div>
-    <button type="button" class="schedule-row__remove" data-action="schedule-editor#remove" aria-label="Премахни събитието">×</button>
+    <button type="button" class="schedule-row__remove" data-action="schedule-editor#remove" aria-label="<%= localized_copy("Премахни събитието", "Remove the event") %>">×</button>
   </div>
 
   <details class="schedule-row__advanced" <%= "open" if advanced_open %>>
-    <summary><span>Допълнителни настройки</span><small>Дата, вече платено и ред</small></summary>
+    <summary><span><%= localized_copy("Допълнителни настройки", "Additional settings") %></span><small><%= localized_copy("Дата, вече платено и ред", "Date, amount already paid and order") %></small></summary>
     <div class="schedule-row__advanced-grid">
       <div class="calculator-field">
-        <%= label_tag "#{field_prefix}_date", "Дата (по избор)" %>
+        <%= label_tag "#{field_prefix}_date", localized_copy("Дата (по избор)", "Date (optional)") %>
         <%= date_field_tag "calculator[schedule][#{index}][date]", schedule_event_value(event, "date"), id: "#{field_prefix}_date", data: { field: "date" } %>
       </div>
       <div class="calculator-field">
-        <%= label_tag "#{field_prefix}_date_precision", "Точност на датата" %>
-        <%= select_tag "calculator[schedule][#{index}][date_precision]", options_for_select([["Неизвестна", "unknown"], ["Приблизителна", "estimated"], ["Точна", "exact"]], date_precision), id: "#{field_prefix}_date_precision", data: { field: "date_precision" } %>
+        <%= label_tag "#{field_prefix}_date_precision", localized_copy("Точност на датата", "Date precision") %>
+        <%= select_tag "calculator[schedule][#{index}][date_precision]", options_for_select([[localized_copy("Неизвестна", "Unknown"), "unknown"], [localized_copy("Приблизителна", "Approximate"), "estimated"], [localized_copy("Точна", "Exact"), "exact"]], date_precision), id: "#{field_prefix}_date_precision", data: { field: "date_precision" } %>
       </div>
       <div class="calculator-field">
-        <%= label_tag "#{field_prefix}_already_paid", "Вече платено" %>
+        <%= label_tag "#{field_prefix}_already_paid", localized_copy("Вече платено", "Already paid") %>
         <div class="money-field"><%= text_field_tag "calculator[schedule][#{index}][already_paid]", money_input_value(schedule_event_value(event, "already_paid_cents")), id: "#{field_prefix}_already_paid", inputmode: "decimal", placeholder: "0,00", data: { field: "already_paid" } %><span>€</span></div>
       </div>
       <div class="calculator-field">
-        <%= label_tag "#{field_prefix}_order", "Ред при една и съща дата" %>
+        <%= label_tag "#{field_prefix}_order", localized_copy("Ред при една и съща дата", "Order on the same date") %>
         <%= number_field_tag "calculator[schedule][#{index}][order]", schedule_event_value(event, "order") || index.to_i + 1, id: "#{field_prefix}_order", min: 0, max: 1000, data: { field: "order" } %>
       </div>
     </div>

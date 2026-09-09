@@ -1,20 +1,21 @@
-<% content_for :title, "Документи за имота - обяснени ясно | #{product_name}" %>
-<% content_for :description, "Подробен наръчник за строителните, кадастралните и сделковите документи - какво доказват, какво да сравниш и защо са важни за купувача." %>
+<% content_for :title, localized_copy("Документи при покупка на имот | #{product_name}", "Property Documents in Bulgaria: Buyer Guide | #{product_name}") %>
+<% content_for :description, localized_copy("Разбери какво доказват нотариалният акт, удостоверението за тежести, кадастралната схема, строителните книжа и договорите при покупка.", "Understand the title deed, encumbrance certificate, cadastral scheme, construction documents and contracts used when buying property in Bulgaria.") %>
+<% if @query.present? %><% content_for :head do %><meta name="robots" content="noindex,follow"><% end %><% end %>
 
 <div class="site-shell education-page library-page">
-  <%= render "breadcrumbs", items: [["Документи", nil]] %>
+  <%= render "breadcrumbs", items: [[t("navigation.documents"), nil]] %>
   <header class="library-hero">
-    <div><p class="eyebrow"><span></span>Документи</p><h1>Разбери какво доказва всеки документ</h1><p>Виж кога се използва, кои данни трябва да сравниш и какво не можеш да заключиш само от него.</p></div>
+    <div><p class="eyebrow"><span></span><%= t("navigation.documents") %></p><h1><%= localized_copy("Разбери какво доказва всеки документ", "Understand what each document proves") %></h1><p><%= localized_copy("Виж кога се използва, кои данни трябва да сравниш и какво не можеш да заключиш само от него.", "See when it is used, which details to compare and what you cannot conclude from that document alone.") %></p></div>
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
-      <%= form.label :q, "Търси по име, съкращение или въпрос", class: "form-label" %>
-      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: "Напр. акт16, схема, тежести…" %><%= form.submit "Търси", class: "button button--secondary" %></div>
+      <%= form.label :q, localized_copy("Търси по име, съкращение или въпрос", "Search by name, abbreviation or question"), class: "form-label" %>
+      <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, value: @query, placeholder: localized_copy("Напр. акт16, схема, тежести…", "E.g. Act 16, cadastral scheme, encumbrances…") %><%= form.submit localized_copy("Търси", "Search"), class: "button button--secondary" %></div>
     <% end %>
   </header>
 
   <% groups = education_document_groups(@entries) %>
   <% if groups.any? %>
-    <% if @query.present? %><p class="search-summary">Намерени резултати за „<%= @query %>“: <strong><%= @entries.length %></strong></p><% end %>
-    <nav class="library-category-nav" aria-label="Групи документи">
+    <% if @query.present? %><p class="search-summary"><%= localized_copy("Намерени резултати за „#{@query}“:", "Results for “#{@query}”:") %> <strong><%= @entries.length %></strong></p><% end %>
+    <nav class="library-category-nav" aria-label="<%= localized_copy("Групи документи", "Document groups") %>">
       <% groups.each do |group| %><a href="#documents-<%= group[:key] %>"><span><%= format("%02d", group[:entries].length) %></span><%= group[:label] %></a><% end %>
     </nav>
     <div class="library-groups">
@@ -24,9 +25,9 @@
           <div class="content-index">
             <% group[:entries].each do |entry| %>
               <%= link_to education_path_for(entry) do %>
-                <span><%= { "term" => "Термин", "stage" => "Строителен етап", "guide" => "Насока за купувача" }.fetch(entry["kind"], group[:label]) %></span>
+                <span><%= { "term" => localized_copy("Термин", "Term"), "stage" => localized_copy("Строителен етап", "Construction stage"), "guide" => localized_copy("Насока за купувача", "Buyer guidance") }.fetch(entry["kind"], group[:label]) %></span>
                 <h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p>
-                <small><%= { "term" => "Определение · Пример", "stage" => "Какво се случва · Какво да провериш", "guide" => "Какво да направиш · Какво следва" }.fetch(entry["kind"], "Какво доказва · Какво да провериш") %></small>
+                <small><%= { "term" => localized_copy("Определение · Пример", "Definition · Example"), "stage" => localized_copy("Какво се случва · Какво да провериш", "What happens · What to check"), "guide" => localized_copy("Какво да направиш · Какво следва", "What to do · What comes next") }.fetch(entry["kind"], localized_copy("Какво доказва · Какво да провериш", "What it proves · What to check")) %></small>
               <% end %>
             <% end %>
           </div>
@@ -34,6 +35,6 @@
       <% end %>
     </div>
   <% else %>
-    <div class="empty-state"><h2>Не намерихме такъв документ</h2><p>Опитай с друго изписване, съкращение или дума от въпроса, който искаш да изясниш.</p><%= link_to "Виж термините", terms_path, class: "button button--secondary" %></div>
+    <div class="empty-state"><h2><%= localized_copy("Не намерихме такъв документ", "We couldn't find that document") %></h2><p><%= localized_copy("Опитай с друго изписване, съкращение или дума от въпроса, който искаш да изясниш.", "Try a different spelling, an abbreviation or a word from the question you want to answer.") %></p><%= link_to localized_copy("Виж термините", "Browse the glossary"), terms_path, class: "button button--secondary" %></div>
   <% end %>
 </div>

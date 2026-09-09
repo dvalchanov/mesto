@@ -5,7 +5,7 @@ RSpec.describe "Report broadcasts", type: :request do
   let(:stream) { Turbo::StreamsChannel.send(:stream_name_from, [ analysis, I18n.locale ]) }
 
   it "subscribes to updates without installing a polling controller" do
-    get report_path(analysis)
+    get report_path(public_token: analysis)
 
     expect(response.body).to include("turbo-cable-stream-source")
     expect(response.body).not_to include('data-controller="poll"')

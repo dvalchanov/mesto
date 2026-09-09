@@ -1,23 +1,23 @@
-<% content_for :title, "Калкулатори за покупка на имот | #{product_name}" %>
-<% content_for :description, "Безплатни калкулатори за разходите по имотна сделка, собствените средства, ипотечната вноска и графика на плащанията." %>
+<% content_for :title, localized_copy("Калкулатори за покупка на имот | #{product_name}", "Property Purchase Calculators | #{product_name}") %>
+<% content_for :description, localized_copy("Безплатни калкулатори за разходите при покупка на имот, собствените средства, ипотечната вноска и графика на плащанията.", "Free calculators for property purchase costs, cash required, mortgage payments and payment schedules in Bulgaria.") %>
 
 <section class="calculator-landing">
   <div class="site-shell">
-    <p class="eyebrow">Безплатни инструменти · EUR</p>
-    <h1>От цена на имота до реален план за плащане.</h1>
-    <p class="calculator-landing__lead">Започни без регистрация, избран имот или кадастрален идентификатор. Сметките са сценарии за планиране, не оферта от банка или правен съвет.</p>
+    <p class="eyebrow"><%= localized_copy("Безплатни инструменти · EUR", "Free Tools · EUR") %></p>
+    <h1><%= localized_copy("От цената на имота до ясен план за плащане", "From the price of the property to a clear payment plan") %></h1>
+    <p class="calculator-landing__lead"><%= localized_copy("Можеш да започнеш без регистрация, избран имот или кадастрален идентификатор. Резултатите са ориентир за планиране, а не банкова оферта или правен съвет.", "You can start without registration, selected property or cadastral identifier. The results are a guide for planning, not a bank offer or legal advice.") %></p>
     <div class="calculator-landing__grid">
       <%= link_to purchase_calculator_path, class: "calculator-product-card calculator-product-card--primary" do %>
-        <span>Основен калкулатор</span>
-        <h2>Покупка на имот</h2>
-        <p>Цена и допълнителни разходи, финансиране, плащания по събития и недостиг на налични средства.</p>
-        <strong>Направи сметка →</strong>
+        <span><%= localized_copy("Основен калкулатор", "Basic calculator") %></span>
+        <h2><%= localized_copy("Покупка на имот", "Purchase of property") %></h2>
+        <p><%= localized_copy("Цена и допълнителни разходи, финансиране, график на плащанията и възможен недостиг на средства.", "Price and additional costs, financing, payment schedule and possible shortage of funds.") %></p>
+        <strong><%= localized_copy("Направи сметка →", "Start calculating →") %></strong>
       <% end %>
       <%= link_to mortgage_calculator_path, class: "calculator-product-card" do %>
-        <span>Фокусиран вход</span>
-        <h2>Ипотечна вноска</h2>
-        <p>Месечна анюитетна вноска, обща моделирана лихва и погасителен план със същия финансов двигател.</p>
-        <strong>Изчисли вноска →</strong>
+        <span><%= localized_copy("Бързо изчисление", "Quick calculation") %></span>
+        <h2><%= localized_copy("Ипотечна вноска", "Mortgage payment") %></h2>
+        <p><%= localized_copy("Ориентировъчна месечна вноска, обща лихва за срока и подробен погасителен план.", "Estimated monthly payment, total interest for the term and detailed repayment plan.") %></p>
+        <strong><%= localized_copy("Изчисли вноска →", "Calculate contribution →") %></strong>
       <% end %>
     </div>
   </div>
