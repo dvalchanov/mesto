@@ -280,8 +280,14 @@ RSpec.describe "Property report journey", type: :request do
 
     get report_path(public_token: analysis)
 
-    expect(response.body).to include("Малинова долина", I18n.t("reports.full.not_calculated"))
-    expect(response.body).not_to include("Gaz 17", "Adm rzp")
+    expect(response.body).to include("Малинова долина")
+    expect(response.body).not_to include(
+      "Gaz 17",
+      "Adm rzp",
+      I18n.t("reports.full.amenities"),
+      I18n.t("reports.full.environment"),
+      I18n.t("reports.full.not_calculated")
+    )
   end
 
   it "does not present historical amenity zeroes as current counts" do

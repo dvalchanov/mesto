@@ -1,13 +1,13 @@
-<details class="group rounded-3xl border border-slate-200 bg-white">
-  <summary class="flex cursor-pointer list-none items-center justify-between gap-5 p-6 sm:p-8">
+<details class="report-disclosure group rounded-3xl border border-slate-200 bg-white">
+  <summary class="report-disclosure__summary">
     <div>
-      <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500"><%= t("reports.sources.eyebrow") %></p>
-      <h2 class="mt-2 text-xl font-black"><%= t("reports.sources.title") %></h2>
-      <p class="mt-2 text-sm leading-6 text-slate-600"><%= t("reports.sources.summary", succeeded: coverage["succeeded"].to_i, checked: coverage["checked"].to_i) %></p>
+      <p class="report-section-label"><%= t("reports.sources.eyebrow") %></p>
+      <h2><%= t("reports.sources.title") %></h2>
+      <p><%= t("reports.sources.summary", succeeded: coverage["succeeded"].to_i, checked: coverage["checked"].to_i) %></p>
     </div>
-    <span class="grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-xl font-bold text-slate-700 transition group-open:rotate-45">+</span>
+    <span class="report-disclosure-toggle grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-xl font-bold text-slate-700 transition group-open:rotate-45" aria-hidden="true">+</span>
   </summary>
-  <div class="border-t border-slate-200 px-6 pb-6 sm:px-8 sm:pb-8">
+  <div class="px-6 pb-6 sm:px-8 sm:pb-8">
     <div class="divide-y divide-slate-100">
       <% source_runs.each do |run| %>
         <% result_key = source_result_key(run, analysis:) %>
@@ -15,16 +15,16 @@
           <div>
             <h3 class="text-sm font-black leading-5 text-slate-900"><%= source_name(run.source_key) %></h3>
             <% if run.request_metadata["demo_data"] %>
-              <p class="mt-1 text-xs font-bold leading-5 text-sky-800"><%= t("reports.sources.demo_data") %></p>
+              <p class="report-source-demo"><%= t("reports.sources.demo_data") %></p>
             <% end %>
             <p class="mt-1 text-xs leading-5 text-slate-500"><%= run.relevant_at ? t("common.relevant_at", date: l(run.relevant_at.to_date, format: :short)) : t("common.unknown_date") %></p>
             <% if (basis = run.request_metadata["geometry_basis"]).present? %>
               <p class="mt-1 text-xs leading-5 text-slate-500"><%= t("reports.sources.geometry_basis", basis: t("reports.sources.geometry_bases.#{basis}", default: basis.humanize)) %></p>
             <% end %>
             <% if (issue = source_issue_text(run, analysis:)) %><p class="mt-2 max-w-2xl text-xs font-semibold leading-5 text-amber-800"><%= issue %></p><% end %>
-            <% if run.source_url.present? %><%= link_to t("common.source_link"), run.source_url, target: "_blank", rel: "noopener noreferrer", class: "mt-2 inline-flex text-xs font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %><% end %>
+            <% if run.source_url.present? %><%= link_to t("common.source_link"), run.source_url, target: "_blank", rel: "noopener noreferrer", class: "report-source-link report-source-link--stacked" %><% end %>
           </div>
-          <span class="w-fit rounded-full px-3 py-1.5 text-xs font-bold ring-1 <%= source_result_classes(result_key) %>"><%= source_result_text(run, analysis:) %></span>
+          <span class="source-result <%= source_result_classes(result_key) %>"><%= source_result_text(run, analysis:) %></span>
         </article>
       <% end %>
       <% if source_runs.empty? %><p class="py-5 text-sm text-slate-500"><%= t("reports.sources.empty") %></p><% end %>

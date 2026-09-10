@@ -192,6 +192,28 @@ en:
       checked: "We checked %{succeeded} of %{checked} sources successfully."
       geographic_title: "Geographic coverage"
       geographic: { complete: "Prepared for this area", partial: "Partial area/history", unknown: "Unknown", outside: "Outside dataset" }
+    navigation:
+      title: "Report contents"
+      overview: "Key takeaways"
+    overview_summary:
+      eyebrow: "Start here"
+      title: "The essentials for your first review"
+      description: "Confirm the property identity, review its public trail, and see which decisive checks remain outside this report."
+      identity_label: "Identity and area"
+      area: "%{area} m² in the available data"
+      records_label: "Public records found"
+      records_count:
+        one: "1 linked record"
+        other: "%{count} linked records"
+      limits_label: "Outside the automated scope"
+      limits_title: "Ownership and encumbrances require a separate check"
+      limits_body: "Mesto does not run an automated Property Register search. Obtain current official documents and review them with a professional before paying a deposit."
+      open_section: "View details"
+      coverage_label: "Scope of this check"
+      check_count: "%{succeeded}/%{checked} applicable checks"
+      supported_coverage_title: "Coverage of supported data"
+      applicable_checks_title: "Applicable automated checks"
+      source_count: "%{succeeded} of %{checked} successful"
     progress:
       title: "Building the public data trail"
       description: "This page refreshes automatically. We show real stages rather than a made-up percentage."
@@ -235,7 +257,7 @@ en:
       levels: { parcel: "Parcel", building: "Building", individual_object: "Individual object" }
     property_graph:
       nav: "Ownership and links"
-      eyebrow: "Evidence graph"
+      eyebrow: "03 · Evidence graph"
       title: "Ownership and connected parties"
       description: "Only relationships supported by a specific public record are shown. Cadastral structure, an administrative act, and a company circumstance have different evidential weight."
       demo_title: "Demo mode - synthetic registry data."
@@ -251,8 +273,28 @@ en:
       boundary_body: "The graph does not certify ownership and does not replace a current official reference, a notary, or independent legal review. Public facts and future claims from uploaded documents remain separate evidence types."
       empty: "There is not enough evidence for a graph. A missing relationship does not mean a person, company, or record does not exist."
       no_relationships: "An object was established, but no other supported relationship is available to show."
-      structured_title: "Relationships and evidence"
-      structured_description: "This list is the complete text version of the graph and remains readable on mobile."
+      structured_title: "What the records show"
+      structured_description: "Relationships are ordered by usefulness for due diligence: rights stated for the property first, followed by people, records, and planning context."
+      group_count:
+        one: "1 record"
+        other: "%{count} records"
+      interpretation_label: "How to interpret it"
+      groups:
+        property_rights:
+          title: "Rights stated for the property"
+          description: "The most relevant records to compare with the seller's documents and a current Property Register search."
+        parcel_rights:
+          title: "Rights and use of the connected parcel"
+          description: "Review these records if the transaction includes a garden, parking space, or ideal shares; they are not rights over the selected individual object."
+        related_parties:
+          title: "Connected people and companies"
+          description: "Company roles and relationships supported by a specific public record."
+        official_records:
+          title: "Official records naming the property"
+          description: "Administrative records in which the property or a connected company is expressly named."
+        property_context:
+          title: "Structure and planning context"
+          description: "Useful for understanding the building, parcel, and surrounding plans, but not evidence of ownership."
       connections: "How it is connected"
       evidence: "Sources for this node"
       material_changes: "Material registered changes"
@@ -262,7 +304,7 @@ en:
       cadastre_right_holder_as_of: "%{right_type} according to AGCC open data as of %{date}: %{holder}"
       registered_owner_as_of: "Registered owner according to the available reference as of %{date}: %{owner}"
       previous_registered_owner_as_of: "Previous registered owner according to the available reference as of %{date}: %{owner}"
-      statuses: { exact: "Exact match", supported: "Supported", conflicting: "Conflicting evidence", unresolved: "Unresolved" }
+      statuses: { exact: "Direct record", supported: "Contextual link", conflicting: "Conflicting evidence", unresolved: "Unresolved" }
       entity_types:
         property: "Individual cadastral object"
         building: "Building"
@@ -520,7 +562,7 @@ en:
         urban_planning_orders: "A planning order may affect regulation, land use or development parameters. Review its scope and attached plans."
         occupancy_certificates: "This record relates to commissioning. Match the exact building, stage and units against the seller’s documents."
     neighborhood:
-      eyebrow: "03 · Location and surroundings"
+      eyebrow: "04 · Location and surroundings"
       title: "What is around the property"
       description: "Distances and counts use ‘%{precision}’ precision and are prompts for an on-site check."
       schools: "Schools within 1 km"
@@ -546,7 +588,7 @@ en:
       location_missing_body: "We therefore do not show an arbitrary map or calculate schools, transport, green space, construction activity or flood risk for this property. An imported dataset is not the same as applying it to the property."
       location_missing_action: "To check these topics, open the identifier in KAIS or request a current cadastral scheme from the seller."
     buyer_checklist:
-      eyebrow: "04 · Next steps"
+      eyebrow: "05 · Next steps"
       title: "What to check before paying a deposit"
       description: "The public trail is the start of due diligence. This list turns findings and gaps into concrete questions for the seller and specialists."
       statuses: { review: "Review the finding", buyer_check: "Compare documents", needs_document: "Request a document", not_checked: "Not checked here" }
@@ -562,30 +604,41 @@ en:
         encumbrances: "Request a current encumbrance certificate immediately before the transaction and review it with a professional."
         technical_inspection: "Arrange a technical inspection covering condition, defects, services, damp, common parts and the actual layout."
     due_diligence:
-      eyebrow: "05 · Complete due diligence"
-      title: "What else can and should be checked"
-      description: "This is the complete due-diligence map for the property. Expand each topic to see what this report contains, where the official information lives, how to obtain anything missing, and why it matters before a deposit or transaction."
-      reading_title: "How to read the statuses"
-      reading_body: "‘No match found’ describes only the result of a particular search. It does not prove that a document or risk does not exist. Official certificates, the complete construction file, and professional review remain decisive."
-      available_label: "What is available"
-      obtain_label: "How to obtain or complete it"
+      eyebrow: "06 · Action plan"
+      title: "Your due-diligence plan before a deposit"
+      description: "Mesto organises the public data checked and turns it into a practical plan for the complete review. For every next topic, you get the exact search, document, or professional to involve."
+      path_label: "How to use this plan"
+      path:
+        report:
+          title: "Start with what was checked"
+          body: "Use the facts and public records in the report as the basis for conversations and comparisons."
+        documents:
+          title: "Collect the right evidence"
+          body: "See what to request from the seller and which official searches to run for the exact property."
+        experts:
+          title: "Bring in the right professional"
+          body: "Know when a lawyer, notary, architect, or engineer is needed and what they should review."
+      reading_title: "Every status gives you a next step"
+      reading_body: "Green statuses take you to evidence in the report. The others tell you whether to compare a document, run an official search, or involve a professional. Expand a topic for concrete instructions, sources, and why the check matters."
+      available_label: "What you already know"
+      obtain_label: "What to do next"
       importance_label: "Why it matters"
       deposit_warning_title: "Before transferring a deposit"
       deposit_warning_body: "Ask your lawyer to make payment conditional on satisfactory legal and technical due diligence, an exact property and price, deadlines, refund conditions, release of encumbrances, and proven authority of the recipient. A public-data report does not make a payment safe by itself."
       results:
         found_in_report:
-          one: "1 record found here"
-          other: "%{count} records found here"
-        verified_in_report: "Checked in this report"
+          one: "1 record from Mesto"
+          other: "%{count} records from Mesto"
+        verified_in_report: "Checked by Mesto"
         flood_assessed:
-          one: "1 risk-layer intersection"
-          other: "%{count} risk-layer intersections"
-        partial_in_report: "Partly checked here"
-        checked_no_match: "Checked - no match"
-        source_unavailable: "Source not applied"
-        external_official_check: "Check an external register"
-        request_document: "Request a document"
-        professional_review: "Professional needed"
+          one: "Assessed by Mesto: 1 intersection"
+          other: "Assessed by Mesto: %{count} intersections"
+        partial_in_report: "Compare the documents"
+        checked_no_match: "Checked by Mesto - no match"
+        source_unavailable: "Follow the official check"
+        external_official_check: "Run an official search"
+        request_document: "Request from the seller"
+        professional_review: "Review with a professional"
       sections:
         identity: "Identity, area and included rights"
         planning_construction: "Planning, construction and commissioning"
@@ -909,15 +962,8 @@ en:
       freshness: "As of what date is the planning data current?"
       occupancy: "Has an occupancy certificate been issued for the building?"
       encumbrances: "Can the seller provide a current official encumbrance search?"
-    not_verified:
-      title: "What was not verified"
-      ownership: "Current ownership and owner identity"
-      encumbrances: "Mortgages, attachments and registered encumbrances"
-      title_validity: "Validity of title"
-      legality: "Legality and formal construction compliance"
-      future: "Exact future construction or investment returns"
     disclaimer: "%{product_name} summarizes available public data. This information is not legal, technical or investment advice and does not replace an official search or professional review."
-    refresh: { action: "Check again", already_running: "The check is already running.", too_soon: "The data was checked recently. Try again later.", started: "A new check has started.", rate_limited: "Too many repeat checks were submitted. Try again later." }
+    refresh: { action: "Retry this property check", already_running: "The check is already running.", too_soon: "The data was checked recently. Try again later.", started: "A new check has started.", rate_limited: "Too many repeat checks were submitted. Try again later." }
   payments:
     products:
       full_property_report:

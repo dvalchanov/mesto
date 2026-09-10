@@ -28,11 +28,47 @@ RSpec.describe "Property graph dossier", type: :system do
     ).to eq([ "synthetic_demo" ])
     visit report_path(public_token: analysis)
 
+    expect(page).to have_css(".report-disclosure-toggle", text: "+", count: 2)
+    disclosure_styles = page.evaluate_script(<<~JS)
+      [...document.querySelectorAll(".report-disclosure")].map((disclosure) => {
+        const summary = disclosure.querySelector(".report-disclosure__summary")
+        const heading = summary.querySelector("h2")
+        const disclosureStyle = getComputedStyle(disclosure)
+        const summaryStyle = getComputedStyle(summary)
+        const headingStyle = getComputedStyle(heading)
+
+        return {
+          backgroundColor: disclosureStyle.backgroundColor,
+          borderRadius: disclosureStyle.borderRadius,
+          summaryPadding: summaryStyle.padding,
+          headingFontSize: headingStyle.fontSize
+        }
+      })
+    JS
+    expect(disclosure_styles.uniq.size).to eq(1)
+    expect(disclosure_styles.first.fetch("backgroundColor")).to eq("rgb(255, 255, 255)")
+
+    sources = find("#sources", visible: :all)
+    expect(sources).to have_css(".report-source-link", minimum: 1, visible: :all)
+    expect(sources).to have_css(".source-result", minimum: 1, visible: :all)
+    expect(sources).to have_no_css(
+      "[class*='text-emerald'], [class*='text-sky'], [class*='ring-emerald'], [class*='ring-sky']",
+      visible: :all
+    )
+
     graph = find("#ownership")
     expect(graph).to have_css("[data-property-graph-demo-banner]")
     expect(graph).to have_text(I18n.t("reports.property_graph.demo_title"))
     expect(graph).to have_css("[data-property-graph-target='node']", minimum: 8)
     expect(graph).to have_css(".property-graph__diagram", visible: true)
+    expect(graph).to have_css("[data-edge-group='property_rights']")
+    expect(graph).to have_css("[data-edge-group='property_context']")
+    expect(
+      graph.all(".property-graph__group", visible: :all).map { |group| group["data-edge-group"] }
+    ).to start_with("property_rights")
+    expect(graph).to have_css("[data-edge-group='property_rights'][open]")
+    expect(graph).to have_css("[data-edge-group='property_context']:not([open])")
+    expect(graph).to have_no_css(".property-graph__status.bg-sky-50", visible: :all)
     page.execute_script("arguments[0].scrollIntoView({ block: 'start' })", graph.native)
     expect(graph).to have_css("[data-property-graph-target='node'].is-selected", count: 1)
     diagram_style = page.evaluate_script(<<~JS)
@@ -80,6 +116,9 @@ RSpec.describe "Property graph dossier", type: :system do
     expect(graph).to have_css("[data-property-graph-target='node'].is-selected", text: company_name)
     expect(graph).to have_css("svg line", minimum: 7, visible: :all)
 
+    graph.all("details.property-graph__group:not([open])", visible: :all).each do |group|
+      group.find("summary").click
+    end
     page.current_window.resize_to(390, 844)
     expect(graph).to have_no_css("[data-property-graph-target='diagram']", visible: true)
     expect(graph).to have_text(I18n.t("reports.property_graph.structured_title"))

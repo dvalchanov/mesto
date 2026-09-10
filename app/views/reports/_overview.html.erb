@@ -1,0 +1,64 @@
+<% coverage_status = coverage["status"].presence || "limited" %>
+<% complete_coverage = coverage_status.in?(%w[complete good]) %>
+<% area = facts["subject_area_sqm"] %>
+
+<section id="overview" class="report-overview" aria-labelledby="report-overview-title">
+  <header class="report-overview__heading">
+    <div>
+      <p class="report-section-label"><%= t("reports.overview_summary.eyebrow") %></p>
+      <h2 id="report-overview-title"><%= t("reports.overview_summary.title") %></h2>
+      <p><%= t("reports.overview_summary.description") %></p>
+    </div>
+    <span class="report-overview__badge <%= complete_coverage ? 'is-complete' : 'is-limited' %>">
+      <i aria-hidden="true"></i>
+      <%= t("reports.overview_summary.check_count", succeeded: coverage["succeeded"].to_i, checked: coverage["checked"].to_i) %>
+    </span>
+  </header>
+
+  <div class="report-priority-grid">
+    <a href="#identity" class="report-priority-card" data-turbo="false">
+      <span class="report-priority-card__icon"><%= mesto_icon("building", css_class: "size-5") %></span>
+      <div>
+        <p class="report-priority-card__label"><%= t("reports.overview_summary.identity_label") %></p>
+        <h3><%= t("reports.hierarchy.levels.#{facts['property_type']}") %></h3>
+        <p><%= area ? t("reports.overview_summary.area", area: number_with_precision(area, precision: 2, strip_insignificant_zeros: true)) : t("reports.property_facts.missing") %></p>
+      </div>
+      <span class="report-priority-card__action"><%= t("reports.overview_summary.open_section") %><%= mesto_icon("arrow-right", css_class: "size-4") %></span>
+    </a>
+
+    <a href="#records" class="report-priority-card" data-turbo="false">
+      <span class="report-priority-card__icon"><%= mesto_icon("document", css_class: "size-5") %></span>
+      <div>
+        <p class="report-priority-card__label"><%= t("reports.overview_summary.records_label") %></p>
+        <h3><%= t("reports.overview_summary.records_count", count: facts["direct_acts_count"].to_i) %></h3>
+        <p><%= facts["latest_act_on"] ? t("reports.property_facts.latest_record", date: l(Date.iso8601(facts["latest_act_on"]), format: :short)) : t("reports.property_facts.no_records") %></p>
+      </div>
+      <span class="report-priority-card__action"><%= t("reports.overview_summary.open_section") %><%= mesto_icon("arrow-right", css_class: "size-4") %></span>
+    </a>
+
+    <a href="#next-steps" class="report-priority-card report-priority-card--attention" data-turbo="false">
+      <span class="report-priority-card__icon"><%= mesto_icon("shield", css_class: "size-5") %></span>
+      <div>
+        <p class="report-priority-card__label"><%= t("reports.overview_summary.limits_label") %></p>
+        <h3><%= t("reports.overview_summary.limits_title") %></h3>
+        <p><%= t("reports.overview_summary.limits_body") %></p>
+      </div>
+      <span class="report-priority-card__action"><%= t("reports.overview_summary.open_section") %><%= mesto_icon("arrow-right", css_class: "size-4") %></span>
+    </a>
+  </div>
+
+  <dl class="report-coverage" aria-label="<%= t('reports.overview_summary.coverage_label') %>">
+    <div>
+      <dt><%= t("reports.overview_summary.supported_coverage_title") %></dt>
+      <dd><%= t("reports.coverage.#{coverage_status}") %></dd>
+    </div>
+    <div>
+      <dt><%= t("reports.overview_summary.applicable_checks_title") %></dt>
+      <dd><%= t("reports.overview_summary.source_count", succeeded: coverage["succeeded"].to_i, checked: coverage["checked"].to_i) %></dd>
+    </div>
+    <div>
+      <dt><%= t("reports.coverage.geographic_title") %></dt>
+      <dd><%= t("reports.coverage.geographic.#{coverage['geographic_coverage_status'] || 'unknown'}") %></dd>
+    </div>
+  </dl>
+</section>
