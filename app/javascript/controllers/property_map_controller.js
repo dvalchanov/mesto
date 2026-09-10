@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import maplibregl from "maplibre-gl"
+import * as maplibregl from "maplibre-gl"
 
 export default class extends Controller {
   static targets = ["canvas"]

@@ -10,6 +10,12 @@ class PropertyAnalysis < ApplicationRecord
   has_many :product_events, dependent: :nullify
   has_many :buyer_journeys, dependent: :nullify
   has_many :budget_scenarios, dependent: :nullify
+  has_many :property_graph_relationships,
+    class_name: "PropertyGraph::Relationship",
+    dependent: :destroy
+  has_many :property_graph_entity_observations,
+    class_name: "PropertyGraph::EntityObservation",
+    dependent: :destroy
 
   before_validation :assign_public_token, on: :create
   after_update_commit :broadcast_terminal_report_refresh, if: :terminal_status_changed?

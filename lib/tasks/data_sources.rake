@@ -1,4 +1,16 @@
 namespace :data_sources do
+  desc "Populate every shared spatial source for the current coverage profile"
+  task prepare_spatial: :environment do
+    DataSources::Sofiaplan::DatasetSynchronizer.new.sync.each do |key, result|
+      puts [ "sofiaplan", key, result.status, result.try(:records_seen) ].compact.join("\t")
+    end
+    DataSources::ArcGis::DatasetSynchronizer.new.sync.each do |key, result|
+      puts [ "arcgis", key, result.status, result.try(:records_seen) ].compact.join("\t")
+    end
+    result = DataSources::OpenStreetMap::DatasetSynchronizer.new.sync
+    puts [ "openstreetmap", result.status, result.try(:records_seen) ].compact.join("\t")
+  end
+
   desc "Enqueue refresh checks for prepared datasets"
   task refresh_due: :environment do
     RefreshPreparedDataJob.perform_later(coverage_profile_key: DataCoverage.profile.key)
@@ -242,16 +254,22 @@ namespace :cadastre do
     end
   end
 
-  desc "Import an AGKK parcel, building, or individual-object open-data ZIP"
+  desc "Import an AGKK geometry or legal-entity-rights open-data ZIP"
   task :import_archive, [ :archive_path, :source_archive_key, :archive_kind, :relevant_at ] => :environment do |_task, args|
     archive_path = Pathname(args[:archive_path].to_s)
     abort("Provide an existing ZIP archive path") unless archive_path.file?
     abort("Provide the official AGKK archive key") if args[:source_archive_key].blank?
     archive_kind = args[:archive_kind].to_s.to_sym
-    abort("Archive kind must be parcels, buildings, or individual_objects") unless %i[parcels buildings individual_objects].include?(archive_kind)
+    allowed_kinds = DataSources::CadastreOpenData::DistrictSynchronizer::ARCHIVE_NAMES.keys
+    abort("Unknown AGKK archive kind") unless allowed_kinds.include?(archive_kind)
 
     source_url = "#{DataSources.config.dig('cadastre', 'open_data', 'download_url')}?#{URI.encode_www_form(path: args[:source_archive_key])}"
-    result = DataSources::CadastreOpenData::PropertyArchiveImporter.new(
+    importer_class = if DataSources::CadastreOpenData::DistrictSynchronizer::OWNERSHIP_ARCHIVE_KINDS.include?(archive_kind)
+      DataSources::CadastreOpenData::OwnershipArchiveImporter
+    else
+      DataSources::CadastreOpenData::PropertyArchiveImporter
+    end
+    result = importer_class.new(
       archive_path:, source_archive_key: args[:source_archive_key], source_url:, archive_kind:,
       relevant_at: args[:relevant_at].presence && Time.zone.parse(args[:relevant_at])
     ).call
@@ -272,7 +290,7 @@ namespace :cadastre do
     puts [ result.status, "seen=#{result.records_seen}", "imported=#{result.records_imported}" ].join("\t")
   end
 
-  desc "Download and import AGKK parcel, building, and individual-object data for a Sofia district"
+  desc "Download and import AGKK property hierarchy and legal-entity rights for a Sofia district"
   task :sync_sofia_district, [ :district ] => :environment do |_task, args|
     abort("Provide a Sofia district name") if args[:district].blank?
 

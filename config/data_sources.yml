@@ -10,6 +10,7 @@ shared: &shared
     - nag.sofia.bg
     - kais.cadastre.bg
     - overpass-api.de
+    - ec.europa.eu
   http:
     open_timeout: 5
     read_timeout: 18
@@ -76,7 +77,9 @@ shared: &shared
     permission_status: approved
     attribution: "© OpenStreetMap contributors"
     permission_reference: "https://www.openstreetmap.org/copyright"
-    coverage_status: partial
+    # The bounded Overpass query covers the complete configured supporting
+    # geometry. OSM's real-world mapping limitations remain disclosed in the UI.
+    coverage_status: complete
     storage_reuse: "ODbL subject to attribution/share-alike requirements"
     redistribution: "ODbL requirements apply"
     retention_constraints: "No application-specific limit recorded"
@@ -84,13 +87,14 @@ shared: &shared
   nag:
     request_delay_seconds: 0.5
     detail_limit: 25
-    background_ingestion_enabled: <%= ENV.fetch("NAG_BACKGROUND_INGESTION_ENABLED", "false") %>
-    permission_status: review_required
+    on_demand_ingestion_enabled: <%= ENV.fetch("NAG_ON_DEMAND_INGESTION_ENABLED", Rails.env.development?.to_s) %>
+    successful_snapshot_max_age: <%= ENV.fetch("NAG_SUCCESSFUL_SNAPSHOT_MAX_AGE", 1.day.to_i) %>
+    failed_snapshot_max_age: <%= ENV.fetch("NAG_FAILED_SNAPSHOT_MAX_AGE", 15.minutes.to_i) %>
+    permission_status: <%= ENV.fetch("NAG_PERMISSION_STATUS", "review_required") %>
     storage_reuse: unknown
     redistribution: unknown
     retention_constraints: unknown
     rate_limit: "0.5 seconds between bounded registry requests"
-    coverage_status: partial
     registers:
       building_permits:
         url: <%= ENV.fetch("NAG_BUILDING_PERMITS_URL", "https://nag.sofia.bg/RegisterBuildingPermitsPortal/Index") %>
@@ -118,6 +122,37 @@ shared: &shared
       redistribution: unknown
       retention_constraints: unknown
       rate_limit: undocumented
+  property_register:
+    provider: <%= ENV.fetch("MESTO_REGISTRY_DEMO", "false") == "true" ? "demo" : "unavailable" %>
+    source_url: "https://www.registryagency.bg/bg/registri/imoten-registar/"
+    automated_access_url: "https://www.registryagency.bg/bg/registri/imoten-registar/avtomatiziran-dostp-do-bazata-danni-na-imoten-registr-za-sluzheb/"
+    demo_identifier: <%= ENV.fetch("MESTO_REGISTRY_DEMO_IDENTIFIER", "68134.1607.1254.1.5") %>
+    demo_company_eik: "000000000"
+    demo_source_url: "https://example.invalid/mesto-demo/property-register"
+    permission_status: restricted
+    storage_reuse: "No automated Mesto access; official interface is for legally authorized public institutions"
+    redistribution: prohibited_without_authorization
+    retention_constraints: unavailable
+    rate_limit: unavailable
+  commercial_register:
+    provider: <%= ENV.fetch("MESTO_REGISTRY_DEMO", "false") == "true" ? "demo" : "unavailable" %>
+    source_url: "https://www.registryagency.bg/bg/registri/targovski-registar/"
+    automated_access_url: "https://www.registryagency.bg/bg/registri/targovski-registar/predostavyane-sreshtu-zaplashtane-na-cyalata-baza-danni/"
+    demo_company_eik: "000000000"
+    demo_source_url: "https://example.invalid/mesto-demo/commercial-register"
+    permission_status: contract_required
+    storage_reuse: "Requires an approved paid contract and compliance review"
+    redistribution: "General terms prohibit providing the feed to third parties"
+    retention_constraints: contract_dependent
+    rate_limit: contract_dependent
+  vies:
+    service_url: <%= ENV.fetch("VIES_SERVICE_URL", "https://ec.europa.eu/taxation_customs/vies/services/checkVatService") %>
+    permission_status: approved
+    attribution: "European Commission VIES"
+    storage_reuse: "Store the dated validation result and attribution; do not treat it as a company-register record"
+    redistribution: "Public validation response"
+    retention_constraints: "No personal address is persisted by Mesto"
+    rate_limit: "Availability and throttling are controlled by the member-state VAT service"
 
 development:
   <<: *shared

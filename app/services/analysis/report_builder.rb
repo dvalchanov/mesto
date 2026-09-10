@@ -17,6 +17,7 @@ module Analysis
         "questions" => QuestionsBuilder.new(analysis: @analysis, metrics: @metrics).call,
         "planning" => planning,
         "planning_summary" => PlanningSummaryBuilder.new(planning).call,
+        "property_graph" => PropertyGraph::Presenter.new(analysis: @analysis).call,
         "paid_content_available" => paid_content,
         "generated_at" => Time.current.iso8601
       }

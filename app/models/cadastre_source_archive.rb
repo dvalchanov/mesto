@@ -1,5 +1,7 @@
 class CadastreSourceArchive < ApplicationRecord
-  OBJECT_KINDS = %w[parcels buildings individual_objects].freeze
+  OBJECT_KINDS = %w[
+    parcels buildings individual_objects parcel_rights building_rights individual_object_rights
+  ].freeze
   STATUSES = %w[configured checking ready stale failed].freeze
   PERMISSION_STATUSES = %w[review_required approved restricted prohibited].freeze
 

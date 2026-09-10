@@ -26,6 +26,16 @@ RSpec.describe "Property report journey", type: :request do
     )
   end
 
+  it "loads MapLibre with the module export and stylesheet from the same version" do
+    controller = Rails.root.join("app/javascript/controllers/property_map_controller.js").read
+    importmap = Rails.root.join("config/importmap.rb").read
+    map_partial = Rails.root.join("app/views/reports/_map.html.erb").read
+
+    expect(controller).to include('import * as maplibregl from "maplibre-gl"')
+    expect(importmap).to include("maplibre-gl@6.4.1/+esm")
+    expect(map_partial).to include("maplibre-gl@6.4.1/dist/maplibre-gl.css")
+  end
+
   it "permanently redirects the legacy knowledge URLs to the canonical library" do
     get guides_path
     expect(response).to redirect_to(guide_path)
@@ -134,6 +144,57 @@ RSpec.describe "Property report journey", type: :request do
     expect(response.body).to include(I18n.t("checkout.unavailable"))
     expect(response.body).to include(I18n.t("reports.paid_unavailable.no_charge"))
     expect(response.body).not_to include(I18n.t("reports.locked.cta"))
+  end
+
+  it "does not label contract-only registry checks as mandatory blockers" do
+    analysis = create(:property_analysis, status: "partial", coverage_status: "partial")
+    analysis.source_runs.create!(
+      source_key: "cadastre", status: "unavailable",
+      error_message: "Official district archive is not published"
+    )
+    %w[property_register commercial_register].each do |source_key|
+      analysis.source_runs.create!(source_key:, status: "unavailable", error_message: "Contract required")
+    end
+
+    get report_path(public_token: analysis)
+
+    panel = Nokogiri::HTML5(response.body).at_css('[data-testid="paid-report-unavailable"]').text
+    expect(panel).to include(I18n.t("reports.sources.names.cadastre"))
+    expect(panel).not_to include(
+      I18n.t("reports.sources.names.property_register"),
+      I18n.t("reports.sources.names.commercial_register")
+    )
+  end
+
+  it "distinguishes restricted, contract-only, and inapplicable enrichment from failed checks" do
+    analysis = create(:property_analysis, status: "partial", coverage_status: "partial")
+    analysis.source_runs.create!(
+      source_key: "property_register", status: "unavailable",
+      error_class: "PublicRegistry::AutomationUnavailable",
+      request_metadata: { access: "provider_contract" }
+    )
+    analysis.source_runs.create!(
+      source_key: "commercial_register", status: "unavailable",
+      error_class: "PublicRegistry::AutomationUnavailable",
+      request_metadata: { access: "provider_contract" }
+    )
+    analysis.source_runs.create!(
+      source_key: "vies", status: "unavailable",
+      error_class: "PublicRegistry::NoReliableIdentifier",
+      request_metadata: { access: "not_attempted_without_eik" }
+    )
+
+    get report_path(public_token: analysis)
+
+    sources = Nokogiri::HTML5(response.body).css("details").find do |details|
+      details.text.include?(I18n.t("reports.sources.title"))
+    end.text
+    expect(sources).to include(
+      I18n.t("reports.sources.results.restricted_access"),
+      I18n.t("reports.sources.results.contract_required"),
+      I18n.t("reports.sources.results.not_applicable")
+    )
+    expect(sources).not_to include(I18n.t("reports.sources.results.failed"))
   end
 
   it "hides and rejects checkout while the production kill switch is off" do
@@ -303,6 +364,7 @@ RSpec.describe "Property report journey", type: :request do
   end
 
   def successful_cadastre_provider
+    prepare_cadastre_rights_snapshot
     point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3205, 42.6905)
     factory = RGeo::Cartesian.preferred_factory(srid: 4326)
     ring = factory.linear_ring([
@@ -327,6 +389,39 @@ RSpec.describe "Property report journey", type: :request do
     instance_double(Cadastre::Provider, locate: result)
   end
 
+  def prepare_cadastre_rights_snapshot
+    profile = DataCoverage.profile
+    source_url = "https://kais.cadastre.bg/bg/OpenData"
+    relevant_at = Time.zone.parse("2026-08-05")
+    identifiers = {
+      "parcel" => "68134.1000.2000",
+      "building" => "68134.1000.2000.1",
+      "individual_object" => "68134.1000.2000.1.5"
+    }
+    archive_names = DataSources::CadastreOpenData::DistrictSynchronizer::ARCHIVE_NAMES
+    identifiers.each do |level, identifier|
+      CadastralProperty.create!(
+        cadastral_identifier: identifier,
+        identifier_level: level,
+        source_archive_key: "test/#{level}.zip",
+        source_url:,
+        source_relevant_at: relevant_at
+      )
+      rights_key = "test/#{archive_names.fetch("#{level}_rights".to_sym)}"
+      CadastreImport.create!(
+        source_archive_key: rights_key,
+        source_url:,
+        source_checksum: Digest::SHA256.hexdigest(rights_key),
+        importer_version: DataSources::CadastreOpenData::OwnershipArchiveImporter::IMPORTER_VERSION,
+        scope_digest: profile.scope_digest,
+        coverage_profile_key: profile.key,
+        status: "succeeded",
+        relevant_at:,
+        completed_at: Time.current
+      )
+    end
+  end
+
   def prepare_complete_sources
     profile = DataCoverage.profile
     DataSources::Sofiaplan::DatasetSynchronizer.new(coverage_profile: profile).sync
@@ -342,8 +437,14 @@ RSpec.describe "Property report journey", type: :request do
         status: "succeeded",
         coverage_status: "complete",
         fetched_at: Time.current,
-        permission_status: "approved"
+        permission_status: "approved",
+        metadata: { "searched_identifiers" => analysis_identifiers }
       )
     end
+  end
+
+
+  def analysis_identifiers
+    %w[68134.1000.2000 68134.1000.2000.1 68134.1000.2000.1.5]
   end
 end

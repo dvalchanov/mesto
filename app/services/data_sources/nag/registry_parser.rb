@@ -2,6 +2,13 @@ module DataSources
   module Nag
     class RegistryParser
       PERSONAL_FIELDS = %w[Employer Applicant ApplicantName Owner ConstructionalOversightName].freeze
+      ORGANIZATION_FIELDS = {
+        "Employer" => "contracting_authority",
+        "Applicant" => "applicant",
+        "ApplicantName" => "applicant",
+        "Owner" => "source_label_owner",
+        "ConstructionalOversightName" => "construction_supervision"
+      }.freeze
 
       def initialize(registry_kind:, base_url:)
         @registry_kind = registry_kind
@@ -70,7 +77,9 @@ module DataSources
       end
 
       def normalize(raw_record)
-        record = raw_record.stringify_keys.except(*PERSONAL_FIELDS)
+        unfiltered_record = raw_record.stringify_keys
+        organization_mentions = public_organization_mentions(unfiltered_record)
+        record = unfiltered_record.except(*PERSONAL_FIELDS)
         external_key = record["Hash"].presence || record["Id"].presence ||
           Digest::SHA256.hexdigest(JSON.generate(record.sort.to_h))
         detail_path = record["DetailUrl"].presence ||
@@ -98,10 +107,29 @@ module DataSources
           "cadastral_identifiers" => identifiers(record.values.join(" ")),
           "longitude" => decimal(first(record, "Longitude", "Lon", "X")),
           "latitude" => decimal(first(record, "Latitude", "Lat", "Y")),
-          "properties" => record
+          "properties" => record.merge("organization_mentions" => organization_mentions).compact_blank
         }
       rescue URI::InvalidURIError
         nil
+      end
+
+      def public_organization_mentions(record)
+        ORGANIZATION_FIELDS.flat_map do |field, source_role|
+          value = record[field].to_s
+          next [] if value.blank?
+
+          value.split(/[;\n]+/).filter_map do |entry|
+            eik = entry.scan(/(?:ЕИК|EIK|UIC|БУЛСТАТ|BULSTAT)\s*[:№#-]?\s*(\d{9}|\d{13})/i).flatten
+              .find { |candidate| BulgarianEik.valid?(candidate) }
+            next unless eik
+
+            legal_name = entry.sub(/(?:ЕИК|EIK|UIC|БУЛСТАТ|BULSTAT)\s*[:№#-]?\s*#{Regexp.escape(eik)}.*\z/i, "")
+              .sub(/[\s,(:-]+\z/, "").strip
+            next if legal_name.blank?
+
+            { "legal_name" => legal_name.truncate(200), "eik" => BulgarianEik.normalize(eik), "source_role" => source_role }
+          end
+        end.uniq
       end
 
       def first(record, *keys)

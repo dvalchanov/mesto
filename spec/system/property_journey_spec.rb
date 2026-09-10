@@ -33,6 +33,7 @@ RSpec.describe "Mesto journey", type: :system do
 
 
   def successful_cadastre_provider
+    prepare_cadastre_rights_snapshot
     point = RGeo::Geographic.spherical_factory(srid: 4326).point(23.3205, 42.6905)
     factory = RGeo::Cartesian.preferred_factory(srid: 4326)
     ring = factory.linear_ring([
@@ -57,6 +58,39 @@ RSpec.describe "Mesto journey", type: :system do
     instance_double(Cadastre::Provider, locate: result)
   end
 
+  def prepare_cadastre_rights_snapshot
+    profile = DataCoverage.profile
+    source_url = "https://kais.cadastre.bg/bg/OpenData"
+    relevant_at = Time.zone.parse("2026-08-05")
+    identifiers = {
+      "parcel" => "68134.1000.2000",
+      "building" => "68134.1000.2000.1",
+      "individual_object" => "68134.1000.2000.1.5"
+    }
+    archive_names = DataSources::CadastreOpenData::DistrictSynchronizer::ARCHIVE_NAMES
+    identifiers.each do |level, identifier|
+      CadastralProperty.create!(
+        cadastral_identifier: identifier,
+        identifier_level: level,
+        source_archive_key: "test/#{level}.zip",
+        source_url:,
+        source_relevant_at: relevant_at
+      )
+      rights_key = "test/#{archive_names.fetch("#{level}_rights".to_sym)}"
+      CadastreImport.create!(
+        source_archive_key: rights_key,
+        source_url:,
+        source_checksum: Digest::SHA256.hexdigest(rights_key),
+        importer_version: DataSources::CadastreOpenData::OwnershipArchiveImporter::IMPORTER_VERSION,
+        scope_digest: profile.scope_digest,
+        coverage_profile_key: profile.key,
+        status: "succeeded",
+        relevant_at:,
+        completed_at: Time.current
+      )
+    end
+  end
+
   def prepare_complete_sources
     profile = DataCoverage.profile
     DataSources::Sofiaplan::DatasetSynchronizer.new(coverage_profile: profile).sync
@@ -72,7 +106,10 @@ RSpec.describe "Mesto journey", type: :system do
         status: "succeeded",
         coverage_status: "complete",
         fetched_at: Time.current,
-        permission_status: "approved"
+        permission_status: "approved",
+        metadata: {
+          "searched_identifiers" => %w[68134.1000.2000 68134.1000.2000.1 68134.1000.2000.1.5]
+        }
       )
     end
   end
