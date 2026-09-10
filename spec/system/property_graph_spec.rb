@@ -40,6 +40,7 @@ RSpec.describe "Property graph dossier", type: :system do
         return {
           backgroundColor: disclosureStyle.backgroundColor,
           borderRadius: disclosureStyle.borderRadius,
+          overflow: disclosureStyle.overflow,
           summaryPadding: summaryStyle.padding,
           headingFontSize: headingStyle.fontSize
         }
@@ -47,6 +48,7 @@ RSpec.describe "Property graph dossier", type: :system do
     JS
     expect(disclosure_styles.uniq.size).to eq(1)
     expect(disclosure_styles.first.fetch("backgroundColor")).to eq("rgb(255, 255, 255)")
+    expect(disclosure_styles.first.fetch("overflow")).to eq("hidden")
 
     sources = find("#sources", visible: :all)
     expect(sources).to have_css(".report-source-link", minimum: 1, visible: :all)

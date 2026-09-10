@@ -17,9 +17,9 @@ RSpec.describe "Report reading hierarchy", type: :system do
     expect(page).to have_css("#overview .report-priority-card", count: 3)
     expect(page).to have_link(I18n.t("reports.navigation.overview"), href: "#overview")
     expect(page).to have_text(I18n.t("reports.overview_summary.limits_title"))
-    expect(page).to have_text(/#{Regexp.escape(I18n.t("reports.overview_summary.supported_coverage_title"))}/i)
-    expect(page).to have_text(/#{Regexp.escape(I18n.t("reports.overview_summary.applicable_checks_title"))}/i)
+    expect(page).to have_no_css(".report-coverage", visible: :all)
     expect(priority_column_count).to eq(3)
+    expect(overview_bottom_borders).to eq({ "grid" => "0px", "overview" => "1px" })
     expect(section_order).to eq(%w[identity records ownership context next-steps due-diligence])
     expect(section_chrome.map { |section| section.fetch("id") }).to eq(section_order)
     expect(section_chrome.map { |section| section.except("id") }.uniq).to eq([
@@ -91,6 +91,15 @@ RSpec.describe "Report reading hierarchy", type: :system do
         .gridTemplateColumns
         .split(' ')
         .length
+    JAVASCRIPT
+  end
+
+  def overview_bottom_borders
+    page.evaluate_script(<<~JAVASCRIPT)
+      ({
+        grid: getComputedStyle(document.querySelector('.report-priority-grid')).borderBottomWidth,
+        overview: getComputedStyle(document.querySelector('.report-overview')).borderBottomWidth
+      })
     JAVASCRIPT
   end
 

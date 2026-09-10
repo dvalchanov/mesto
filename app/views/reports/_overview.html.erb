@@ -46,19 +46,4 @@
       <span class="report-priority-card__action"><%= t("reports.overview_summary.open_section") %><%= mesto_icon("arrow-right", css_class: "size-4") %></span>
     </a>
   </div>
-
-  <dl class="report-coverage" aria-label="<%= t('reports.overview_summary.coverage_label') %>">
-    <div>
-      <dt><%= t("reports.overview_summary.supported_coverage_title") %></dt>
-      <dd><%= t("reports.coverage.#{coverage_status}") %></dd>
-    </div>
-    <div>
-      <dt><%= t("reports.overview_summary.applicable_checks_title") %></dt>
-      <dd><%= t("reports.overview_summary.source_count", succeeded: coverage["succeeded"].to_i, checked: coverage["checked"].to_i) %></dd>
-    </div>
-    <div>
-      <dt><%= t("reports.coverage.geographic_title") %></dt>
-      <dd><%= t("reports.coverage.geographic.#{coverage['geographic_coverage_status'] || 'unknown'}") %></dd>
-    </div>
-  </dl>
 </section>

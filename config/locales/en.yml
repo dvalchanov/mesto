@@ -209,11 +209,7 @@ en:
       limits_title: "Ownership and encumbrances require a separate check"
       limits_body: "Mesto does not run an automated Property Register search. Obtain current official documents and review them with a professional before paying a deposit."
       open_section: "View details"
-      coverage_label: "Scope of this check"
       check_count: "%{succeeded}/%{checked} applicable checks"
-      supported_coverage_title: "Coverage of supported data"
-      applicable_checks_title: "Applicable automated checks"
-      source_count: "%{succeeded} of %{checked} successful"
     progress:
       title: "Building the public data trail"
       description: "This page refreshes automatically. We show real stages rather than a made-up percentage."
