@@ -1,0 +1,20 @@
+{
+  "example": "synthetic_test_fixture",
+  "property_identifier": "68134.1000.2000.1.5",
+  "warning": "This file demonstrates graph shape and is not a live registry lookup.",
+  "nodes": [
+    { "key": "cadastre:68134.1000.2000.1.5", "entity_type": "property", "display_name": "68134.1000.2000.1.5" },
+    { "key": "cadastre:68134.1000.2000.1", "entity_type": "building", "display_name": "68134.1000.2000.1" },
+    { "key": "cadastre:68134.1000.2000", "entity_type": "parcel", "display_name": "68134.1000.2000" },
+    { "key": "nag:building_permits:permit-company-1", "entity_type": "administrative_act", "display_name": "РС-101" },
+    { "key": "eik:200370069", "entity_type": "company", "display_name": "ПРИМЕР ПРОЕКТ ЕООД" },
+    { "key": "commercial_register:person:source-scoped-digest", "entity_type": "person", "display_name": "Тестов управител" }
+  ],
+  "edges": [
+    { "relationship_type": "part_of_building", "subject_key": "cadastre:68134.1000.2000.1.5", "object_key": "cadastre:68134.1000.2000.1", "status": "exact", "source_key": "cadastre", "coverage_limitation": "cadastre_identity_not_ownership" },
+    { "relationship_type": "building_on_parcel", "subject_key": "cadastre:68134.1000.2000.1", "object_key": "cadastre:68134.1000.2000", "status": "exact", "source_key": "cadastre", "coverage_limitation": "cadastre_identity_not_ownership" },
+    { "relationship_type": "related_administrative_act", "subject_key": "cadastre:68134.1000.2000", "object_key": "nag:building_permits:permit-company-1", "status": "exact", "source_key": "nag_building_permits", "evidence": { "basis": "identifier_in_published_document", "match_basis": "document" } },
+    { "relationship_type": "named_in_administrative_act", "subject_key": "nag:building_permits:permit-company-1", "object_key": "eik:200370069", "status": "exact", "source_key": "nag_building_permits", "coverage_limitation": "nag_company_mention_not_ownership" },
+    { "relationship_type": "managed_by", "subject_key": "eik:200370069", "object_key": "commercial_register:person:source-scoped-digest", "status": "exact", "source_key": "commercial_register", "active": true }
+  ]
+}

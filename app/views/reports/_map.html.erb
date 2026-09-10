@@ -20,7 +20,7 @@
       ["acts", "layer_acts", "bg-red-700", false, true, ->(property) { (property[:kind] || property["kind"]) == "act" }],
       ["flood", "layer_flood", "bg-blue-600", false, true, ->(property) { (property[:category] || property["category"]) == "flood_risk" }]
     ] %>
-    <% content_for :head do %><link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.1/dist/maplibre-gl.css" rel="stylesheet"><% end %>
+    <% content_for :head do %><link href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.4.1/dist/maplibre-gl.css" rel="stylesheet"><% end %>
     <div data-controller="property-map" data-property-map-payload-value="<%= map_payload.to_json %>" data-property-map-style-url-value="<%= Rails.application.config.x.map_style_url %>" data-property-map-source-label-value="<%= t("reports.map.source_link") %>">
       <div class="mb-3 flex flex-wrap gap-2" aria-label="<%= t("reports.map.layers_label") %>">
         <% map_layers.each do |layer, label, swatch, visible, toggleable, matcher| %>

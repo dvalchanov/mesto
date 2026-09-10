@@ -5,13 +5,19 @@ module DataSources
       ARCHIVE_NAMES = {
         parcels: "поземлени имоти.zip",
         buildings: "сгради.zip",
-        individual_objects: "самостоятелни обекти.zip"
+        individual_objects: "самостоятелни обекти.zip",
+        parcel_rights: "собственост ПИ.zip",
+        building_rights: "собственост сгради.zip",
+        individual_object_rights: "собственост СОС.zip"
       }.freeze
       HIERARCHY_ARCHIVES = {
-        "parcel" => %i[parcels],
-        "building" => %i[parcels buildings],
-        "individual_object" => %i[parcels buildings individual_objects]
+        "parcel" => %i[parcels parcel_rights],
+        "building" => %i[parcels buildings parcel_rights building_rights],
+        "individual_object" => %i[
+          parcels buildings individual_objects parcel_rights building_rights individual_object_rights
+        ]
       }.freeze
+      OWNERSHIP_ARCHIVE_KINDS = OwnershipArchiveImporter::ARCHIVE_LEVELS.keys.freeze
 
       def self.archive_key(district, archive_name)
         "#{SOFIA_ARCHIVE_PREFIX} #{district}/#{archive_name}"
@@ -126,7 +132,9 @@ module DataSources
       end
 
       def import_and_promote(catalog_entry:, archive_path:, archive_kind:, source_url:, source_metadata:, artifact:)
-        result = PropertyArchiveImporter.new(
+        importer_class = OWNERSHIP_ARCHIVE_KINDS.include?(archive_kind.to_sym) ?
+          OwnershipArchiveImporter : PropertyArchiveImporter
+        result = importer_class.new(
           archive_path:, source_archive_key: catalog_entry.source_archive_key, source_url:, archive_kind:,
           coverage_profile: @coverage_profile, source_metadata:
         ).call

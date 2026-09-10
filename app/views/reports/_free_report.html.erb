@@ -1,6 +1,7 @@
 <div class="space-y-7">
   <%= render "property_facts", analysis:, facts: property_facts %>
   <%= render "cadastre_hierarchy", facts: property_facts %>
+  <%= render "property_graph", graph: property_graph %>
   <%= render "findings", analysis:, acts: preview_acts %>
   <%= render "neighborhood_snapshot", analysis:, acts: map_acts %>
   <%= render "buyer_checklist", items: buyer_checklist %>

@@ -1,0 +1,149 @@
+<% nodes = Array(graph["nodes"]) %>
+<% edges = Array(graph["edges"]) %>
+<% source_checks = Array(graph["source_checks"]) %>
+<% diagram_positions = property_graph_diagram_positions(nodes) %>
+<section id="ownership" class="overflow-hidden" data-controller="property-graph">
+  <header class="border-b border-slate-200 bg-emerald-950 p-6 text-white sm:p-8">
+    <p class="text-xs font-black uppercase tracking-[0.16em] text-emerald-300"><%= t("reports.property_graph.eyebrow") %></p>
+    <h2 class="mt-2 text-2xl font-black tracking-tight sm:text-3xl"><%= t("reports.property_graph.title") %></h2>
+    <p class="mt-3 max-w-4xl text-sm leading-6 text-emerald-50/80"><%= t("reports.property_graph.description") %></p>
+  </header>
+
+  <% if source_checks.any? { |check| check["demo_data"] } %>
+    <div class="border-b border-sky-200 bg-sky-50 p-5 text-sm leading-6 text-sky-950 sm:p-7" data-property-graph-demo-banner>
+      <strong><%= t("reports.property_graph.demo_title") %></strong>
+      <%= t("reports.property_graph.demo_body") %>
+    </div>
+  <% end %>
+
+  <% property_check = source_checks.reverse.find { |check| check["source_key"] == "property_register" } %>
+  <% commercial_checks = source_checks.select { |check| check["source_key"] == "commercial_register" } %>
+  <% registry_notice = property_check&.dig("reason") == "automation_unavailable" || commercial_checks.any? { |check| check["reason"].in?(%w[no_reliable_eik automation_unavailable]) } %>
+  <% if registry_notice %>
+    <div class="space-y-3 border-b border-slate-200 bg-amber-50 p-5 sm:p-7">
+    <% if property_check&.dig("reason") == "automation_unavailable" %>
+      <div class="flex items-start gap-3 text-sm leading-6 text-amber-950">
+        <%= mesto_icon("shield", css_class: "mt-1 size-5 shrink-0") %>
+        <p><strong><%= t("reports.property_graph.property_register_unavailable_title") %></strong> <%= t("reports.property_graph.property_register_unavailable_body") %> <%= link_to t("reports.property_graph.manual_check"), property_check["source_url"], target: "_blank", rel: "noopener noreferrer", class: "font-bold underline underline-offset-4" %></p>
+      </div>
+    <% end %>
+    <% if commercial_checks.any? { |check| check["reason"] == "no_reliable_eik" } %>
+      <p class="text-sm leading-6 text-amber-950"><strong><%= t("reports.property_graph.company_not_checked_title") %></strong> <%= t("reports.property_graph.company_not_checked_body") %></p>
+    <% elsif commercial_checks.any? { |check| check["reason"] == "automation_unavailable" } %>
+      <p class="text-sm leading-6 text-amber-950"><strong><%= t("reports.property_graph.company_automation_unavailable_title") %></strong> <%= t("reports.property_graph.company_automation_unavailable_body") %></p>
+    <% end %>
+    </div>
+  <% end %>
+
+  <% if nodes.any? %>
+    <div class="p-5 sm:p-7">
+      <div class="property-graph__diagram" data-property-graph-target="diagram">
+        <svg class="property-graph__canvas" aria-hidden="true" data-property-graph-target="canvas"></svg>
+        <div class="property-graph__nodes">
+          <% nodes.each do |node| %>
+            <% column, row = diagram_positions.fetch(node["key"], [ 2, 3 ]) %>
+            <button type="button" class="property-graph__node" style="grid-column: <%= column %>; grid-row: <%= row %>;" aria-pressed="false" data-action="property-graph#select" data-property-graph-target="node" data-node-key="<%= node["key"] %>" data-entity-type="<%= node["entity_type"] %>">
+              <span class="property-graph__node-type"><i aria-hidden="true"></i><%= property_graph_entity_type(node["entity_type"]) %></span>
+              <strong><%= node["display_name"] %></strong>
+              <% if node.dig("identifiers", "eik") %><span class="property-graph__node-identifier"><%= property_graph_fact_label("eik") %> <%= node.dig("identifiers", "eik") %></span><% end %>
+            </button>
+          <% end %>
+        </div>
+        <% edges.each do |edge| %>
+          <span hidden data-property-graph-target="edge" data-subject-key="<%= edge["subject_key"] %>" data-object-key="<%= edge["object_key"] %>" data-label="<%= property_graph_relationship_graph_label(edge["relationship_type"]) %>" data-active="<%= edge["active"] %>"></span>
+        <% end %>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 min-[1100px]:mt-5 sm:p-6">
+        <% nodes.each do |node| %>
+          <article data-property-graph-target="panel" data-node-key="<%= node["key"] %>" hidden>
+            <p class="text-xs font-black uppercase tracking-wide text-emerald-700"><%= property_graph_entity_type(node["entity_type"]) %></p>
+            <h3 class="mt-1 text-xl font-black text-slate-950"><%= node["display_name"] %></h3>
+            <% facts = node.fetch("identifiers", {}).merge(node.fetch("attributes", {})).except("legal_name", "material_circumstances") %>
+            <% if facts.present? %>
+              <dl class="mt-4 grid gap-2 sm:grid-cols-2">
+                <% facts.each do |key, value| %>
+                  <% next if value.blank? %>
+                  <div class="rounded-xl bg-slate-50 p-3">
+                    <dt class="text-xs font-semibold text-slate-500"><%= property_graph_fact_label(key) %></dt>
+                    <dd class="mt-1 break-words text-sm font-bold text-slate-900"><%= property_graph_fact_value(value) %></dd>
+                  </div>
+                <% end %>
+              </dl>
+            <% end %>
+            <% circumstances = Array(node.dig("attributes", "material_circumstances")) %>
+            <% if circumstances.any? %>
+              <h4 class="mt-5 text-sm font-black text-slate-900"><%= t("reports.property_graph.material_changes") %></h4>
+              <ul class="mt-2 space-y-2 text-sm text-slate-700">
+                <% circumstances.each do |circumstance| %><li class="rounded-xl bg-slate-50 p-3"><%= [circumstance["date"], circumstance["type"], circumstance["status"], circumstance["description"]].compact.join(" · ") %></li><% end %>
+              </ul>
+            <% end %>
+            <% if Array(node["connections"]).any? %>
+              <h4 class="mt-5 text-sm font-black text-slate-900"><%= t("reports.property_graph.connections") %></h4>
+              <ul class="mt-2 space-y-2 text-sm leading-6 text-slate-700">
+                <% node["connections"].each do |connection| %>
+                  <li>
+                    <span class="font-bold"><%= property_graph_relationship_type(connection["relationship_type"]) %></span> · <%= connection["connected_name"] %><% unless connection["active"] %> <span class="text-slate-500">(<%= t("reports.property_graph.historical") %>)</span><% end %>
+                    <% if connection["source_url"].present? %><span class="block text-xs text-slate-500"><%= link_to source_name(connection["source_key"]), connection["source_url"], target: "_blank", rel: "noopener noreferrer", class: "font-bold text-emerald-800 underline underline-offset-4" %> · <%= property_graph_date(connection["source_date"]) %></span><% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+            <% if Array(node["sources"]).any? %>
+              <h4 class="mt-5 text-sm font-black text-slate-900"><%= t("reports.property_graph.evidence") %></h4>
+              <ul class="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-200 px-4">
+                <% node["sources"].each do |source| %>
+                  <li class="py-3 text-xs leading-5 text-slate-600">
+                    <%= link_to source_name(source["source_key"]), source["source_url"], target: "_blank", rel: "noopener noreferrer", class: "font-bold text-emerald-800 underline underline-offset-4" %>
+                    · <%= source["source_record_reference"] %> · <%= property_graph_date(source["source_date"]) %>
+                    <% if source["coverage_limitation"].present? %><p class="mt-1 text-amber-800"><%= property_graph_limitation_text(source["coverage_limitation"]) %></p><% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+          </article>
+        <% end %>
+      </div>
+
+      <div class="mt-5">
+        <h3 class="text-lg font-black text-slate-950"><%= t("reports.property_graph.structured_title") %></h3>
+        <p class="mt-1 text-sm leading-6 text-slate-600"><%= t("reports.property_graph.structured_description") %></p>
+        <% if edges.any? %>
+          <ol class="mt-4 space-y-3">
+            <% edges.each do |edge| %>
+              <li class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <p class="text-sm font-bold leading-6 text-slate-950"><%= property_graph_relationship_statement(edge) %></p>
+                  <span class="rounded-full px-2.5 py-1 text-xs font-bold <%= property_graph_status_classes(edge["status"]) %>"><%= t("reports.property_graph.statuses.#{edge['status']}") %></span>
+                </div>
+                <p class="mt-2 text-xs leading-5 text-slate-600"><%= t("reports.property_graph.observed", first: property_graph_date(edge["first_observed_at"]), last: property_graph_date(edge["last_observed_at"])) %></p>
+                <p class="mt-1 text-xs leading-5 text-slate-600"><%= link_to source_name(edge["source_key"]), edge["source_url"], target: "_blank", rel: "noopener noreferrer", class: "font-bold text-emerald-800 underline underline-offset-4" %> · <%= edge["source_record_reference"] %> · <%= property_graph_date(edge["source_date"]) %></p>
+                <% evidence_facts = edge.fetch("evidence", {}).slice("right_type", "right_description", "document_type", "document_description") %>
+                <% if evidence_facts.values.any?(&:present?) %>
+                  <dl class="mt-3 grid gap-2 sm:grid-cols-2">
+                    <% evidence_facts.each do |key, value| %>
+                      <% next if value.blank? %>
+                      <div class="rounded-xl bg-slate-50 p-3">
+                        <dt class="text-xs font-semibold text-slate-500"><%= property_graph_fact_label(key) %></dt>
+                        <dd class="mt-1 break-words text-xs font-semibold leading-5 text-slate-800"><%= property_graph_fact_value(value) %></dd>
+                      </div>
+                    <% end %>
+                  </dl>
+                <% end %>
+                <% if edge["coverage_limitation"].present? %><p class="mt-2 text-xs leading-5 text-amber-800"><%= property_graph_limitation_text(edge["coverage_limitation"]) %></p><% end %>
+              </li>
+            <% end %>
+          </ol>
+        <% else %>
+          <p class="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600"><%= t("reports.property_graph.no_relationships") %></p>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="p-6 sm:p-8"><p class="rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600"><%= t("reports.property_graph.empty") %></p></div>
+  <% end %>
+
+  <footer class="border-t border-slate-200 bg-slate-50 p-5 text-xs leading-5 text-slate-600 sm:px-7">
+    <strong><%= t("reports.property_graph.boundary_title") %></strong> <%= t("reports.property_graph.boundary_body") %>
+  </footer>
+</section>

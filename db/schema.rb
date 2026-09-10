@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_08_150200) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_10_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -187,6 +187,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_150200) do
     t.index ["source_archive_key", "status"], name: "index_cadastre_imports_on_source_archive_key_and_status"
   end
 
+  create_table "cadastre_rights", force: :cascade do |t|
+    t.string "cadastral_identifier", null: false
+    t.datetime "created_at", null: false
+    t.string "document_code"
+    t.text "document_description"
+    t.text "document_note"
+    t.string "document_type"
+    t.string "holder_entity_type", null: false
+    t.string "holder_identifier"
+    t.string "holder_name", null: false
+    t.text "holder_note"
+    t.string "holder_type", null: false
+    t.string "holder_type_code"
+    t.string "identifier_level", null: false
+    t.string "property_type"
+    t.string "record_fingerprint", null: false
+    t.string "right_code"
+    t.text "right_description"
+    t.string "right_type", null: false
+    t.string "source_archive_key", null: false
+    t.datetime "source_relevant_at"
+    t.text "source_url", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cadastral_identifier"], name: "index_cadastre_rights_on_cadastral_identifier"
+    t.index ["holder_entity_type", "holder_name"], name: "index_cadastre_rights_on_holder_entity_type_and_holder_name"
+    t.index ["holder_identifier"], name: "index_cadastre_rights_on_holder_identifier"
+    t.index ["record_fingerprint"], name: "index_cadastre_rights_on_record_fingerprint", unique: true
+    t.index ["source_archive_key"], name: "index_cadastre_rights_on_source_archive_key"
+  end
+
   create_table "cadastre_source_archives", force: :cascade do |t|
     t.text "attribution"
     t.geometry "coverage_geometry", limit: {srid: 4326, type: "geometry"}
@@ -316,6 +346,78 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_150200) do
     t.index ["submitted_identifier", "completed_at"], name: "idx_on_submitted_identifier_completed_at_29246503d7"
   end
 
+  create_table "property_graph_entities", force: :cascade do |t|
+    t.string "canonical_key", null: false
+    t.datetime "created_at", null: false
+    t.string "display_name", null: false
+    t.string "entity_type", null: false
+    t.datetime "first_observed_at", null: false
+    t.jsonb "identifiers", default: {}, null: false
+    t.datetime "last_observed_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["canonical_key"], name: "index_property_graph_entities_on_canonical_key", unique: true
+    t.index ["entity_type", "display_name"], name: "index_property_graph_entities_on_entity_type_and_display_name"
+    t.index ["identifiers"], name: "index_property_graph_entities_on_identifiers", using: :gin
+  end
+
+  create_table "property_graph_entity_observations", force: :cascade do |t|
+    t.string "claim_origin", default: "public_source", null: false
+    t.text "coverage_limitation"
+    t.datetime "created_at", null: false
+    t.jsonb "evidence", default: {}, null: false
+    t.jsonb "facts", default: {}, null: false
+    t.string "fingerprint", null: false
+    t.datetime "observed_at", null: false
+    t.bigint "property_analysis_id", null: false
+    t.bigint "property_graph_entity_id", null: false
+    t.datetime "source_date"
+    t.string "source_key", null: false
+    t.string "source_record_reference", null: false
+    t.bigint "source_run_id"
+    t.text "source_url", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fingerprint"], name: "idx_property_graph_observations_fingerprint", unique: true
+    t.index ["property_analysis_id", "source_key"], name: "idx_property_graph_observations_analysis_source"
+    t.index ["property_analysis_id"], name: "idx_on_property_analysis_id_fc85463579"
+    t.index ["property_graph_entity_id"], name: "idx_on_property_graph_entity_id_449a2098e3"
+    t.index ["source_run_id"], name: "index_property_graph_entity_observations_on_source_run_id"
+  end
+
+  create_table "property_graph_relationships", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.string "claim_origin", default: "public_source", null: false
+    t.text "coverage_limitation"
+    t.datetime "created_at", null: false
+    t.jsonb "evidence", default: {}, null: false
+    t.string "fingerprint", null: false
+    t.datetime "first_observed_at", null: false
+    t.datetime "last_observed_at", null: false
+    t.bigint "object_entity_id", null: false
+    t.jsonb "object_scope", default: {}, null: false
+    t.bigint "property_analysis_id", null: false
+    t.string "refresh_scope", null: false
+    t.string "relationship_type", null: false
+    t.datetime "source_date"
+    t.string "source_key", null: false
+    t.string "source_record_reference", null: false
+    t.bigint "source_run_id"
+    t.text "source_url", null: false
+    t.string "status", null: false
+    t.bigint "subject_entity_id", null: false
+    t.jsonb "subject_scope", default: {}, null: false
+    t.datetime "superseded_at"
+    t.datetime "updated_at", null: false
+    t.date "valid_from"
+    t.date "valid_until"
+    t.index ["fingerprint"], name: "index_property_graph_relationships_on_fingerprint", unique: true
+    t.index ["object_entity_id"], name: "index_property_graph_relationships_on_object_entity_id"
+    t.index ["property_analysis_id", "active"], name: "idx_property_graph_relationships_analysis_active"
+    t.index ["property_analysis_id", "source_key", "refresh_scope"], name: "idx_property_graph_relationships_refresh"
+    t.index ["property_analysis_id"], name: "index_property_graph_relationships_on_property_analysis_id"
+    t.index ["source_run_id"], name: "index_property_graph_relationships_on_source_run_id"
+    t.index ["subject_entity_id"], name: "index_property_graph_relationships_on_subject_entity_id"
+  end
+
   create_table "shared_spatial_calculations", force: :cascade do |t|
     t.datetime "calculated_at", null: false
     t.string "calculation_kind", null: false
@@ -424,6 +526,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_150200) do
   add_foreign_key "orders", "property_analyses"
   add_foreign_key "product_events", "orders"
   add_foreign_key "product_events", "property_analyses"
+  add_foreign_key "property_graph_entity_observations", "property_analyses"
+  add_foreign_key "property_graph_entity_observations", "property_graph_entities"
+  add_foreign_key "property_graph_entity_observations", "source_runs"
+  add_foreign_key "property_graph_relationships", "property_analyses"
+  add_foreign_key "property_graph_relationships", "property_graph_entities", column: "object_entity_id"
+  add_foreign_key "property_graph_relationships", "property_graph_entities", column: "subject_entity_id"
+  add_foreign_key "property_graph_relationships", "source_runs"
   add_foreign_key "source_runs", "analysis_revisions"
   add_foreign_key "source_runs", "property_analyses"
   add_foreign_key "spatial_features", "spatial_datasets"

@@ -13,4 +13,13 @@ class SourceSnapshot < ApplicationRecord
   def self.latest(source_key, profile: DataCoverage.profile)
     for_profile(profile).where(source_key:).order(created_at: :desc).first
   end
+
+  def self.latest_for_identifiers(source_key, identifiers:, profile: DataCoverage.profile)
+    normalized = Array(identifiers).compact.map(&:to_s).uniq.sort
+    for_profile(profile)
+      .where(source_key:)
+      .where("metadata -> 'searched_identifiers' @> ?", normalized.to_json)
+      .order(created_at: :desc)
+      .first
+  end
 end

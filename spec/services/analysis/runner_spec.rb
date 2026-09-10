@@ -1,6 +1,26 @@
 require "rails_helper"
 
 RSpec.describe Analysis::Runner do
+  it "prepares and reuses bounded NAG searches when on-demand ingestion is enabled" do
+    config = DataSources.config.deep_dup
+    config["nag"]["on_demand_ingestion_enabled"] = true
+    allow(DataSources).to receive(:config).and_return(config)
+    analysis = create(:property_analysis)
+
+    described_class.new(analysis).call
+
+    snapshots = SourceSnapshot.for_profile(DataCoverage.profile)
+    expect(snapshots.pluck(:source_key)).to contain_exactly(
+      "nag_building_permits", "nag_design_visas", "nag_urban_planning_orders", "nag_occupancy_certificates"
+    )
+    expect(snapshots.pluck(:status).uniq).to eq([ "succeeded" ])
+    expect(analysis.current_source_runs.where("source_key LIKE 'nag_%'").pluck(:status).uniq).to eq([ "succeeded" ])
+
+    expect {
+      described_class.new(create(:property_analysis)).call
+    }.not_to change(SourceSnapshot, :count)
+  end
+
   it "reads prepared state without contacting or importing upstream sources" do
     DataSources::Sofiaplan::DatasetSynchronizer.new.sync
     analysis = create(:property_analysis)
@@ -105,5 +125,48 @@ RSpec.describe Analysis::Runner do
     expect(analysis.reload.status).to eq("partial")
     expect(analysis.summary.fetch("outside_sofia")).to be(true)
     expect(analysis).not_to be_meaningful_paid_content
+  end
+
+  it "enriches an exact property-register EIK through an approved provider result" do
+    analysis = create(:property_analysis)
+    property_result = DataSources::Result.success(
+      data: {
+        property_identifier: analysis.submitted_identifier,
+        coverage: { complete_history: false, limitation: "Electronic coverage starts at the provider's stated date." },
+        owners: [
+          {
+            legal_name: "ПРИМЕР ПРОЕКТ ЕООД", eik: "200370069", current: true,
+            source_record_reference: "property-entry-1", source_date: "2026-08-01"
+          }
+        ]
+      },
+      source_url: "https://registry.example/property",
+      relevant_at: Time.zone.parse("2026-08-01")
+    )
+    company_result = DataSources::Result.success(
+      data: {
+        company: {
+          legal_name: "ПРИМЕР ПРОЕКТ ЕООД", eik: "200370069", status: "active",
+          source_record_reference: "company/200370069", source_date: "2026-08-01"
+        },
+        managers: [ { name: "Тестов управител", current: true } ]
+      },
+      source_url: "https://registry.example/company",
+      relevant_at: Time.zone.parse("2026-08-01")
+    )
+    property_provider = instance_double(PropertyRegistry::Provider, lookup: property_result)
+    company_provider = instance_double(CommercialRegistry::Provider, lookup_company: company_result)
+
+    described_class.new(
+      analysis,
+      property_registry_provider: property_provider,
+      commercial_registry_provider: company_provider
+    ).call
+
+    expect(company_provider).to have_received(:lookup_company).with(eik: "200370069")
+    expect(analysis.property_graph_relationships.pluck(:relationship_type)).to include("registered_owner", "managed_by")
+    expect(analysis.reload.summary.dig("property_graph", "edges").map { |edge| edge["relationship_type"] }).to include(
+      "registered_owner", "managed_by"
+    )
   end
 end

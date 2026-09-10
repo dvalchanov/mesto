@@ -43,31 +43,62 @@ bin/rails tailwindcss:watch
 bundle exec sidekiq -C config/sidekiq.yml
 ```
 
-Open <http://mesto.localhost>. The direct Rails endpoint remains available at <http://localhost:3000>. Analysis jobs use the `analysis` queue. Every remote download and bulk import uses the separate `ingestion` queue.
+Open <http://mesto.localhost>. The direct Rails endpoint remains available at <http://localhost:3000>. Analysis jobs use the `analysis` queue. Shared remote downloads and bulk imports use the separate `ingestion` queue; the bounded, per-identifier NAG exception runs as part of the analysis so its outcome belongs to that report revision.
 
 The product name defaults to `Mesto` and the canonical production host defaults to `mesto.bg`; both can be configured with `PRODUCT_NAME` and `APP_HOST`. Bulgarian is the default locale and the interface also has English translations.
 
 The programmable five-row wordmark, variants, motion behavior, and usage rules are documented in [`docs/brand/mesto-logo.md`](docs/brand/mesto-logo.md).
 
+### Exercise the property graph with real public data
+
+Prepare the six AGKK district archives: parcel, building and individual-object geometry plus the matching `собственост ПИ`, `собственост сгради`, and `собственост СОС` rights snapshots. Development imports do not require a production permission approval:
+
+```sh
+bin/rails db:migrate
+bin/rails cadastre:catalog
+bin/rails 'cadastre:sync_sofia_district[Студентски]'
+bin/rails data_sources:prepare_spatial
+bin/dev
+```
+
+Open <http://mesto.localhost> and submit `68134.1609.3263.1.10`. The cadastral object, building, parcel, rights rows, company EIK, source dates, and document descriptions come from the official AGKK OpenData archives. The exact EIK is then checked against the official VIES service. In development, the first search also performs four bounded NAG lookups for the exact parcel/building/object identifiers and caches their snapshots for later reports. No demo mode is needed.
+
+The UI deliberately calls this a cadastral right-holder snapshot, not verified ownership. It is not a current Property Register title/encumbrance check. Masked natural-person rows are counted during import but are not retained by Mesto.
+
+### Optional synthetic contract-provider demo
+
+The Registry Agency integrations remain unavailable until an approved contract feed is configured. The opt-in synthetic provider is only for exercising future Commercial/Property Register payloads and historical manager/owner UI states:
+
+```sh
+MESTO_REGISTRY_DEMO=true bin/dev
+```
+
+Demo providers accept only that configured identifier and EIK `000000000`. They refuse to initialize in production. Override the identifier only when matching real cadastral hierarchy data is already imported locally:
+
+```sh
+MESTO_REGISTRY_DEMO=true MESTO_REGISTRY_DEMO_IDENTIFIER=68134.1607.1254.1.5 bin/dev
+```
+
 ## Data-source modes
 
 `DATA_SOURCE_MODE=live` uses the allowlisted official hosts in `config/data_sources.yml`. `DATA_SOURCE_MODE=fixture` reads offline files from `spec/fixtures/data_sources`; this is the automatic test default. Production must not use fixture mode because fixtures are representative test data, not live facts.
 
-Report generation is database-first. It never contacts NAG, KAIS, ArcGIS, SofiaPlan, or Overpass and never starts an import. Background ingestion prepares shared data first. Every report revision records a separate set of `SourceRun` rows with source URL, source-data date, retrieval time, checksum, dataset revision, geographic coverage, and calculation basis. Refreshing a report preserves earlier revisions instead of deleting their evidence. Raw source responses are not stored unless `STORE_RAW_SOURCE_RESPONSES=true`; it defaults to false and should stay false in production.
+Report generation reads cadastral and spatial coverage from the prepared database; it never downloads KAIS, ArcGIS, SofiaPlan, or Overpass datasets during a user request. NAG is the deliberate exception: when enabled, the first search for an exact identifier executes bounded register lookups through `ImportNagRegistryJob`, persists normalized acts and reusable source snapshots, and later reports reuse fresh snapshots. Every report revision records a separate set of `SourceRun` rows with source URL, source-data date, retrieval time, checksum, dataset revision, geographic coverage, and calculation basis. Refreshing a report preserves earlier revisions instead of deleting their evidence. Raw source responses are not stored unless `STORE_RAW_SOURCE_RESPONSES=true`; it defaults to false and should stay false in production.
 
 Current integrations:
 
 - SofiaPlan API: ingestion jobs download configured GeoJSON datasets, filter whole features to the supporting-data boundary, validate them, and publish them transactionally. The pinned source dates remain distinct from Mesto's retrieval dates.
 - SofiaPlan ArcGIS: background ingestion stores development potential layer `31` and functional zoning layer `33` locally. Reports intersect every matching planning polygon with the full parcel polygon.
 - OpenStreetMap: background ingestion stores mapped schools and kindergartens for the supporting-data boundary. Reports calculate and label straight-line distance from the selected building/location point.
-- NAG registers: per-report scraping is disabled. The existing bounded identifier adapter can run only through `ImportNagRegistryJob`, is disabled by default, and always records partial coverage. Do not enable it as an area-wide feed until a supported and permitted acquisition method is established.
-- Cadastre: dedicated ingestion jobs download AGKK parcel, building, and individual-object archives from an explicit source catalog. Reports perform exact local lookups only. The importer retains subject, building, and parcel geometry and uses a building representative point for proximity calculations. Nonfunctional WMS configuration is no longer exposed as a provider.
+- NAG registers: the bounded adapter searches only the exact parcel/building/object identifiers for the report. Development enables this on first search and reuses successful snapshots for 24 hours or failed snapshots for 15 minutes. Production keeps it off until `NAG_PERMISSION_STATUS=approved` and `NAG_ON_DEMAND_INGESTION_ENABLED=true` are set explicitly. A successful check means the bounded request completed; it is not represented as an area-wide or historically complete feed.
+- Cadastre: dedicated ingestion jobs download AGKK parcel, building, and individual-object archives plus the three matching rights workbooks from an explicit source catalog. Reports perform exact local lookups only. The rights importer retains companies and public/legal organizations, omits masked natural persons, and never re-labels the snapshot as a Property Register result.
+- VIES: an exact EIK established by a property-related record is checked through the official European Commission service. Only the dated VAT-validity result and returned company name are retained; the returned address is discarded. VIES is not used as evidence of property or company ownership.
 
 Only HTTPS hosts explicitly allowlisted in `config/data_sources.yml` can be fetched. User input never controls a remote URL.
 
 ### AGKK cadastral open data
 
-Property identity and hierarchy facts come from AGKK's `самостоятелни обекти`, `сгради`, and `поземлени имоти` archives. Archive selection comes from `CadastreSourceArchive`, independently of NAG. A source archive may still be district-wide because that is the smallest upstream unit; persistence is filtered to the configured supporting-data boundary without clipping included geometry. Parent parcel and building archives are catalogued explicitly.
+Property identity and hierarchy facts come from AGKK's `самостоятелни обекти`, `сгради`, and `поземлени имоти` archives. Exact company/public-body rights come from the separate `собственост СОС`, `собственост сгради`, and `собственост ПИ` XLSX archives. Archive selection comes from `CadastreSourceArchive`, independently of NAG. A source archive may still be district-wide because that is the smallest upstream unit; persistence is filtered to cadastral objects already inside the configured supporting-data boundary. Parent parcel and building archives are catalogued explicitly.
 
 Archives are streamed into a size-bounded temporary file while calculating SHA-256, staged under a checksum-addressed key in private S3, imported into PostGIS, and deleted from the Heroku filesystem in an `ensure` block. Only after database publication succeeds does Mesto update the small `latest` S3 manifest. Failed candidates expire after two days and the previous validated object gets a 14-day rollback window; the current artifact is retained for audit and database reconstruction. The importer records source checksum, ETag/Last-Modified when supplied, importer version, coverage-scope digest, row outcomes, validation errors, and the last successful import. PostgreSQL advisory locks prevent concurrent publication of the same source/scope, and a failed transaction leaves the last successful records intact.
 
@@ -82,7 +113,7 @@ bin/rails cadastre:catalog
 bin/rails cadastre:sync_profile
 ```
 
-The importer reads only the three non-ownership archives. It deliberately does not download the separate `собственост ПИ`, `собственост сгради`, or `собственост СОС` archives, and it never imports owner names. The non-ownership archives' broad cadastral ownership category may be displayed with an explicit warning that it is not a current ownership, title, seller, or encumbrance check.
+The rights importer reads the official XLSX columns for cadastral identifier, right type/description, holder type/name/identifier, and source-document type/description. A checksum-valid EIK creates an exact company node; municipalities, the state, and other non-person organizations use a separate organization node. Rows marked as natural persons are omitted before persistence. The resulting relationship remains explicitly limited: it is a dated cadastral-register snapshot, not a current ownership, title, seller-authority, history, or encumbrance check.
 
 ## Sync and maintenance commands
 
@@ -102,6 +133,7 @@ bin/rails 'sofiaplan:datasets[kindergarten]'
 Import the configured datasets. Imports upsert stable feature IDs, preserve freshness, account for filtered/rejected rows, and skip an unchanged source/version/scope checksum. Stale rows are retained until a validated explicit prune is implemented for that source:
 
 ```sh
+bin/rails data_sources:prepare_spatial
 bin/rails sofiaplan:sync
 bin/rails 'sofiaplan:sync[schools]'
 bin/rails arcgis:sync
@@ -140,7 +172,7 @@ For the requested live acceptance lookup, replace the example with the acceptanc
 
 The only catalog product is `full_property_report`, priced server-side at 2,490 euro cents. The browser never submits price or currency. With `PAYMENT_PROVIDER=fake` and `FAKE_PAYMENTS_ENABLED=true`, checkout exposes success, failure, and cancellation controls without card fields. Success is idempotent and unlocks the report for anyone holding its public UUID URL.
 
-Checkout is offered only when every applicable source check completed successfully and the resulting report contains a meaningful paid section. A failed or unavailable source leaves the partial findings visible, marks dependent calculations as unavailable instead of zero, and disables checkout.
+Checkout is offered only when every currently supported, applicable source check completed successfully and the resulting report contains a meaningful paid section. Contract-only Commercial Register enrichment, restricted Property Register automation, and VIES when no exact EIK exists are explicitly non-blocking and are labelled separately in the source list. A failed or unavailable supported source leaves the partial findings visible, marks dependent calculations as unavailable instead of zero, and disables checkout.
 
 Fake payment mutation routes are disabled in production unless `FAKE_PAYMENTS_ENABLED=true` is explicitly set. A future real gateway can implement `Payments::Gateway`, use the existing generic `Order` fields, and replace the configured gateway without changing report access. No Stripe-specific objects or terminology are present.
 
@@ -171,13 +203,13 @@ Coverage includes identifier parsing, source clients/parsers, automatic GeoJSON 
 ## Known limitations
 
 - Municipal coverage is Sofia-first. Valid non-Sofia identifiers receive an honest limited-coverage report.
-- NAG public HTML/Kendo contracts are undocumented and are not treated as a complete area feed. Until a permitted supported acquisition method is approved and ingested, reports label municipal coverage partial.
+- NAG public HTML/Kendo contracts are undocumented and are not treated as a complete area feed. Development can exercise exact-identifier checks end to end; production remains disabled until permission is approved explicitly.
 - AGKK archive availability and reuse permissions must be reviewed before enabling production-wide ingestion. Similar identifiers are never used to infer a match; all hierarchy records and geometry are joined by exact cadastral identifiers.
 - SofiaPlan amenity datasets currently available through the catalog are dated; every date is displayed, and snapshots older than two years are never presented as current amenity counts.
 - The fallback MapLibre demo style is not a production tile service.
 - Reports are link-based and have no accounts, emails, PDF export, document uploads, valuation, listing imports, or LLM-generated conclusions.
 
-The remaining external dependency is product/legal rather than report architecture: establish and document a supported area-wide NAG acquisition method, then mark snapshots complete only after geographic and historical coverage has been validated.
+The remaining external dependencies are product/legal: approve NAG production access and obtain contractual Commercial Register access. Property Register automation remains restricted to authorized public institutions; AGKK right-holder snapshots are intentionally kept distinct from a current title or encumbrance reference.
 
 ## Education catalog and anonymous journeys
 

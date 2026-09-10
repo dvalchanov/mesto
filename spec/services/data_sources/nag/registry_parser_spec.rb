@@ -25,4 +25,28 @@ RSpec.describe DataSources::Nag::RegistryParser do
     expect(parser.parse(DataSources::FixtureLoader.read("nag_empty.html"))).to be_empty
     expect(parser.parse(DataSources::FixtureLoader.read("nag_malformed.html"))).to be_empty
   end
+
+  it "retains only an explicit valid-EIK organization mention from privacy-sensitive role fields" do
+    data = {
+      Data: [
+        {
+          Id: 8,
+          Hash: "hash-8",
+          Number: "8",
+          Identifier: "68134.1000.2000",
+          Employer: "ДУПЛЕКС МЕДИЯ ЕООД, ЕИК 200370069"
+        }
+      ],
+      Total: 1
+    }
+
+    record = parser.parse("<script>widget({\"data\":#{data.to_json}});</script>").first
+
+    expect(record.fetch("properties")).not_to have_key("Employer")
+    expect(record.dig("properties", "organization_mentions")).to contain_exactly(
+      "legal_name" => "ДУПЛЕКС МЕДИЯ ЕООД",
+      "eik" => "200370069",
+      "source_role" => "contracting_authority"
+    )
+  end
 end

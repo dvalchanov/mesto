@@ -31,6 +31,7 @@ module Analysis
     def current_revision?(analysis)
       revision = analysis.current_revision
       return false unless revision&.coverage_profile_key == DataCoverage.profile.key
+      return false unless revision.calculation_version == Analysis::Runner::CALCULATION_VERSION
 
       expected = PreparedDataRevisionSet.call(
         profile: DataCoverage.profile,

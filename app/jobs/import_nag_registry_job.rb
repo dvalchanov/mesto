@@ -2,14 +2,11 @@ class ImportNagRegistryJob < ApplicationJob
   queue_as :ingestion
 
   def perform(registry_kind, identifiers, coverage_profile_key: DataCoverage.profile.key)
-    config = DataSources.config.fetch("nag")
-    enabled = ActiveModel::Type::Boolean.new.cast(config.fetch("background_ingestion_enabled", false))
-    raise "NAG background ingestion is disabled pending a supported/permitted acquisition method" unless enabled
-
     DataSources::PermissionGate.ensure_bulk_ingestion_allowed!(
       config.fetch("permission_status", "review_required"),
       source: "NAG #{registry_kind}"
     )
+    identifiers = Array(identifiers).compact.map(&:to_s).uniq.sort
     registry_config = config.fetch("registers").fetch(registry_kind.to_s)
     result = DataSources::Nag::RegistryClient.new(
       registry_kind: registry_kind.to_s,
@@ -35,7 +32,7 @@ class ImportNagRegistryJob < ApplicationJob
       source_url: result.source_url,
       coverage_profile_key: profile_key,
       status: result.success? ? "succeeded" : result.unavailable? ? "unavailable" : "failed",
-      coverage_status: "partial",
+      coverage_status: result.success? ? "complete" : "unknown",
       record_count:,
       fetched_at: result.fetched_at,
       relevant_at: result.relevant_at,
@@ -44,11 +41,17 @@ class ImportNagRegistryJob < ApplicationJob
         "acquisition_method" => "bounded_identifier_search",
         "searched_identifiers" => Array(identifiers),
         "completeness_note" => "Not an area-wide or historically complete register feed",
+        "error_class" => result.error&.class&.name,
+        "error_message" => result.error&.message&.truncate(500),
         "storage_reuse" => config["storage_reuse"],
         "redistribution" => config["redistribution"],
         "retention_constraints" => config["retention_constraints"],
         "rate_limit" => config["rate_limit"]
       }
     )
+  end
+
+  def config
+    @config ||= DataSources.config.fetch("nag")
   end
 end

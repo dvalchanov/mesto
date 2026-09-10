@@ -1,5 +1,7 @@
 module Analysis
   class CoverageBuilder
+    NON_BLOCKING_SOURCE_KEYS = %w[property_register commercial_register vies].freeze
+
     def initialize(source_runs, analysis: nil)
       @source_runs = source_runs
       @analysis = analysis
@@ -38,9 +40,10 @@ module Analysis
     private
 
     def relevant_runs
-      return @source_runs unless @analysis && !@analysis.centroid
+      runs = @source_runs.where.not(source_key: NON_BLOCKING_SOURCE_KEYS)
+      return runs unless @analysis && !@analysis.centroid
 
-      @source_runs.where.not(
+      runs.where.not(
         "source_key LIKE ? OR source_key LIKE ? OR source_key LIKE ?",
         "sofiaplan_dataset_%", "arcgis_%", "openstreetmap_%"
       )

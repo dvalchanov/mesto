@@ -9,6 +9,7 @@ class ReportsController < ApplicationController
     @acts = @analysis.full_report_unlocked? ? @all_acts : AdministrativeAct.none
     @source_runs = @analysis.current_source_runs.order(:created_at)
     @property_facts = Analysis::PropertyFactsBuilder.new(analysis: @analysis).call
+    @property_graph = @analysis.summary["property_graph"].presence || PropertyGraph::Presenter.new(analysis: @analysis).call
     @buyer_checklist = Analysis::BuyerChecklistBuilder.new(analysis: @analysis, facts: @property_facts).call
     @due_diligence = Analysis::DueDiligenceBuilder.new(analysis: @analysis, facts: @property_facts).call
     @coverage = Analysis::CoverageBuilder.new(@source_runs, analysis: @analysis).call

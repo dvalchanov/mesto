@@ -78,6 +78,116 @@ module ApplicationHelper
     t("reports.sources.names.#{source_key}", default: source_key.to_s.humanize)
   end
 
+  def property_graph_entity_type(entity_type)
+    t("reports.property_graph.entity_types.#{entity_type}", default: entity_type.to_s.humanize)
+  end
+
+  def property_graph_relationship_type(relationship_type)
+    t("reports.property_graph.relationship_types.#{relationship_type}", default: relationship_type.to_s.humanize)
+  end
+
+  def property_graph_relationship_graph_label(relationship_type)
+    t(
+      "reports.property_graph.graph_relationship_types.#{relationship_type}",
+      default: property_graph_relationship_type(relationship_type)
+    )
+  end
+
+  def property_graph_fact_label(key)
+    t("reports.property_graph.fact_labels.#{key}", default: key.to_s.humanize)
+  end
+
+  def property_graph_fact_value(value)
+    case value
+    when Hash
+      value.filter_map { |key, child| "#{property_graph_fact_label(key)}: #{property_graph_fact_value(child)}" if child.present? }.join(" · ")
+    when Array
+      value.map { |child| property_graph_fact_value(child) }.join(" · ")
+    when true
+      t("common.yes", default: "Yes")
+    when false
+      t("common.no", default: "No")
+    else
+      t("reports.property_graph.fact_values.#{value}", default: value)
+    end
+  end
+
+  def property_graph_date(value)
+    return t("common.unknown_date") if value.blank?
+
+    parsed = value.respond_to?(:to_date) && !value.is_a?(String) ? value.to_date : Time.zone.parse(value.to_s).to_date
+    l(parsed, format: :short)
+  rescue ArgumentError, TypeError
+    t("common.unknown_date")
+  end
+
+  def property_graph_relationship_statement(edge)
+    date = property_graph_date(edge["source_date"])
+    case edge["relationship_type"]
+    when "cadastre_right_holder"
+      t(
+        "reports.property_graph.cadastre_right_holder_as_of",
+        holder: edge["object_name"],
+        right_type: edge.dig("evidence", "right_type"),
+        date:
+      )
+    when "registered_owner"
+      t("reports.property_graph.registered_owner_as_of", owner: edge["object_name"], date:)
+    when "previous_registered_owner"
+      t("reports.property_graph.previous_registered_owner_as_of", owner: edge["object_name"], date:)
+    else
+      statement = t(
+        "reports.property_graph.relationship_statement",
+        subject: edge["subject_name"],
+        relationship: property_graph_relationship_type(edge["relationship_type"]),
+        target: edge["object_name"]
+      )
+      edge["active"] ? statement : "#{statement} (#{t('reports.property_graph.historical')})"
+    end
+  end
+
+  def property_graph_status_classes(status)
+    {
+      "exact" => "bg-emerald-50 text-emerald-800",
+      "supported" => "bg-sky-50 text-sky-800",
+      "conflicting" => "bg-rose-50 text-rose-800",
+      "unresolved" => "bg-slate-100 text-slate-700"
+    }.fetch(status, "bg-slate-100 text-slate-700")
+  end
+
+  def property_graph_limitation_text(value)
+    t("reports.property_graph.limitations.#{value}", default: value)
+  end
+
+  def property_graph_diagram_positions(nodes)
+    positions = {}
+    remaining = Array(nodes).dup
+    { "property" => [ 1, 1 ], "building" => [ 2, 1 ], "parcel" => [ 3, 1 ] }.each do |entity_type, position|
+      node = remaining.find { |candidate| candidate["entity_type"] == entity_type }
+      next unless node
+
+      positions[node["key"]] = position
+      remaining.delete(node)
+    end
+
+    organizations, remaining = remaining.partition { |node| node["entity_type"].in?(%w[company organization]) }
+    people, remaining = remaining.partition { |node| node["entity_type"] == "person" }
+    context, remaining = remaining.partition do |node|
+      node["entity_type"].in?(%w[planning_record project administrative_act])
+    end
+
+    organizations.each_with_index do |node, index|
+      positions[node["key"]] = [ index % 3 + 1, index / 3 + 3 ]
+    end
+    people_start_row = 3 + (organizations.length / 3.0).ceil
+    people.each_with_index do |node, index|
+      positions[node["key"]] = [ index % 3 + 1, people_start_row + index / 3 ]
+    end
+    context.each_with_index { |node, index| positions[node["key"]] = [ 4, index + 1 ] }
+    remaining.each_with_index { |node, index| positions[node["key"]] = [ index % 3 + 1, people_start_row + (people.length / 3.0).ceil + index / 3 ] }
+    positions
+  end
+
   def source_status_classes(status)
     {
       "succeeded" => "bg-emerald-50 text-emerald-700 ring-emerald-200",
@@ -89,6 +199,11 @@ module ApplicationHelper
   end
 
   def source_result_key(run, analysis:)
+    if run.status.in?(%w[failed unavailable])
+      return "not_applicable" if run.source_key.in?(%w[commercial_register vies]) && run.request_metadata["access"] == "not_attempted_without_eik"
+      return "restricted_access" if run.source_key == "property_register" && run.error_class == "PublicRegistry::AutomationUnavailable"
+      return "contract_required" if run.source_key == "commercial_register" && run.error_class == "PublicRegistry::AutomationUnavailable"
+    end
     return "needs_location" if run.source_key.start_with?("sofiaplan_dataset_", "arcgis_", "openstreetmap_") && !analysis.location_point
     return run.status unless run.status == "succeeded"
     return source_record_count(run).positive? ? "records_found" : "no_match" if run.source_key.start_with?("nag_", "arcgis_", "openstreetmap_")
@@ -103,6 +218,9 @@ module ApplicationHelper
       "data_returned" => "bg-emerald-50 text-emerald-700 ring-emerald-200",
       "used_for_calculation" => "bg-sky-50 text-sky-700 ring-sky-200",
       "no_match" => "bg-slate-100 text-slate-700 ring-slate-200",
+      "not_applicable" => "bg-slate-100 text-slate-700 ring-slate-200",
+      "restricted_access" => "bg-slate-100 text-slate-700 ring-slate-200",
+      "contract_required" => "bg-slate-100 text-slate-700 ring-slate-200",
       "needs_location" => "bg-amber-50 text-amber-800 ring-amber-200",
       "unavailable" => "bg-amber-50 text-amber-800 ring-amber-200",
       "failed" => "bg-rose-50 text-rose-700 ring-rose-200",
@@ -119,9 +237,11 @@ module ApplicationHelper
 
   def source_issue_text(run, analysis:)
     result_key = source_result_key(run, analysis:)
-    return unless result_key.in?(%w[needs_location unavailable failed])
+    return unless result_key.in?(%w[not_applicable restricted_access contract_required needs_location unavailable failed])
 
-    if result_key == "needs_location"
+    if result_key.in?(%w[not_applicable restricted_access contract_required])
+      t("reports.sources.issues.#{result_key}")
+    elsif result_key == "needs_location"
       t("reports.sources.issues.needs_location")
     elsif cadastre_archive_unavailable?(run)
       t("reports.sources.issues.cadastre_archive_unavailable")
