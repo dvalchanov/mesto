@@ -6,7 +6,7 @@
 <section class="site-shell report-page">
   <header class="report-hero">
     <div class="report-hero__main">
-      <div>
+      <div class="report-hero__identity">
         <p class="report-hero__status"><i></i><%= t("reports.status_label") %> · <%= t("reports.statuses.#{@analysis.status}") %></p>
         <h1><%= @analysis.submitted_identifier %></h1>
         <div class="report-hero__meta">
@@ -19,51 +19,53 @@
         <%= link_to root_path, class: "button button--secondary" do %><%= mesto_icon("search", css_class: "size-4") %><%= t("navigation.new_search") %><% end %>
       </div>
     </div>
-    <% unless @analysis.running? %>
-      <nav class="report-hero__nav" aria-label="<%= t('reports.title', identifier: @analysis.submitted_identifier) %>">
-        <a href="#overview"><%= t("reports.full.overview") %></a>
-        <a href="#records"><%= t("reports.findings.title") %></a>
-        <a href="#ownership"><%= t("reports.property_graph.nav") %></a>
-        <a href="#context"><%= t("reports.neighborhood.title") %></a>
-        <a href="#next-steps"><%= t("reports.buyer_checklist.title") %></a>
-        <a href="#sources"><%= t("reports.sources.title") %></a>
-      </nav>
-    <% end %>
   </header>
 
   <% if @analysis.running? %>
     <%= render "progress", analysis: @analysis %>
   <% else %>
-    <dl class="report-coverage">
-      <div><dt><%= t("reports.coverage.title") %></dt><dd><%= t("reports.coverage.#{@coverage['status'] || 'limited'}") %></dd></div>
-      <div><dt><%= t("reports.sources.title") %></dt><dd><%= @coverage["succeeded"].to_i %> / <%= @coverage["checked"].to_i %></dd></div>
-      <div><dt><%= t("reports.coverage.geographic_title") %></dt><dd><%= t("reports.coverage.geographic.#{@coverage['geographic_coverage_status'] || 'unknown'}") %></dd></div>
-      <div><dt><%= t("reports.overview.direct_acts") %></dt><dd><%= @analysis.metrics.dig("direct_activity", "total").to_i %></dd></div>
-    </dl>
+    <div class="report-layout">
+      <aside class="report-toc">
+        <p><%= t("reports.navigation.title") %></p>
+        <nav aria-label="<%= t('reports.title', identifier: @analysis.submitted_identifier) %>">
+          <a href="#overview" data-turbo="false"><span>00</span><%= t("reports.navigation.overview") %></a>
+          <a href="#identity" data-turbo="false"><span>01</span><%= t("reports.property_facts.title") %></a>
+          <a href="#records" data-turbo="false"><span>02</span><%= t("reports.findings.title") %></a>
+          <a href="#ownership" data-turbo="false"><span>03</span><%= t("reports.property_graph.nav") %></a>
+          <a href="#context" data-turbo="false"><span>04</span><%= t("reports.neighborhood.title") %></a>
+          <a href="#next-steps" data-turbo="false"><span>05</span><%= t("reports.buyer_checklist.title") %></a>
+          <a href="#due-diligence" data-turbo="false"><span>06</span><%= t("reports.due_diligence.title") %></a>
+          <a href="#sources" data-turbo="false"><span>·</span><%= t("reports.sources.title") %></a>
+        </nav>
+      </aside>
 
-    <% if @analysis.status == "partial" %><div class="report-alert"><%= t(@analysis.full_report_unlocked? ? "reports.partial_notice_unlocked" : "reports.partial_notice") %></div><% end %>
-    <% if @analysis.summary["outside_sofia"] %>
-      <div class="report-alert"><strong><%= t("reports.outside_sofia.title") %></strong><br><%= t("reports.outside_sofia.body") %></div>
-    <% elsif @analysis.summary["outside_development_dataset"] %>
-      <div class="report-alert"><strong><%= t("reports.outside_dataset.title") %></strong><br><%= t("reports.outside_dataset.body", profile: @analysis.summary.dig("coverage_profile", "label")) %></div>
-    <% elsif @analysis.status == "failed" %>
-      <div class="report-alert"><strong><%= t("reports.failed.title") %></strong><br><%= t("reports.failed.body") %></div>
-    <% end %>
+      <div class="report-layout__content">
+        <% if @analysis.status == "partial" %><div class="report-alert"><%= t(@analysis.full_report_unlocked? ? "reports.partial_notice_unlocked" : "reports.partial_notice") %></div><% end %>
+        <% if @analysis.summary["outside_sofia"] %>
+          <div class="report-alert"><strong><%= t("reports.outside_sofia.title") %></strong><br><%= t("reports.outside_sofia.body") %></div>
+        <% elsif @analysis.summary["outside_development_dataset"] %>
+          <div class="report-alert"><strong><%= t("reports.outside_dataset.title") %></strong><br><%= t("reports.outside_dataset.body", profile: @analysis.summary.dig("coverage_profile", "label")) %></div>
+        <% elsif @analysis.status == "failed" %>
+          <div class="report-alert"><strong><%= t("reports.failed.title") %></strong><br><%= t("reports.failed.body") %></div>
+        <% end %>
 
-    <div class="report-stack">
-      <%= render "free_report", analysis: @analysis, property_facts: @property_facts, property_graph: @property_graph, preview_acts: @preview_acts, buyer_checklist: @buyer_checklist, due_diligence: @due_diligence, map_acts: @acts %>
+        <%= render "overview", facts: @property_facts, coverage: @coverage %>
 
-      <% if @analysis.full_report_unlocked? %>
-        <%= render "full_report", analysis: @analysis, acts: @acts, source_runs: @source_runs %>
-      <% elsif @analysis.meaningful_paid_content? %>
-        <%= render "locked_report", analysis: @analysis %>
-      <% else %>
-        <%= render "paid_report_unavailable", analysis: @analysis, source_runs: @source_runs %>
-      <% end %>
+        <div class="report-stack">
+          <%= render "free_report", analysis: @analysis, property_facts: @property_facts, property_graph: @property_graph, preview_acts: @preview_acts, buyer_checklist: @buyer_checklist, due_diligence: @due_diligence, map_acts: @acts %>
 
-      <div class="space-y-5" id="sources">
-        <%= render "sources", analysis: @analysis, source_runs: @source_runs, coverage: @coverage %>
-        <%= render "not_verified" %>
+          <% if @analysis.full_report_unlocked? %>
+            <%= render "full_report", analysis: @analysis, acts: @acts, source_runs: @source_runs %>
+          <% elsif @analysis.meaningful_paid_content? %>
+            <%= render "locked_report", analysis: @analysis %>
+          <% else %>
+            <%= render "paid_report_unavailable", analysis: @analysis, source_runs: @source_runs %>
+          <% end %>
+
+          <div class="space-y-5" id="sources">
+            <%= render "sources", analysis: @analysis, source_runs: @source_runs, coverage: @coverage %>
+          </div>
+        </div>
       </div>
     </div>
   <% end %>

@@ -148,11 +148,32 @@ module ApplicationHelper
 
   def property_graph_status_classes(status)
     {
-      "exact" => "bg-emerald-50 text-emerald-800",
-      "supported" => "bg-sky-50 text-sky-800",
-      "conflicting" => "bg-rose-50 text-rose-800",
-      "unresolved" => "bg-slate-100 text-slate-700"
-    }.fetch(status, "bg-slate-100 text-slate-700")
+      "exact" => "property-graph__status--direct",
+      "supported" => "property-graph__status--context",
+      "conflicting" => "property-graph__status--conflict",
+      "unresolved" => "property-graph__status--unresolved"
+    }.fetch(status, "property-graph__status--unresolved")
+  end
+
+  def property_graph_edge_groups(edges, subject_identifier: nil)
+    order = %w[property_rights parcel_rights related_parties official_records property_context]
+    grouped = Array(edges).group_by { |edge| property_graph_edge_group(edge, subject_identifier:) }
+    order.filter_map { |key| [ key, grouped[key] ] if grouped[key].present? }
+  end
+
+  def property_graph_edge_group(edge, subject_identifier: nil)
+    relationship_type = edge["relationship_type"]
+    case relationship_type
+    when "cadastre_right_holder", "registered_owner", "previous_registered_owner"
+      direct_subject = edge.dig("subject_scope", "cadastral_identifier") == subject_identifier
+      direct_subject || subject_identifier.blank? ? "property_rights" : "parcel_rights"
+    when "managed_by", "owned_by", "beneficially_owned_by"
+      "related_parties"
+    when "related_administrative_act", "named_in_administrative_act"
+      "official_records"
+    else
+      "property_context"
+    end
   end
 
   def property_graph_limitation_text(value)
@@ -188,16 +209,6 @@ module ApplicationHelper
     positions
   end
 
-  def source_status_classes(status)
-    {
-      "succeeded" => "bg-emerald-50 text-emerald-700 ring-emerald-200",
-      "failed" => "bg-rose-50 text-rose-700 ring-rose-200",
-      "unavailable" => "bg-amber-50 text-amber-700 ring-amber-200",
-      "running" => "bg-sky-50 text-sky-700 ring-sky-200",
-      "pending" => "bg-slate-50 text-slate-600 ring-slate-200"
-    }.fetch(status, "bg-slate-50 text-slate-600 ring-slate-200")
-  end
-
   def source_result_key(run, analysis:)
     if run.status.in?(%w[failed unavailable])
       return "not_applicable" if run.source_key.in?(%w[commercial_register vies]) && run.request_metadata["access"] == "not_attempted_without_eik"
@@ -214,19 +225,19 @@ module ApplicationHelper
 
   def source_result_classes(result_key)
     {
-      "records_found" => "bg-emerald-50 text-emerald-700 ring-emerald-200",
-      "data_returned" => "bg-emerald-50 text-emerald-700 ring-emerald-200",
-      "used_for_calculation" => "bg-sky-50 text-sky-700 ring-sky-200",
-      "no_match" => "bg-slate-100 text-slate-700 ring-slate-200",
-      "not_applicable" => "bg-slate-100 text-slate-700 ring-slate-200",
-      "restricted_access" => "bg-slate-100 text-slate-700 ring-slate-200",
-      "contract_required" => "bg-slate-100 text-slate-700 ring-slate-200",
-      "needs_location" => "bg-amber-50 text-amber-800 ring-amber-200",
-      "unavailable" => "bg-amber-50 text-amber-800 ring-amber-200",
-      "failed" => "bg-rose-50 text-rose-700 ring-rose-200",
-      "running" => "bg-sky-50 text-sky-700 ring-sky-200",
-      "pending" => "bg-slate-50 text-slate-600 ring-slate-200"
-    }.fetch(result_key, "bg-slate-50 text-slate-600 ring-slate-200")
+      "records_found" => "source-result--positive",
+      "data_returned" => "source-result--positive",
+      "used_for_calculation" => "source-result--calculation",
+      "no_match" => "source-result--neutral",
+      "not_applicable" => "source-result--neutral",
+      "restricted_access" => "source-result--neutral",
+      "contract_required" => "source-result--neutral",
+      "needs_location" => "source-result--attention",
+      "unavailable" => "source-result--attention",
+      "failed" => "source-result--failure",
+      "running" => "source-result--calculation",
+      "pending" => "source-result--neutral"
+    }.fetch(result_key, "source-result--neutral")
   end
 
   def source_result_text(run, analysis:)

@@ -45,8 +45,8 @@
 
     <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4 text-xs">
       <span class="rounded-full bg-emerald-50 px-2.5 py-1 font-bold text-emerald-800"><%= t("common.official_source") %></span>
-      <%= link_to t("common.source_link"), act.source_url, target: "_blank", rel: "noopener noreferrer", class: "font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %>
-      <% if act.document_url.present? %><%= link_to t("reports.findings.open_document"), act.document_url, target: "_blank", rel: "noopener noreferrer", class: "font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %><% end %>
+      <%= link_to t("common.source_link"), act.source_url, target: "_blank", rel: "noopener noreferrer", class: "report-source-link" %>
+      <% if act.document_url.present? %><%= link_to t("reports.findings.open_document"), act.document_url, target: "_blank", rel: "noopener noreferrer", class: "report-source-link" %><% end %>
     </div>
   </div>
 </article>

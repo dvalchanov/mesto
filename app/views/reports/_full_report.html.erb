@@ -1,3 +1,15 @@
+<% planning = Array(analysis.summary["planning"]) %>
+<% planning_summary = analysis.summary["planning_summary"] || Analysis::PlanningSummaryBuilder.new(planning).call %>
+<% amenities = analysis.metrics.fetch("amenities", {}) %>
+<% amenity_categories = %w[schools kindergartens].select { |category| amenities.dig("availability", category) } %>
+<% place_categories = [
+  ["green_spaces", "nearest_green_space", "green_space"],
+  ["transit", "nearest_existing_transit", "existing_transit"],
+  ["transit", "nearest_planned_transit", "planned_transit"]
+].select { |category, _key, _label| amenities.dig("availability", category) } %>
+<% environment = analysis.metrics.fetch("environment", {}) %>
+<% questions = Array(analysis.summary["questions"]) %>
+
 <div class="mt-8 space-y-6">
   <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
     <h2 class="text-2xl font-bold"><%= t("reports.full.timeline") %></h2>
@@ -8,11 +20,9 @@
     </div>
   </section>
 
-  <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
-    <h2 class="text-xl font-bold"><%= t("reports.full.planning") %></h2>
-    <% planning = Array(analysis.summary["planning"]) %>
-    <% planning_summary = analysis.summary["planning_summary"] || Analysis::PlanningSummaryBuilder.new(planning).call %>
-    <% if planning_summary["available"] %>
+  <% if planning_summary["available"] %>
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+      <h2 class="text-xl font-bold"><%= t("reports.full.planning") %></h2>
       <p class="mt-2 max-w-4xl text-sm leading-6 text-slate-600"><%= t("reports.full.planning_description") %></p>
       <% planning_facts = {
         "area_name" => planning_summary["area_name"],
@@ -37,117 +47,93 @@
       <p class="mt-4 text-xs leading-5 text-slate-500"><%= t("reports.full.planning_omitted") %></p>
       <div class="mt-4 flex flex-wrap gap-3">
         <% source_runs.select { |run| planning_summary.fetch("source_keys", []).include?(run.source_key) }.each do |run| %>
-          <%= link_to source_name(run.source_key), run.source_url, target: "_blank", rel: "noopener noreferrer", class: "text-xs font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %>
+          <%= link_to source_name(run.source_key), run.source_url, target: "_blank", rel: "noopener noreferrer", class: "report-source-link" %>
         <% end %>
       </div>
-    <% else %>
-      <p class="mt-4 text-sm text-slate-500"><%= t("reports.full.planning_empty") %></p>
-    <% end %>
-  </section>
-
-  <div class="grid gap-6 lg:grid-cols-2">
-    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
-      <h2 class="text-xl font-bold"><%= t("reports.full.nearby") %></h2>
-      <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-        <p class="font-bold text-slate-900"><%= t("reports.full.nearby_unavailable_title") %></p>
-        <p class="mt-2 text-sm leading-6 text-slate-600"><%= t("reports.full.nearby_unavailable_body") %></p>
-      </div>
-      <div class="mt-5 border-t border-slate-200 pt-5">
-        <h3 class="font-bold"><%= t("reports.full.development_pressure") %></h3>
-        <p class="mt-2 text-sm leading-6 text-slate-600"><%= t("reports.full.pressure_unavailable") %></p>
-      </div>
     </section>
+  <% end %>
 
-    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
-      <h2 class="text-xl font-bold"><%= t("reports.full.amenities") %></h2>
-      <% amenities = analysis.metrics.fetch("amenities", {}) %>
-      <div class="mt-5 space-y-6">
-        <% %w[schools kindergartens].each do |category| %>
-          <div>
-            <h3 class="text-sm font-bold"><%= if amenities["places_source"] == "openstreetmap"
-              t("reports.full.openstreetmap_titles.#{category}")
-            else
-              t("reports.sources.names.sofiaplan_dataset_#{category}")
-            end %></h3>
-            <% if amenities.dig("availability", category) %>
-              <% metadata = amenities.dig("datasets", category) %>
-              <% if amenity_dataset_current?(metadata, as_of: analysis.completed_at&.to_date || Date.current) %>
-                <% nearest = amenities["nearest_#{category.singularize}"] %>
-                <% if nearest %><p class="mt-2 text-sm font-semibold text-slate-800"><%= t("reports.full.nearest", name: nearest["name"].presence || t("reports.neighborhood.unnamed"), distance: nearest["distance_m"]) %></p><% end %>
-                <div class="mt-3 flex flex-wrap gap-2">
-                  <% amenities.fetch(category, {}).each do |radius, count| %><span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold"><%= t("reports.full.amenity_count", count:, radius:) %></span><% end %>
-                </div>
-                <% nearby = Array(amenities["nearby_#{category}"]) %>
-                <% if nearby.any? %>
-                  <h4 class="mt-4 text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.full.mapped_places") %></h4>
-                  <ul class="mt-2 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-slate-50 px-4">
-                    <% nearby.first(10).each do |place| %>
-                      <li class="flex items-start justify-between gap-4 py-3 text-sm">
-                        <div>
-                          <p class="font-bold text-slate-900"><%= place["name"].presence || t("reports.neighborhood.unnamed") %></p>
-                          <% if place["address"].present? %><p class="mt-0.5 text-xs text-slate-500"><%= place["address"] %></p><% end %>
-                        </div>
-                        <%= link_to t("reports.full.distance_metres", distance: place["distance_m"]), place["source_url"], target: "_blank", rel: "noopener noreferrer", class: "shrink-0 text-xs font-bold text-emerald-800 underline decoration-emerald-300 underline-offset-4" %>
-                      </li>
-                    <% end %>
-                  </ul>
+  <% if amenity_categories.any? %>
+    <% amenity_categories.each do |category| %>
+      <% metadata = amenities.dig("datasets", category) %>
+      <% current = amenity_dataset_current?(metadata, as_of: analysis.completed_at&.to_date || Date.current) %>
+      <% nearest = amenities["nearest_#{category.singularize}"] %>
+      <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8" data-amenity-category="<%= category %>">
+        <p class="report-section-label text-xs font-black uppercase tracking-[0.16em]"><%= t("reports.full.amenities") %></p>
+        <h2 class="mt-2 text-xl font-bold"><%= if amenities["places_source"] == "openstreetmap"
+          t("reports.full.openstreetmap_titles.#{category}")
+        else
+          t("reports.sources.names.sofiaplan_dataset_#{category}")
+        end %></h2>
+        <p class="mt-2 text-sm leading-6 text-slate-600"><%= if current && nearest
+          t("reports.full.nearest", name: nearest["name"].presence || t("reports.neighborhood.unnamed"), distance: nearest["distance_m"])
+        elsif current
+          dataset_relevance_text(metadata)
+        else
+          t("reports.full.historical_amenities", date: dataset_relevance_text(metadata))
+        end %></p>
+
+        <div class="mt-5">
+          <% if current %>
+            <div class="flex flex-wrap gap-2">
+              <% amenities.fetch(category, {}).each do |radius, count| %><span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold"><%= t("reports.full.amenity_count", count:, radius:) %></span><% end %>
+            </div>
+            <% nearby = Array(amenities["nearby_#{category}"]) %>
+            <% if nearby.any? %>
+              <h3 class="mt-5 text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.full.mapped_places") %></h3>
+              <ul class="mt-2 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-slate-50 px-4">
+                <% nearby.first(10).each do |place| %>
+                  <li class="flex items-start justify-between gap-4 py-3 text-sm">
+                    <div>
+                      <p class="font-bold text-slate-900"><%= place["name"].presence || t("reports.neighborhood.unnamed") %></p>
+                      <% if place["address"].present? %><p class="mt-0.5 text-xs text-slate-500"><%= place["address"] %></p><% end %>
+                    </div>
+                    <%= link_to t("reports.full.distance_metres", distance: place["distance_m"]), place["source_url"], target: "_blank", rel: "noopener noreferrer", class: "report-source-link shrink-0" %>
+                  </li>
                 <% end %>
-                <p class="mt-3 text-xs leading-5 text-slate-500"><%= dataset_relevance_text(metadata) %> · <%= t(amenities["places_source"] == "openstreetmap" ? "reports.full.openstreetmap_scope_note" : "reports.full.dataset_scope_note") %></p>
-              <% else %>
-                <div class="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p class="text-sm font-semibold text-slate-900"><%= t("reports.full.historical_amenities", date: dataset_relevance_text(metadata)) %></p>
-                  <div class="mt-3 flex flex-wrap gap-2">
-                    <% amenities.fetch(category, {}).each do |radius, count| %><span class="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"><%= t("reports.full.historical_amenity_count", count:, radius:) %></span><% end %>
-                  </div>
-                </div>
-              <% end %>
-            <% else %>
-              <p class="mt-2 rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-900"><%= t("reports.full.not_calculated") %></p>
+              </ul>
             <% end %>
-          </div>
-        <% end %>
-      </div>
-    </section>
+            <p class="mt-4 text-xs leading-5 text-slate-500"><%= dataset_relevance_text(metadata) %> · <%= t(amenities["places_source"] == "openstreetmap" ? "reports.full.openstreetmap_scope_note" : "reports.full.dataset_scope_note") %></p>
+          <% else %>
+            <div class="flex flex-wrap gap-2">
+              <% amenities.fetch(category, {}).each do |radius, count| %>
+                <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold"><%= t("reports.full.historical_amenity_count", count:, radius:) %></span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  <% end %>
 
+  <% if place_categories.any? %>
     <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
       <h2 class="text-xl font-bold"><%= t("reports.full.green_transport") %></h2>
-      <% amenities = analysis.metrics.fetch("amenities", {}) %>
-      <div class="mt-5 space-y-3">
-        <% [
-          ["green_spaces", "nearest_green_space", "green_space"],
-          ["transit", "nearest_existing_transit", "existing_transit"],
-          ["transit", "nearest_planned_transit", "planned_transit"]
-        ].each do |category, key, label| %>
+      <div class="mt-5 grid gap-3 lg:grid-cols-3">
+        <% place_categories.each do |category, key, label| %>
           <div class="rounded-2xl bg-slate-50 p-4">
             <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.full.place_labels.#{label}") %></p>
-            <% if amenities.dig("availability", category) %>
-              <% nearest = amenities[key] %>
-              <p class="mt-1 text-sm font-semibold text-slate-900"><%= nearest ? t("reports.full.nearest", name: nearest["name"].presence || t("reports.full.place_labels.#{label}"), distance: nearest["distance_m"]) : t("reports.full.none_in_dataset") %></p>
-              <p class="mt-2 text-xs leading-5 text-slate-500"><%= dataset_relevance_text(amenities.dig("datasets", category)) %></p>
-            <% else %>
-              <p class="mt-1 text-sm text-amber-900"><%= t("reports.full.not_calculated") %></p>
-            <% end %>
+            <% nearest = amenities[key] %>
+            <p class="mt-1 text-sm font-semibold text-slate-900"><%= nearest ? t("reports.full.nearest", name: nearest["name"].presence || t("reports.full.place_labels.#{label}"), distance: nearest["distance_m"]) : t("reports.full.none_in_dataset") %></p>
+            <p class="mt-2 text-xs leading-5 text-slate-500"><%= dataset_relevance_text(amenities.dig("datasets", category)) %></p>
           </div>
         <% end %>
       </div>
     </section>
+  <% end %>
 
+  <% if environment["available"] %>
     <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
       <h2 class="text-xl font-bold"><%= t("reports.full.environment") %></h2>
-      <% environment = analysis.metrics.fetch("environment", {}) %>
-      <% if environment["available"] %>
-        <p class="mt-5 text-sm font-semibold leading-6 text-slate-800"><%= t("reports.full.flood_intersections", count: environment["flood_risk_intersections"].to_i) %></p>
-        <p class="mt-3 text-xs leading-5 text-slate-500"><%= dataset_relevance_text(environment["dataset"]) %> · <%= t("reports.full.flood_scope_note", basis: t("reports.full.geometry_bases.#{environment['geometry_basis'] || 'point'}")) %></p>
-      <% else %>
-        <p class="mt-5 rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-900"><%= t("reports.full.not_calculated") %></p>
-      <% end %>
+      <p class="mt-5 text-sm font-semibold leading-6 text-slate-800"><%= t("reports.full.flood_intersections", count: environment["flood_risk_intersections"].to_i) %></p>
+      <p class="mt-3 text-xs leading-5 text-slate-500"><%= dataset_relevance_text(environment["dataset"]) %> · <%= t("reports.full.flood_scope_note", basis: t("reports.full.geometry_bases.#{environment['geometry_basis'] || 'point'}")) %></p>
     </section>
-  </div>
+  <% end %>
 
-  <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
-    <h2 class="text-xl font-bold"><%= t("reports.full.questions") %></h2>
-    <ol class="mt-5 grid gap-3 sm:grid-cols-2"><% Array(analysis.summary["questions"]).each_with_index do |key, index| %><li class="flex gap-3 rounded-2xl bg-slate-50 p-4 text-sm leading-6"><span class="font-black text-emerald-700"><%= index + 1 %>.</span><%= t(key) %></li><% end %></ol>
-  </section>
-
-  <div class="text-center"><%= button_to t("reports.refresh.action"), refresh_report_path(public_token: analysis), method: :post, class: "rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:border-slate-400" %></div>
+  <% if questions.any? %>
+    <section class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
+      <h2 class="text-xl font-bold"><%= t("reports.full.questions") %></h2>
+      <ol class="mt-5 grid gap-3 sm:grid-cols-2"><% questions.each_with_index do |key, index| %><li class="flex gap-3 rounded-2xl bg-slate-50 p-4 text-sm leading-6"><span class="font-black text-emerald-700"><%= index + 1 %>.</span><%= t(key) %></li><% end %></ol>
+    </section>
+  <% end %>
 </div>
