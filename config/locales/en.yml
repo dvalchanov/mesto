@@ -697,10 +697,43 @@ en:
       location_missing_body: "We therefore do not show an arbitrary map or calculate schools, transport, green space, construction activity or flood risk for this property. An imported dataset is not the same as applying it to the property."
       location_missing_action: "To check these topics, open the identifier in KAIS or request a current cadastral scheme from the seller."
     buyer_checklist:
-      eyebrow: "05 · Next steps"
-      title: "What to check before paying a deposit"
-      description: "The public trail is the start of due diligence. This list turns findings and gaps into concrete questions for the seller and specialists."
-      statuses: { review: "Review the finding", buyer_check: "Compare documents", needs_document: "Request a document", not_checked: "Not checked here" }
+      eyebrow: "05 · Plan before a deposit"
+      title: "Your due-diligence plan before a deposit"
+      description: "Start with the actions specific to this property. Wherever official public data contains a useful value, Mesto shows it for direct comparison. Private documents that were not supplied, including the title deed, have not been checked."
+      priorities_label: "Priorities for this property"
+      action_label: "How to run the check"
+      sources_label: "Official sources"
+      lookup_label: "Identifier for the searches"
+      copy_identifier: "Copy"
+      watch_label: "Watch for"
+      full_topic: "View the full context"
+      onsite_route: "On site · independent building engineer or architect"
+      known_values_label: "Values for direct comparison"
+      fact_labels:
+        subject_area: "Area in cadastral data"
+        parcel_area: "Parcel area in cadastral data"
+        building_footprint: "Building footprint"
+        purpose: "Use"
+        building_purpose: "Building use"
+        position: "Entrance · floor · unit"
+        address: "Address"
+        parcel_address: "Parcel address"
+        building_address: "Building address"
+        additional_parts: "Appurtenant / ideal shares"
+        previous_identifier: "Previous cadastral numbers"
+        regulated_plot: "Regulated plot and block"
+        permanent_use: "Permanent use"
+        building_floors: "Building floors"
+        planning_area: "Planning zone"
+        predominant_floors: "Predominant floors"
+        matched_record: "Matched official record"
+      fact_values:
+        square_metres: "%{value} m²"
+        entrance: "entrance %{value}"
+        floor: "floor %{value}"
+        object_number: "unit no. %{value}"
+        regulated_plot: "plot %{value}"
+        quarter: "block %{value}"
       items:
         area_missing: "Request a current cadastral scheme/sketch and compare its area with the title deed and listing. Clarify usable area, built-up area and common parts separately."
         area_compare: "Compare the displayed area with the cadastral scheme, title deed and listing; verify that they use the same definition of area."
@@ -712,26 +745,83 @@ en:
         ownership: "Verify ownership, the seller’s authority and the chain of title with a notary or lawyer."
         encumbrances: "Request a current encumbrance certificate immediately before the transaction and review it with a professional."
         technical_inspection: "Arrange a technical inspection covering condition, defects, services, damp, common parts and the actual layout."
+      priority_guides:
+        area_comparison:
+          compare_intro: "In the title deed, search for the identifier in the property description and compare every available value:"
+          steps:
+            - "Use the values Mesto extracted below; open the property in KAIS by identifier and request a current scheme or sketch when you need an official document."
+            - "In the title deed, search for the identifier in the property description and check area, use, address, floor and every appurtenant or ideal share."
+            - "In the approved design and area schedule, separate net/built-up area from common parts, terraces and separate units such as storage or a garage; request a written explanation for every difference."
+          watch: "An unexplained area difference, common parts presented as net area, or storage/parking without a separately described right."
+        boundaries_access:
+          compare_intro: "In the current sketch and the detailed plan drawing, first confirm the same parcel, regulated plot and block. Use these values as your reference."
+          steps:
+            - "Open KAIS using the identifier and inspect the outline, neighbours and the property’s connection to a street."
+            - "Search the same identifier/regulated plot in NAG’s detailed-plan register or EPRUT and open the effective plan, order and drawing."
+            - "If access crosses another or privately owned parcel, request the registered right-of-way instrument and match it to the exact route."
+          watch: "A parcel/regulated-plot mismatch, no lawful street access, an easement, planned street or expropriation crossing the property."
+        zoning_plans:
+          compare_intro: "In the plan title block, order and drawing, confirm the same parcel/regulated plot. These are the references already found for this property."
+          steps:
+            - "Search the identifier in NAG’s detailed-plan register and EPRUT; also use the regulated plot, block and locality if the identifier returns no result."
+            - "Open only the relevant effective plans and orders and download their drawing and written parts."
+            - "Record use, density, floor-area ratio, height, landscaping, setbacks and planned streets, then compare them with the seller’s claims."
+          watch: "An application or pending procedure presented as an effective plan, a missing order/drawing, or parameters that differ from the marketing."
+        design_visa:
+          compare_intro: "In the official record and attached design visa, confirm the parcel/plot numbers and the details of the record Mesto matched."
+          steps:
+            - "In NAG’s design-visa register, search by cadastral identifier, regulated plot, locality or registration number."
+            - "Open the record and attachment; check issuer, date, legal basis, applicant, scope and drawing."
+            - "Connect the visa to the effective detailed plan, investment design and later building permit for the same property."
+          watch: "A different identifier or plot, a missing attachment, a different subject, or no corresponding building permit."
+        building_permit:
+          compare_intro: "In the permit and its amending orders, confirm the parcel/plot, building and details of the record Mesto matched."
+          steps:
+            - "In NAG’s building-permit register, search by identifier, address or number and open the exact record."
+            - "Check issuer, date, entry into force, applicant, description, property and every order attached to the permit detail."
+            - "Request a certified copy, approved designs and Article 154 amendments, then match them to the exact building, stage and completed work."
+          watch: "A permit for another property/stage, no evidence it entered into force, missing amendments, or a difference between approved and completed work."
+        occupancy:
+          compare_intro: "In the permit for use or commissioning certificate, find the description of the building and stage; compare it with these building values and matched records."
+          steps:
+            - "Search by identifier, address and number in NAG’s register; also search DNSK’s all-years register by project name and location."
+            - "Match the number, issuer, category, building, entrance, stage, plot/identifier and included subprojects to the unit being sold."
+            - "Request a certified copy from the developer or issuer and check whether later corrections or stages alter its scope."
+          watch: "A document for a neighbouring entrance, another building or a different stage; a matching address but mismatched identifier or scope."
+        title_chain:
+          compare_intro: "In the seller's deed, find the description of the property being transferred and compare it line by line. These cadastral values identify the unit but do not prove ownership."
+          steps:
+            - "Obtain the seller’s original deed and the exact names/personal number or UIC of the seller and direct predecessors."
+            - "Request a paid property search in the Property Register using the cadastral identifier; a registered, authenticated account is required. If no result appears, select the correct Registry Office and search using the other criteria and the people involved."
+            - "Trace every deed backwards, including inheritance, divisions and historic descriptions, to an unbroken connection with the current identifier."
+          watch: "No search result does not prove title or a clean property: older entries may predate the electronic register or cadastral identifier."
+        encumbrances:
+          compare_intro: "Use these values in the application and confirm that the issued certificate covers the exact same property and every right/share described with it."
+          steps:
+            - "Before a deposit, run a paid preliminary search for the property and relevant owners/predecessors; the portal requires registration, authentication and online payment."
+            - "Request a property certificate for the full relevant period using the exact property description and attachments; verify the selected Registry Office and search period."
+            - "Immediately before signing, obtain a new certificate and compare every registration, annotation and deletion with the underlying instruments."
+          watch: "A mortgage, attachment, claim, right of use, long lease, or deletion that does not cover the exact encumbrance and property."
+        technical_inspection:
+          compare_intro: "Give these values to the engineer and compare them with the approved design title block, area schedule and the actual on-site condition."
+          steps:
+            - "Request the approved architectural design, technical passport, commissioning document, warranties and repair/defect records."
+            - "Inspect the exact unit, common parts, roof and basement in daylight with an independent engineer or architect; test services and measure moisture where indicated."
+            - "Require a written, photographed defect list with severity, urgency and estimated cost; compare the actual layout with the approved design."
+          watch: "Active damp, structural cracking, unsafe services, an unauthorised layout change, or substantial deferred common-area repairs."
     due_diligence:
-      eyebrow: "06 · Action plan"
-      title: "Your due-diligence plan before a deposit"
-      description: "Mesto organises the public data checked and turns it into a practical plan for the complete review. For every next topic, you get the exact search, document, or professional to involve."
-      path_label: "How to use this plan"
-      path:
-        report:
-          title: "Start with what was checked"
-          body: "Use the facts and public records in the report as the basis for conversations and comparisons."
-        documents:
-          title: "Collect the right evidence"
-          body: "See what to request from the seller and which official searches to run for the exact property."
-        experts:
-          title: "Bring in the right professional"
-          body: "Know when a lawyer, notary, architect, or engineer is needed and what they should review."
-      reading_title: "Every status gives you a next step"
-      reading_body: "Green statuses take you to evidence in the report. The others tell you whether to compare a document, run an official search, or involve a professional. Expand a topic for concrete instructions, sources, and why the check matters."
+      guide_eyebrow: "Detailed review"
+      guide_title: "Complete guide by topic"
+      guide_description: "%{count} topics with specific documents, official sources, and specialists. Open a topic to see what we know, how to check it, and why it matters."
+      topic_count:
+        one: "1 topic"
+        other: "%{count} topics"
       available_label: "What you already know"
       obtain_label: "What to do next"
       importance_label: "Why it matters"
+      open_topic: "View details"
+      close_topic: "Hide details"
+      jump_label: "Jump to a topic"
       deposit_warning_title: "Before transferring a deposit"
       deposit_warning_body: "Ask your lawyer to make payment conditional on satisfactory legal and technical due diligence, an exact property and price, deadlines, refund conditions, release of encumbrances, and proven authority of the recipient. A public-data report does not make a payment safe by itself."
       results:
@@ -756,12 +846,21 @@ en:
         location_context: "Location, surroundings and restrictions"
         transaction: "Price, deposit and final checks"
       sources:
-        cadastre: "KAIS - cadastre"
+        cadastre: "KAIS - cadastral map"
+        cadastre_parcel_sketch: "KAIS - parcel sketch"
+        cadastre_building_sketch: "KAIS - building sketch"
+        cadastre_object_scheme: "KAIS - individual-unit scheme"
         nag: "NAG - public registers"
+        nag_plans: "NAG - detailed development plans"
+        nag_design_visas: "NAG - design visas"
+        nag_building_permits: "NAG - building permits"
+        nag_occupancy: "NAG - commissioning certificates"
         eprut: "EPRUT - spatial-planning register"
         dnsk_commissioning: "DNSK - permits for use"
         dnsk_registers: "DNSK - public registers"
-        property_registry: "Property Register"
+        property_registry: "Property Register - services"
+        property_registry_search_help: "Property Register - search instructions"
+        property_registry_certificate_help: "Property Register - property certificate"
         commercial_registry: "Commercial Register"
         rios: "RIOS - matrimonial property regime"
         court_cases: "Unified e-Justice Portal"

@@ -23,18 +23,21 @@
   <% commercial_checks = source_checks.select { |check| check["source_key"] == "commercial_register" } %>
   <% registry_notice = property_check&.dig("reason") == "automation_unavailable" || commercial_checks.any? { |check| check["reason"].in?(%w[no_reliable_eik automation_unavailable]) } %>
   <% if registry_notice %>
-    <div class="space-y-3 border-b border-slate-200 bg-amber-50 p-5 sm:p-7">
-    <% if property_check&.dig("reason") == "automation_unavailable" %>
-      <div class="flex items-start gap-3 text-sm leading-6 text-amber-950">
-        <%= mesto_icon("shield", css_class: "mt-1 size-5 shrink-0") %>
-        <p><strong><%= t("reports.property_graph.property_register_unavailable_title") %></strong> <%= t("reports.property_graph.property_register_unavailable_body") %> <%= link_to t("reports.property_graph.manual_check"), property_check["source_url"], target: "_blank", rel: "noopener noreferrer", class: "font-bold underline underline-offset-4" %></p>
+    <div class="report-state report-state--attention report-state--section-edge">
+      <span class="report-state__icon" aria-hidden="true"><%= mesto_icon("shield", css_class: "size-5") %></span>
+      <div class="report-state__content">
+        <span class="report-state__badge"><%= t("common.unavailable") %></span>
+        <div class="report-state__registry-copy">
+          <% if property_check&.dig("reason") == "automation_unavailable" %>
+            <p><strong><%= t("reports.property_graph.property_register_unavailable_title") %></strong> <%= t("reports.property_graph.property_register_unavailable_body") %> <%= link_to t("reports.property_graph.manual_check"), property_check["source_url"], target: "_blank", rel: "noopener noreferrer", class: "report-source-link" %></p>
+          <% end %>
+          <% if commercial_checks.any? { |check| check["reason"] == "no_reliable_eik" } %>
+            <p><strong><%= t("reports.property_graph.company_not_checked_title") %></strong> <%= t("reports.property_graph.company_not_checked_body") %></p>
+          <% elsif commercial_checks.any? { |check| check["reason"] == "automation_unavailable" } %>
+            <p><strong><%= t("reports.property_graph.company_automation_unavailable_title") %></strong> <%= t("reports.property_graph.company_automation_unavailable_body") %></p>
+          <% end %>
+        </div>
       </div>
-    <% end %>
-    <% if commercial_checks.any? { |check| check["reason"] == "no_reliable_eik" } %>
-      <p class="text-sm leading-6 text-amber-950"><strong><%= t("reports.property_graph.company_not_checked_title") %></strong> <%= t("reports.property_graph.company_not_checked_body") %></p>
-    <% elsif commercial_checks.any? { |check| check["reason"] == "automation_unavailable" } %>
-      <p class="text-sm leading-6 text-amber-950"><strong><%= t("reports.property_graph.company_automation_unavailable_title") %></strong> <%= t("reports.property_graph.company_automation_unavailable_body") %></p>
-    <% end %>
     </div>
   <% end %>
 
@@ -166,15 +169,30 @@
             <% end %>
           </div>
         <% else %>
-          <p class="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600"><%= t("reports.property_graph.no_relationships") %></p>
+          <div class="report-state report-state--neutral report-state--compact mt-4">
+            <span class="report-state__icon" aria-hidden="true"><%= mesto_icon("layers", css_class: "size-5") %></span>
+            <div class="report-state__content">
+              <span class="report-state__badge"><%= t("reports.statuses.partial") %></span>
+              <p><%= t("reports.property_graph.no_relationships") %></p>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>
   <% else %>
-    <div class="report-section__body"><p class="rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600"><%= t("reports.property_graph.empty") %></p></div>
+    <div class="report-section__body">
+      <div class="report-state report-state--neutral" data-testid="property-graph-empty">
+        <span class="report-state__icon" aria-hidden="true"><%= mesto_icon("layers", css_class: "size-5") %></span>
+        <div class="report-state__content">
+          <span class="report-state__badge"><%= t("reports.statuses.partial") %></span>
+          <p><%= t("reports.property_graph.empty") %></p>
+        </div>
+      </div>
+    </div>
   <% end %>
 
-  <footer class="border-t border-slate-200 bg-slate-50 p-5 text-xs leading-5 text-slate-600 sm:px-7">
-    <strong><%= t("reports.property_graph.boundary_title") %></strong> <%= t("reports.property_graph.boundary_body") %>
+  <footer class="property-graph__boundary">
+    <span aria-hidden="true"><%= mesto_icon("shield", css_class: "size-4") %></span>
+    <p><strong><%= t("reports.property_graph.boundary_title") %></strong> <%= t("reports.property_graph.boundary_body") %></p>
   </footer>
 </section>

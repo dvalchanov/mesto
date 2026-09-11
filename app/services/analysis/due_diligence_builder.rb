@@ -1,12 +1,21 @@
 module Analysis
   class DueDiligenceBuilder
     SOURCE_URLS = {
-      "cadastre" => "https://kais.cadastre.bg/",
+      "cadastre" => "https://kais.cadastre.bg/bg/Map/SearchForm?view=Search%2FCadastre%2F_FullSearch",
+      "cadastre_parcel_sketch" => "https://kais.cadastre.bg/bg/Services/Info?applicationType=fc5c1281-a795-4cd1-9c2f-75e792923cd0&id=24a84a1c-660a-4e28-81f0-912714c8c423",
+      "cadastre_building_sketch" => "https://kais.cadastre.bg/bg/Services/Info?applicationType=fc5c1281-a795-4cd1-9c2f-75e792923cd0&id=0062bddb-dbd7-4fd1-b355-47ce24c5495d",
+      "cadastre_object_scheme" => "https://kais.cadastre.bg/bg/Services/Info?applicationType=fc5c1281-a795-4cd1-9c2f-75e792923cd0&id=34c4eb52-da78-4f68-a8c3-1ed5c7e09d86",
       "nag" => "https://nag.sofia.bg/pages/render/187",
+      "nag_plans" => "https://nag.sofia.bg/SearchDevelopmentPlans/Index",
+      "nag_design_visas" => "https://nag.sofia.bg/registervisasofproection",
+      "nag_building_permits" => "https://nag.sofia.bg/RegisterBuildingPermitsPortal/Index",
+      "nag_occupancy" => "https://nag.sofia.bg/RegisterCertificateForExploitationBuildings",
       "eprut" => "https://eprutgis.mrrb.bg/",
       "dnsk_commissioning" => "https://dnsk.bg/registri/publichen-registar-na-razresheniyata-za-polzvane-izdadeni-ot-dnsk/",
       "dnsk_registers" => "https://dnsk.bg/",
-      "property_registry" => "https://portal.registryagency.bg/home-pr",
+      "property_registry" => "https://portal.registryagency.bg/bg/home-pr",
+      "property_registry_search_help" => "https://portal.registryagency.bg/help/topics/pr-applicationprocesses-requestforreportforproperty.html",
+      "property_registry_certificate_help" => "https://portal.registryagency.bg/help/topics/pr-applicationprocesses-applicationforcertificateforproperty.html",
       "commercial_registry" => "https://portal.registryagency.bg/CR/Reports/VerificationPersonOrg",
       "rios" => "https://www.registryagency.bg/bg/registri/rios/izvrashvane-na-spravki-za-izbran-rezhim-imushestveni-otnoshenia/",
       "court_cases" => "https://ecase.justice.bg/",
@@ -28,6 +37,13 @@ module Analysis
       "occupancy_certificates" => "nag_occupancy_certificates"
     }.freeze
 
+    REGISTRY_PUBLIC_SOURCES = {
+      "design_visas" => "nag_design_visas",
+      "building_permits" => "nag_building_permits",
+      "urban_planning_orders" => "nag_plans",
+      "occupancy_certificates" => "nag_occupancy"
+    }.freeze
+
     def initialize(analysis:, facts:)
       @analysis = analysis
       @facts = facts
@@ -37,12 +53,12 @@ module Analysis
       [
         section("identity", [
           topic("cadastre_identity", cadastre_result, sources("cadastre", run_key: "cadastre")),
-          topic("area_comparison", @facts["subject_area_sqm"] ? "partial_in_report" : "request_document", sources("cadastre", run_key: "cadastre")),
-          topic("included_rights", "external_official_check", sources("cadastre", "property_registry")),
-          topic("boundaries_access", @analysis.parcel_geometry ? "partial_in_report" : "external_official_check", sources("cadastre", "eprut"))
+          topic("area_comparison", @facts["subject_area_sqm"] ? "partial_in_report" : "request_document", sources("cadastre", cadastral_document_source, run_key: "cadastre")),
+          topic("included_rights", "external_official_check", sources("cadastre", "property_registry_search_help")),
+          topic("boundaries_access", @analysis.parcel_geometry ? "partial_in_report" : "external_official_check", sources("cadastre", "nag_plans", "eprut"))
         ]),
         section("planning_construction", [
-          topic("zoning_plans", planning_result, sources("nag", "eprut", run_key: planning_run_key)),
+          topic("zoning_plans", planning_result, sources("nag_plans", "eprut", run_key: planning_run_key)),
           registry_topic("design_visa", "design_visas"),
           registry_topic("building_permit", "building_permits"),
           topic("construction_stage", "request_document"),
@@ -50,8 +66,8 @@ module Analysis
           topic("enforcement_changes", "external_official_check", sources("dnsk_registers", "nag", "eprut"))
         ]),
         section("legal_seller", [
-          topic("title_chain", "external_official_check", sources("property_registry")),
-          topic("encumbrances", "external_official_check", sources("property_registry")),
+          topic("title_chain", "external_official_check", sources("property_registry_search_help", "property_registry")),
+          topic("encumbrances", "external_official_check", sources("property_registry_certificate_help", "property_registry_search_help")),
           topic("seller_company", "external_official_check", sources("commercial_registry")),
           topic("authority_family", "external_official_check", sources("commercial_registry", "rios")),
           topic("disputes_insolvency", "external_official_check", sources("commercial_registry", "court_cases"))
@@ -75,7 +91,7 @@ module Analysis
           topic("taxes_debts", "request_document"),
           topic("market_value", "professional_review"),
           topic("deposit_contract", "professional_review"),
-          topic("final_day_controls", "professional_review", sources("property_registry"))
+          topic("final_day_controls", "professional_review", sources("property_registry_certificate_help"))
         ])
       ]
     end
@@ -103,8 +119,16 @@ module Analysis
       else
         source_result(run_key)
       end
-      source_keys = [ "nag", *additional_sources ]
+      source_keys = [ REGISTRY_PUBLIC_SOURCES.fetch(registry_kind), *additional_sources ]
       topic(key, result, sources(*source_keys, run_key:), count: count.positive? ? count : nil)
+    end
+
+    def cadastral_document_source
+      {
+        "parcel" => "cadastre_parcel_sketch",
+        "building" => "cadastre_building_sketch",
+        "individual_object" => "cadastre_object_scheme"
+      }.fetch(@analysis.identifier_level, "cadastre_object_scheme")
     end
 
     def cadastre_result
@@ -166,7 +190,7 @@ module Analysis
 
     def sources(*keys, run_key: nil)
       keys.uniq.filter_map.with_index do |key, index|
-        run_url = latest_source_run(run_key)&.source_url if index.zero? && run_key.present?
+        run_url = latest_source_run(run_key)&.source_url if index.zero? && run_key.present? && key != "cadastre"
         url = run_url.presence || SOURCE_URLS[key]
         { "key" => key, "url" => url } if url.present?
       end

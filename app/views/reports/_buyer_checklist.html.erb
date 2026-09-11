@@ -1,22 +1,89 @@
-<section id="next-steps" class="report-section">
+<section id="next-steps" class="report-section" aria-labelledby="next-steps-title">
+  <% topics_by_key = due_diligence_sections.flat_map { |section| section.fetch("items") }.index_by { |topic| topic.fetch("key") } %>
   <header class="report-section__header">
     <div>
       <p class="report-section-label"><%= t("reports.buyer_checklist.eyebrow") %></p>
-      <h2><%= t("reports.buyer_checklist.title") %></h2>
+      <h2 id="next-steps-title"><%= t("reports.buyer_checklist.title") %></h2>
       <p><%= t("reports.buyer_checklist.description") %></p>
     </div>
   </header>
   <div class="report-section__body">
-  <ol class="grid gap-3 lg:grid-cols-2">
-    <% items.each_with_index do |item, index| %>
-      <li class="flex gap-4 rounded-2xl border border-slate-200 p-4">
-        <span class="grid size-7 shrink-0 place-items-center rounded-full bg-slate-950 text-xs font-black text-white"><%= index + 1 %></span>
-        <div>
-          <span class="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide <%= checklist_status_classes(item['status']) %>"><%= t("reports.buyer_checklist.statuses.#{item['status']}") %></span>
-          <p class="mt-2 text-sm font-semibold leading-6 text-slate-800"><%= t("reports.buyer_checklist.items.#{item['key']}") %></p>
-        </div>
-      </li>
-    <% end %>
-  </ol>
+    <p class="buyer-priority-label"><%= t("reports.buyer_checklist.priorities_label") %></p>
+    <ol class="buyer-priority-list">
+      <% items.each_with_index do |item, index| %>
+        <% topic = topics_by_key.fetch(item.fetch("topic_key")) %>
+        <% guide_key = topic.fetch("key") %>
+        <li data-priority="<%= item['key'] %>">
+          <div class="buyer-priority-list__content">
+            <div class="buyer-priority-list__heading">
+              <div class="buyer-priority-list__title">
+                <span class="buyer-priority-list__number"><%= index + 1 %></span>
+                <h3><%= t("reports.due_diligence.topics.#{guide_key}.title") %></h3>
+              </div>
+              <div class="buyer-priority-list__lookup" data-controller="clipboard">
+                <span><%= t("reports.buyer_checklist.lookup_label") %></span>
+                <code data-clipboard-target="source"><%= item.fetch("lookup_identifier") %></code>
+                <button type="button" data-action="clipboard#copy"><%= t("reports.buyer_checklist.copy_identifier") %></button>
+                <span class="buyer-priority-list__copy-status" data-clipboard-target="status" aria-live="polite"></span>
+              </div>
+            </div>
+            <% if item.fetch("known_facts").any? %>
+              <div class="buyer-priority-list__known" role="group" aria-label="<%= t('reports.buyer_checklist.known_values_label') %>">
+                <div class="buyer-priority-list__known-heading">
+                  <span class="buyer-priority-list__known-icon"><%= mesto_icon("document", css_class: "size-4") %></span>
+                  <div>
+                    <h4><%= t("reports.buyer_checklist.known_values_label") %></h4>
+                    <p><%= t("reports.buyer_checklist.priority_guides.#{guide_key}.compare_intro") %></p>
+                  </div>
+                </div>
+                <dl>
+                  <% item.fetch("known_facts").each do |fact| %>
+                    <div>
+                      <dt><%= t("reports.buyer_checklist.fact_labels.#{fact.fetch('key')}") %></dt>
+                      <dd><%= buyer_checklist_fact_value(fact) %></dd>
+                    </div>
+                  <% end %>
+                </dl>
+              </div>
+            <% end %>
+            <div class="buyer-priority-list__recipe">
+              <span><%= t("reports.buyer_checklist.action_label") %></span>
+              <ol>
+                <% t("reports.buyer_checklist.priority_guides.#{guide_key}.steps").each_with_index do |step, step_index| %>
+                  <li>
+                    <span><%= step_index + 1 %></span>
+                    <p><%= step %></p>
+                  </li>
+                <% end %>
+              </ol>
+            </div>
+            <p class="buyer-priority-list__watch"><strong><%= t("reports.buyer_checklist.watch_label") %>:</strong> <%= t("reports.buyer_checklist.priority_guides.#{guide_key}.watch") %></p>
+            <div class="buyer-priority-list__footer">
+              <% if topic["sources"].any? %>
+                <div class="buyer-priority-list__sources">
+                  <span><%= t("reports.buyer_checklist.sources_label") %></span>
+                  <div>
+                    <% topic["sources"].each do |source| %>
+                      <%= link_to source["url"], target: "_blank", rel: "noopener noreferrer", class: "buyer-priority-list__source" do %>
+                        <%= t("reports.due_diligence.sources.#{source['key']}", default: source_name(source["key"])) %>
+                        <%= mesto_icon("arrow-up-right", css_class: "size-3.5") %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              <% else %>
+                <span class="buyer-priority-list__onsite"><%= mesto_icon("building", css_class: "size-4") %><%= t("reports.buyer_checklist.onsite_route") %></span>
+              <% end %>
+              <%= link_to "#due-diligence-topic-#{guide_key}", class: "buyer-priority-list__topic-link", aria: { controls: "due-diligence-topic-#{guide_key}" }, data: { controller: "details-link", action: "click->details-link#open" } do %>
+                <%= t("reports.buyer_checklist.full_topic") %>
+                <%= mesto_icon("arrow-right", css_class: "size-4") %>
+              <% end %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ol>
+
+    <%= render "due_diligence", sections: due_diligence_sections %>
   </div>
 </section>
