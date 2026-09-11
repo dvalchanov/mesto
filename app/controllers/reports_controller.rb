@@ -7,19 +7,21 @@ class ReportsController < ApplicationController
     @all_acts = @analysis.administrative_acts.includes(:administrative_act_references).chronological
     @preview_acts = @all_acts.limit(2)
     @acts = @analysis.full_report_unlocked? ? @all_acts : AdministrativeAct.none
+    visible_report_acts = @analysis.full_report_unlocked? ? @all_acts : @preview_acts
     @source_runs = @analysis.current_source_runs.order(:created_at)
     @property_facts = Analysis::PropertyFactsBuilder.new(analysis: @analysis).call
     @property_graph = @analysis.summary["property_graph"].presence || PropertyGraph::Presenter.new(analysis: @analysis).call
-    @buyer_checklist = Analysis::BuyerChecklistBuilder.new(analysis: @analysis, facts: @property_facts).call
+    @buyer_checklist = Analysis::BuyerChecklistBuilder.new(
+      analysis: @analysis, facts: @property_facts, visible_acts: visible_report_acts
+    ).call
     @due_diligence = Analysis::DueDiligenceBuilder.new(analysis: @analysis, facts: @property_facts).call
     @coverage = Analysis::CoverageBuilder.new(@source_runs, analysis: @analysis).call
     report_journey = current_buyer_journey
     report_journey = nil if report_journey&.property_analysis && report_journey.property_analysis != @analysis
-    visible_education_acts = @analysis.full_report_unlocked? ? @all_acts : @preview_acts
     @education_presenter = Education::JourneyPresenter.new(
       journey: report_journey,
       analysis: @analysis,
-      visible_acts: visible_education_acts
+      visible_acts: visible_report_acts
     )
     @report_journey = report_journey
     if @education_presenter.assessment&.conflict_flags&.include?("later_evidence_than_reported")

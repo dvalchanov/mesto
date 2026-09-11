@@ -78,8 +78,41 @@ module ApplicationHelper
     t("reports.sources.names.#{source_key}", default: source_key.to_s.humanize)
   end
 
+  def buyer_checklist_fact_value(fact)
+    case fact["format"]
+    when "area"
+      t(
+        "reports.buyer_checklist.fact_values.square_metres",
+        value: number_with_precision(fact["value"], precision: 2, strip_insignificant_zeros: true)
+      )
+    when "administrative_act"
+      administrative_act_fact_value(fact.fetch("value"))
+    else
+      structured_buyer_fact_value(fact.fetch("value"))
+    end
+  end
+
   def property_graph_entity_type(entity_type)
     t("reports.property_graph.entity_types.#{entity_type}", default: entity_type.to_s.humanize)
+  end
+
+  def structured_buyer_fact_value(value)
+    return value unless value.is_a?(Hash)
+
+    value.filter_map do |key, child|
+      next if child.blank?
+
+      t("reports.buyer_checklist.fact_values.#{key}", value: child)
+    end.join(" · ")
+  end
+
+  def administrative_act_fact_value(value)
+    date = if value["issued_on"].present?
+      l(Date.iso8601(value["issued_on"]), format: :short)
+    end
+    [ value["title"], value["number"], date, value["issuer"] ].compact_blank.join(" · ")
+  rescue Date::Error
+    [ value["title"], value["number"], value["issuer"] ].compact_blank.join(" · ")
   end
 
   def property_graph_relationship_type(relationship_type)
@@ -284,15 +317,6 @@ module ApplicationHelper
   def amenity_dataset_current?(metadata, as_of: Date.current)
     date = dataset_relevance_date(metadata)
     date.present? && date >= as_of.advance(years: -AMENITY_DATA_MAX_AGE_YEARS)
-  end
-
-  def checklist_status_classes(status)
-    {
-      "review" => "bg-emerald-50 text-emerald-800",
-      "buyer_check" => "bg-sky-50 text-sky-800",
-      "needs_document" => "bg-amber-50 text-amber-900",
-      "not_checked" => "bg-slate-100 text-slate-700"
-    }.fetch(status, "bg-slate-100 text-slate-700")
   end
 
   def due_diligence_result_classes(result)
