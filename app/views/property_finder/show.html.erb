@@ -1,0 +1,241 @@
+<% content_for :title, t("property_finder.meta_title", product_name:) %>
+<% content_for :description, t("property_finder.meta_description") %>
+<% content_for :head do %>
+  <meta name="robots" content="noindex,follow">
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.4.1/dist/maplibre-gl.css" rel="stylesheet">
+<% end %>
+
+<section class="property-finder-page">
+  <div class="site-shell">
+    <%= link_to root_path(anchor: "property-check"), class: "property-finder__back" do %>
+      <span aria-hidden="true">←</span><%= t("property_finder.back") %>
+    <% end %>
+
+    <header class="property-finder__hero">
+      <p class="eyebrow"><span></span><%= t("property_finder.eyebrow") %></p>
+      <h1><%= t("property_finder.title") %></h1>
+      <p><%= t("property_finder.lead") %></p>
+    </header>
+
+    <ol class="finder-steps" aria-label="<%= t('property_finder.steps.label') %>">
+      <% %w[address details confirm].each_with_index do |step, index| %>
+        <li class="<%= index.zero? && @result ? 'is-complete' : (index == 1 && @result ? 'is-active' : nil) %>">
+          <span><%= index.zero? && @result ? mesto_icon("check", css_class: "size-4") : index + 1 %></span>
+          <%= t("property_finder.steps.#{step}") %>
+        </li>
+      <% end %>
+    </ol>
+
+    <div class="finder-search-card"
+         data-controller="property-locator"
+         data-property-locator-suggestions-url-value="<%= property_address_suggestions_path %>"
+         data-property-locator-buildings-url-value="<%= property_finder_buildings_path %>"
+         data-property-locator-style-url-value="<%= Rails.application.config.x.map_style_url %>"
+         data-property-locator-copy-value="<%= {
+           selected: t('property_finder.locator.selected'),
+           zoom: t('property_finder.locator.zoom'),
+           loading: t('property_finder.locator.loading'),
+           noResults: t('property_finder.locator.no_results'),
+           results: t('property_finder.locator.results', count: '%{count}'),
+           truncated: t('property_finder.locator.truncated'),
+           error: t('property_finder.locator.error'),
+           unknownAddress: t('property_finder.locator.unknown_address'),
+           choose: t('property_finder.locator.choose')
+         }.to_json %>">
+      <%= form_with url: property_finder_path, method: :get, class: "finder-address-form", data: { property_locator_target: "form" } do |form| %>
+        <div>
+          <%= form.label :address, t("property_finder.address_label"), class: "form-label" %>
+          <div class="property-locator__input">
+            <div class="property-search__field property-search__field--address <%= 'has-error' if @search_error %>">
+              <%= mesto_icon("map-pin", css_class: "size-5") %>
+              <%= form.search_field :address,
+                    value: @address,
+                    maxlength: PropertyFinder::AddressSearch::MAX_QUERY_LENGTH,
+                    required: true,
+                    autofocus: @address.blank?,
+                    autocomplete: "off",
+                    placeholder: t("property_finder.address_placeholder"),
+                    role: "combobox",
+                    aria: { describedby: (@search_error ? "address-search-error" : "address-search-help"), autocomplete: "list", expanded: false, controls: "finder-address-suggestions" },
+                    data: { property_locator_target: "addressInput", action: "input->property-locator#suggest focus->property-locator#refreshSuggestions keydown->property-locator#navigateSuggestions" } %>
+            </div>
+            <div id="finder-address-suggestions" class="property-locator__suggestions" role="listbox" data-property-locator-target="suggestions" hidden></div>
+          </div>
+          <%= form.hidden_field :building_identifier, value: @building_identifier, data: { property_locator_target: "buildingInput" } %>
+          <%= form.hidden_field :locator_method, value: params[:locator_method].presence || "address", data: { property_locator_target: "methodInput" } %>
+          <% if @search_error %><p id="address-search-error" class="form-error"><%= @search_error %></p><% end %>
+          <p id="address-search-help" class="finder-address-form__help"><%= t("property_finder.address_help") %></p>
+          <p class="property-locator__selection" data-property-locator-target="selection" <%= "hidden" unless @building_identifier %>><%= t("property_finder.locator.selected_identifier", identifier: @building_identifier) if @building_identifier %></p>
+        </div>
+        <div class="finder-address-form__actions">
+          <%= form.button class: "button button--secondary" do %>
+            <%= t("property_finder.search") %><%= mesto_icon("search", css_class: "size-4") %>
+          <% end %>
+          <button type="button" class="button button--outline" data-action="property-locator#openMap">
+            <%= t("property_finder.locator.open_map") %><%= mesto_icon("map-pin", css_class: "size-4") %>
+          </button>
+        </div>
+      <% end %>
+      <%= render "map_dialog" %>
+    </div>
+
+    <% if @result %>
+      <% if @result.building_count.zero? %>
+        <div class="finder-empty">
+          <span><%= mesto_icon("building", css_class: "size-6") %></span>
+          <div>
+            <h2><%= t("property_finder.no_results.title") %></h2>
+            <p><%= t("property_finder.no_results.text") %></p>
+            <%= link_to root_path(search: "identifier", anchor: "property-check"), class: "text-link" do %>
+              <%= t("property_finder.no_results.identifier_link") %><%= mesto_icon("arrow-right", css_class: "size-4") %>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="finder-results-heading">
+          <div>
+            <p class="eyebrow"><span></span><%= t("property_finder.results.eyebrow") %></p>
+            <h2><%= t("property_finder.results.title", count: @result.total_count) %></h2>
+            <p><%= t("property_finder.results.description") %></p>
+          </div>
+          <span class="finder-results-heading__building"><%= t("property_finder.results.buildings", count: @result.building_count) %></span>
+        </div>
+
+        <% if @result.buildings_truncated %>
+          <div class="finder-notice"><%= mesto_icon("document", css_class: "size-4") %><p><%= t("property_finder.results.too_many_buildings") %></p></div>
+        <% end %>
+
+        <div class="finder-layout">
+          <aside class="finder-filters">
+            <div class="finder-filters__heading">
+              <span><%= mesto_icon("search", css_class: "size-4") %></span>
+              <div><p><%= t("property_finder.filters.eyebrow") %></p><h3><%= t("property_finder.filters.title") %></h3></div>
+            </div>
+            <p class="finder-filters__intro"><%= t("property_finder.filters.intro") %></p>
+            <%= form_with url: property_finder_path, method: :get, class: "finder-filter-form" do |form| %>
+              <%= form.hidden_field :address, value: @address %>
+              <%= form.hidden_field :building_identifier, value: @selected_building_identifier if @selected_building_identifier %>
+              <%= form.hidden_field :locator_method, value: params[:locator_method] if params[:locator_method].present? %>
+              <div>
+                <%= form.label :entrance, t("property_finder.filters.entrance"), class: "form-label" %>
+                <%= form.select :entrance, options_for_select(@result.entrances, @filters["entrance"]), { include_blank: t("property_finder.filters.any") }, class: "finder-control" %>
+              </div>
+              <div>
+                <%= form.label :floor, t("property_finder.filters.floor"), class: "form-label" %>
+                <%= form.select :floor, options_for_select(@result.floors, @filters["floor"]), { include_blank: t("property_finder.filters.any") }, class: "finder-control" %>
+              </div>
+              <div>
+                <%= form.label :object_number, t("property_finder.filters.object_number"), class: "form-label" %>
+                <%= form.text_field :object_number, value: @filters["object_number"], maxlength: 30, class: "finder-control", placeholder: t("property_finder.filters.object_number_placeholder") %>
+              </div>
+              <div>
+                <%= form.label :area, t("property_finder.filters.area"), class: "form-label" %>
+                <div class="finder-control-suffix">
+                  <%= form.number_field :area, value: @filters["area"], min: 1, max: 10_000, step: 0.1, class: "finder-control", placeholder: t("property_finder.filters.area_placeholder") %>
+                  <span>m²</span>
+                </div>
+                <p><%= t("property_finder.filters.area_help") %></p>
+              </div>
+              <%= form.button t("property_finder.filters.apply"), class: "button button--secondary button--wide" %>
+              <% if @filters.present? %><%= link_to t("property_finder.filters.clear"), property_finder_path(address: @address, building_identifier: @selected_building_identifier, locator_method: params[:locator_method]), class: "finder-filters__clear" %><% end %>
+            <% end %>
+            <div class="finder-filters__limit">
+              <%= mesto_icon("document", css_class: "size-4") %>
+              <p><%= t("property_finder.filters.limit") %></p>
+            </div>
+          </aside>
+
+          <div class="finder-candidates">
+            <% if @result.properties.empty? %>
+              <div class="finder-candidates__none">
+                <h3><%= t("property_finder.filtered_empty.title") %></h3>
+                <p><%= t("property_finder.filtered_empty.text") %></p>
+                <%= link_to t("property_finder.filters.clear"), property_finder_path(address: @address), class: "text-link" %>
+              </div>
+            <% else %>
+              <div class="finder-candidates__intro">
+                <p><strong><%= t("property_finder.candidates.showing", count: @result.total_count) %></strong> <%= t("property_finder.candidates.compare") %></p>
+              </div>
+
+              <% if @position_map_payload %>
+                <section class="apartment-position"
+                         data-controller="apartment-position"
+                         data-apartment-position-payload-value="<%= @position_map_payload.to_json %>"
+                         data-apartment-position-style-url-value="<%= Rails.application.config.x.map_style_url %>"
+                         data-apartment-position-copy-value="<%= {
+                           object: t('property_finder.position.object', number: '%{number}'),
+                           objectUnknown: t('property_finder.position.object_unknown'),
+                           entrance: t('property_finder.candidates.entrance'),
+                           floor: t('property_finder.candidates.floor'),
+                           area: t('property_finder.candidates.area'),
+                           view: t('property_finder.position.view')
+                         }.to_json %>">
+                  <div class="apartment-position__heading">
+                    <span><%= mesto_icon("layers", css_class: "size-5") %></span>
+                    <div>
+                      <p><%= t("property_finder.position.eyebrow") %></p>
+                      <h3><%= t("property_finder.position.title", floor: @filters["floor"]) %></h3>
+                    </div>
+                  </div>
+                  <p class="apartment-position__intro"><%= t("property_finder.position.intro") %></p>
+                  <div class="apartment-position__map" data-apartment-position-target="canvas" role="region" aria-label="<%= t('property_finder.position.canvas_label', floor: @filters['floor']) %>"></div>
+                  <div class="apartment-position__legend">
+                    <span><i></i><%= t("property_finder.position.legend") %></span>
+                    <p><%= t("property_finder.position.disclaimer") %></p>
+                  </div>
+                </section>
+              <% end %>
+
+              <% @result.properties.each do |property| %>
+                <% identifier = CadastralIdentifier.new(property.cadastral_identifier) %>
+                <% object_label = property.object_number.presence || identifier.object_number %>
+                <article class="finder-candidate" tabindex="-1" data-cadastral-identifier="<%= property.cadastral_identifier %>">
+                  <div class="finder-candidate__main">
+                    <div class="finder-candidate__heading">
+                      <span class="finder-candidate__icon"><%= mesto_icon("building", css_class: "size-5") %></span>
+                      <div>
+                        <p><%= @result.building_addresses[identifier.building_identifier].presence || @address %></p>
+                        <h3><%= t("property_finder.candidates.object", number: object_label) %></h3>
+                      </div>
+                    </div>
+                    <dl class="finder-candidate__facts">
+                      <% if property.entrance.present? %><div><dt><%= t("property_finder.candidates.entrance") %></dt><dd><%= property.entrance %></dd></div><% end %>
+                      <% if property.floor.present? %><div><dt><%= t("property_finder.candidates.floor") %></dt><dd><%= property.floor %></dd></div><% end %>
+                      <% if property.area_sqm.present? && property.area_sqm.positive? %><div><dt><%= t("property_finder.candidates.area") %></dt><dd><%= number_with_precision(property.area_sqm, precision: 1, strip_insignificant_zeros: true) %> m²</dd></div><% end %>
+                      <% if property.purpose.present? %><div class="finder-candidate__purpose"><dt><%= t("property_finder.candidates.purpose") %></dt><dd><%= property.purpose %></dd></div><% end %>
+                    </dl>
+                    <p class="finder-candidate__identifier"><%= t("property_finder.candidates.identifier") %> <code><%= property.cadastral_identifier %></code></p>
+                  </div>
+                  <div class="finder-candidate__action">
+                    <p><%= t("property_finder.candidates.confirm") %></p>
+                    <%= form_with url: property_analyses_path, method: :post do |form| %>
+                      <%= form.hidden_field :cadastral_identifier, value: property.cadastral_identifier %>
+                      <%= form.hidden_field :discovery_method, value: params[:locator_method].presence || "address" %>
+                      <%= form.button class: "button button--primary" do %>
+                        <%= t("property_finder.candidates.select") %><%= mesto_icon("arrow-right", css_class: "size-4") %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </article>
+              <% end %>
+
+              <% if @result.page_count > 1 %>
+                <nav class="finder-pagination" aria-label="<%= t('property_finder.pagination.label') %>">
+                  <% pagination_params = @result.filters.merge(address: @address, building_identifier: @selected_building_identifier, locator_method: params[:locator_method]).compact %>
+                  <% if @result.page > 1 %><%= link_to t("property_finder.pagination.previous"), property_finder_path(**pagination_params, page: @result.page - 1), class: "button button--outline finder-pagination__previous" %><% end %>
+                  <span><%= t("property_finder.pagination.status", current: @result.page, total: @result.page_count) %></span>
+                  <% if @result.page < @result.page_count %><%= link_to t("property_finder.pagination.next"), property_finder_path(**pagination_params, page: @result.page + 1), class: "button button--outline finder-pagination__next" %><% end %>
+                </nav>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="finder-start">
+        <span><%= mesto_icon("building", css_class: "size-6") %></span>
+        <div><h2><%= t("property_finder.start.title") %></h2><p><%= t("property_finder.start.text") %></p></div>
+      </div>
+    <% end %>
+  </div>
+</section>

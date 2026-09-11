@@ -85,6 +85,26 @@ RSpec.describe "Report reading hierarchy", type: :system do
     expect(page.text.scan(I18n.t("reports.disclaimer", product_name: "Mesto")).size).to eq(1)
   end
 
+  it "keeps the footer flush with the viewport on a short report" do
+    analysis = create(:property_analysis, status: "queued")
+    page.current_window.resize_to(1_400, 1_600)
+
+    visit report_path(public_token: analysis)
+
+    layout = page.evaluate_script(<<~JAVASCRIPT)
+      (() => {
+        const footer = document.querySelector(".site-footer").getBoundingClientRect()
+        return {
+          footerBottom: footer.bottom,
+          viewportBottom: window.innerHeight,
+          documentHeight: document.documentElement.scrollHeight
+        }
+      })()
+    JAVASCRIPT
+    expect(layout.fetch("footerBottom")).to be_within(1).of(layout.fetch("viewportBottom"))
+    expect(layout.fetch("documentHeight")).to eq(layout.fetch("viewportBottom"))
+  end
+
   def priority_column_count
     page.evaluate_script(<<~JAVASCRIPT)
       getComputedStyle(document.querySelector('.report-priority-grid'))
