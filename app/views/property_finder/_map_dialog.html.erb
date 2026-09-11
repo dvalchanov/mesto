@@ -1,0 +1,31 @@
+<dialog class="property-locator-dialog" data-property-locator-target="dialog" aria-labelledby="property-locator-map-title">
+  <div class="property-locator-dialog__panel">
+    <header class="property-locator-dialog__header">
+      <div>
+        <p class="eyebrow"><span></span><%= t("property_finder.locator.map_eyebrow") %></p>
+        <h2 id="property-locator-map-title"><%= t("property_finder.locator.map_title") %></h2>
+        <p><%= t("property_finder.locator.map_intro") %></p>
+      </div>
+      <button type="button" class="property-locator-dialog__close" data-action="property-locator#closeMap" aria-label="<%= t('property_finder.locator.close_map') %>">×</button>
+    </header>
+
+    <div class="property-locator-dialog__search">
+      <div class="property-search__field property-search__field--address">
+        <%= mesto_icon("search", css_class: "size-5") %>
+        <input type="search"
+               maxlength="<%= PropertyFinder::AddressSearch::MAX_QUERY_LENGTH %>"
+               placeholder="<%= t('property_finder.address_placeholder') %>"
+               data-property-locator-target="mapInput"
+               data-action="keydown->property-locator#searchMap"
+               aria-label="<%= t('property_finder.locator.map_search_label') %>">
+      </div>
+      <button type="button" class="button button--secondary" data-action="property-locator#searchMap">
+        <%= t("property_finder.locator.show_on_map") %><%= mesto_icon("search", css_class: "size-4") %>
+      </button>
+    </div>
+
+    <p class="property-locator-dialog__status" data-property-locator-target="mapStatus" aria-live="polite"><%= t("property_finder.locator.map_initial_status") %></p>
+    <div class="property-locator-dialog__map" data-property-locator-target="mapCanvas" role="region" aria-label="<%= t('property_finder.locator.map_canvas_label') %>"></div>
+    <p class="property-locator-dialog__note"><%= t("property_finder.locator.map_note") %></p>
+  </div>
+</dialog>

@@ -1,5 +1,6 @@
 <% content_for :title, t("home.meta_title", product_name:) %>
 <% content_for :description, t("home.meta_description", product_name:) %>
+<% content_for :head do %><link href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.4.1/dist/maplibre-gl.css" rel="stylesheet"><% end %>
 
 <section class="home-hero" id="property-check">
   <div class="home-hero__topography" aria-hidden="true">
@@ -21,7 +22,8 @@
       </div>
     </div>
 
-    <div class="search-panel">
+    <% search_mode = @identifier_error || params[:search] == "identifier" ? "identifier" : "address" %>
+    <div class="search-panel" data-controller="property-search-tabs" data-property-search-tabs-active-value="<%= search_mode %>">
       <div class="search-panel__heading">
         <span class="search-panel__icon"><%= mesto_icon("search", css_class: "size-5") %></span>
         <div>
@@ -29,23 +31,87 @@
           <h2><%= t("home.search.card_title") %></h2>
         </div>
       </div>
-      <%= form_with url: property_analyses_path, method: :post, class: "property-search" do |form| %>
-        <div>
-          <%= form.label :cadastral_identifier, t("home.search.label"), class: "form-label" %>
-          <div class="property-search__field <%= 'has-error' if @identifier_error %>">
-            <%= mesto_icon("map-pin", css_class: "size-5") %>
-            <%= form.text_field :cadastral_identifier, value: @identifier_value, maxlength: 100, required: true, autofocus: true, placeholder: t("home.search.placeholder"), aria: { describedby: (@identifier_error ? "identifier-error" : "identifier-hint") } %>
+      <nav class="search-panel__tabs" aria-label="<%= t('home.search.methods_label') %>" role="tablist">
+        <%= link_to t("home.search.by_address"), root_path, id: "search-tab-address", class: (search_mode == "address" ? "is-active" : nil), role: "tab", aria: { controls: "search-panel-address", selected: search_mode == "address" }, tabindex: (search_mode == "address" ? 0 : -1), data: { property_search_tabs_target: "tab", search_mode: "address", action: "click->property-search-tabs#activate keydown->property-search-tabs#navigate" } %>
+        <%= link_to t("home.search.by_identifier"), root_path(search: "identifier"), id: "search-tab-identifier", class: (search_mode == "identifier" ? "is-active" : nil), role: "tab", aria: { controls: "search-panel-identifier", selected: search_mode == "identifier" }, tabindex: (search_mode == "identifier" ? 0 : -1), data: { property_search_tabs_target: "tab", search_mode: "identifier", action: "click->property-search-tabs#activate keydown->property-search-tabs#navigate" } %>
+      </nav>
+      <div id="search-panel-address"
+           role="tabpanel"
+           aria-labelledby="search-tab-address"
+           data-property-search-tabs-target="panel"
+           data-search-mode="address"
+           data-controller="property-locator"
+           data-property-locator-suggestions-url-value="<%= property_address_suggestions_path %>"
+           data-property-locator-buildings-url-value="<%= property_finder_buildings_path %>"
+           data-property-locator-style-url-value="<%= Rails.application.config.x.map_style_url %>"
+           data-property-locator-copy-value="<%= {
+             selected: t('property_finder.locator.selected'),
+             zoom: t('property_finder.locator.zoom'),
+             loading: t('property_finder.locator.loading'),
+             noResults: t('property_finder.locator.no_results'),
+             results: t('property_finder.locator.results', count: '%{count}'),
+             truncated: t('property_finder.locator.truncated'),
+             error: t('property_finder.locator.error'),
+             unknownAddress: t('property_finder.locator.unknown_address'),
+             choose: t('property_finder.locator.choose')
+           }.to_json %>"
+           <%= "hidden" unless search_mode == "address" %>>
+        <%= form_with url: property_finder_path, method: :get, class: "property-search", data: { property_locator_target: "form" } do |form| %>
+          <div>
+            <%= form.label :address, t("home.search.address_label"), class: "form-label" %>
+            <div class="property-locator__input">
+              <div class="property-search__field property-search__field--address">
+                <%= mesto_icon("map-pin", css_class: "size-5") %>
+                <%= form.search_field :address,
+                      maxlength: PropertyFinder::AddressSearch::MAX_QUERY_LENGTH,
+                      required: true,
+                      autocomplete: "off",
+                      placeholder: t("home.search.address_placeholder"),
+                      role: "combobox",
+                      aria: { describedby: "address-hint", autocomplete: "list", expanded: false, controls: "home-address-suggestions" },
+                      data: { property_locator_target: "addressInput", action: "input->property-locator#suggest focus->property-locator#refreshSuggestions keydown->property-locator#navigateSuggestions" } %>
+              </div>
+              <div id="home-address-suggestions" class="property-locator__suggestions" role="listbox" data-property-locator-target="suggestions" hidden></div>
+            </div>
+            <%= form.hidden_field :building_identifier, data: { property_locator_target: "buildingInput" } %>
+            <%= form.hidden_field :locator_method, value: "address", data: { property_locator_target: "methodInput" } %>
+            <p class="property-locator__selection" data-property-locator-target="selection" hidden></p>
           </div>
-          <% if @identifier_error %><p id="identifier-error" class="form-error"><%= @identifier_error %></p><% end %>
-        </div>
-        <%= form.button class: "button button--primary button--wide" do %>
-          <span><%= t("home.search.submit") %></span>
-          <%= mesto_icon("arrow-right", css_class: "size-5") %>
+          <div class="property-search__actions">
+            <%= form.button class: "button button--primary" do %>
+              <span><%= t("home.search.address_submit") %></span>
+              <%= mesto_icon("arrow-right", css_class: "size-5") %>
+            <% end %>
+            <button type="button" class="button button--outline" data-action="property-locator#openMap">
+              <%= t("property_finder.locator.open_map") %><%= mesto_icon("map-pin", css_class: "size-4") %>
+            </button>
+          </div>
         <% end %>
-      <% end %>
-      <div class="search-panel__hint" id="identifier-hint">
-        <%= mesto_icon("document", css_class: "size-4") %>
-        <p><strong><%= t("home.search.hint_title") %></strong> <%= t("home.search.hint") %></p>
+        <%= render "property_finder/map_dialog" %>
+        <div class="search-panel__hint" id="address-hint">
+          <%= mesto_icon("building", css_class: "size-4") %>
+          <p><strong><%= t("home.search.address_hint_title") %></strong> <%= t("home.search.address_hint") %></p>
+        </div>
+      </div>
+      <div id="search-panel-identifier" role="tabpanel" aria-labelledby="search-tab-identifier" data-property-search-tabs-target="panel" data-search-mode="identifier" <%= "hidden" unless search_mode == "identifier" %>>
+        <%= form_with url: property_analyses_path, method: :post, class: "property-search" do |form| %>
+          <div>
+            <%= form.label :cadastral_identifier, t("home.search.label"), class: "form-label" %>
+            <div class="property-search__field <%= 'has-error' if @identifier_error %>">
+              <%= mesto_icon("map-pin", css_class: "size-5") %>
+              <%= form.text_field :cadastral_identifier, value: @identifier_value, maxlength: 100, required: true, placeholder: t("home.search.placeholder"), aria: { describedby: (@identifier_error ? "identifier-error" : "identifier-hint") } %>
+            </div>
+            <% if @identifier_error %><p id="identifier-error" class="form-error"><%= @identifier_error %></p><% end %>
+          </div>
+          <%= form.button class: "button button--primary button--wide" do %>
+            <span><%= t("home.search.submit") %></span>
+            <%= mesto_icon("arrow-right", css_class: "size-5") %>
+          <% end %>
+        <% end %>
+        <div class="search-panel__hint" id="identifier-hint">
+          <%= mesto_icon("document", css_class: "size-4") %>
+          <p><strong><%= t("home.search.hint_title") %></strong> <%= t("home.search.hint") %></p>
+        </div>
       </div>
       <div class="search-panel__trust">
         <span><%= mesto_icon("shield", css_class: "size-4") %> <%= t("home.search.private") %></span>

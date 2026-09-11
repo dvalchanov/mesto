@@ -8,6 +8,7 @@ RSpec.describe "Property graph dossier", type: :system do
   it "runs the complete synthetic registry flow from home-page submission and remains usable on mobile" do
     page.current_window.resize_to(1_400, 1_000)
     visit root_path
+    click_link I18n.t("home.search.by_identifier")
     fill_in I18n.t("home.search.label"), with: identifier
     click_button I18n.t("home.search.submit")
 

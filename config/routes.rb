@@ -69,6 +69,9 @@ Rails.application.routes.draw do
   post "reports/:public_token/moeto-mesto", to: "buyer_journeys#attach_analysis", as: :attach_report_to_journey
 
   resources :property_analyses, only: :create
+  get "namiri-imot", to: "property_finder#show", as: :property_finder
+  get "namiri-imot/adresi", to: "property_finder#suggestions", as: :property_address_suggestions
+  get "namiri-imot/sgradi", to: "property_finder#buildings", as: :property_finder_buildings
   get "reports/:public_token", to: "reports#show", as: :report
   post "reports/:public_token/refresh", to: "reports#refresh", as: :refresh_report
   get "reports/:public_token/checkout", to: "orders#new", as: :report_checkout

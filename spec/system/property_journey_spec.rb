@@ -7,6 +7,7 @@ RSpec.describe "Mesto journey", type: :system do
   it "searches, previews, checks out, pays, and revisits an unlocked report" do
     visit root_path
     expect(page).to have_css("h1", text: I18n.t("home.headline"))
+    click_link I18n.t("home.search.by_identifier")
     fill_in I18n.t("home.search.label"), with: "68134.1000.2000.1.5"
     click_button I18n.t("home.search.submit")
 

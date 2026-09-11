@@ -286,8 +286,15 @@ export default class extends Controller {
     const preferred = widget.menu.querySelector(`[data-index="${preferredIndex}"]:not([aria-disabled="true"])`)
     const option = preferred || this.enabledOptions(widget)[0]
     option?.focus({ preventScroll: true })
-    option?.scrollIntoView({ block: "nearest" })
+    if (option) this.scrollOptionIntoView(widget.menu, option)
     if (option) widget.menu.setAttribute("aria-activedescendant", option.id)
+  }
+
+  scrollOptionIntoView(menu, option) {
+    const optionTop = option.offsetTop
+    const optionBottom = optionTop + option.offsetHeight
+    if (optionTop < menu.scrollTop) menu.scrollTop = optionTop
+    else if (optionBottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = optionBottom - menu.clientHeight
   }
 
   focusByTypeahead(character, widget) {

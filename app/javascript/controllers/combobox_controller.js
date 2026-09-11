@@ -22,6 +22,7 @@ export default class extends Controller {
     }
     this.handleResize = () => this.close()
     this.handleScroll = (event) => {
+      if (event.isTrusted && performance.now() - this.openedAt < 100) return
       if (!event.target.closest?.(".combobox-options")) this.close()
     }
 
@@ -103,6 +104,7 @@ export default class extends Controller {
     this.menu.replaceChildren(...choices.map((value, index) => this.option(value, index)))
     if (!choices.length) return this.close()
 
+    this.openedAt = performance.now()
     this.menu.hidden = false
     this.element.setAttribute("aria-expanded", "true")
     this.positionMenu()

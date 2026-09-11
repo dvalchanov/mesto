@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_10_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_11_100200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
   enable_extension "postgis"
 
   create_table "administrative_act_references", force: :cascade do |t|
@@ -154,6 +155,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_100000) do
     t.string "territory_type"
     t.datetime "updated_at", null: false
     t.text "validation_document"
+    t.index "lower((address)::text) gin_trgm_ops", name: "idx_cadastral_buildings_address_search", where: "(((identifier_level)::text = 'building'::text) AND (address IS NOT NULL))", using: :gin
+    t.index "lower((address)::text) gin_trgm_ops", name: "idx_cadastral_properties_address_search", where: "(((identifier_level)::text = 'individual_object'::text) AND (address IS NOT NULL))", using: :gin
     t.index ["cadastral_identifier"], name: "index_cadastral_properties_on_cadastral_identifier", unique: true
     t.index ["geometry"], name: "index_cadastral_properties_on_geometry", using: :gist
     t.index ["identifier_level", "cadastral_identifier"], name: "idx_cadastral_properties_hierarchy"

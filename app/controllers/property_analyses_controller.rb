@@ -17,7 +17,8 @@ class PropertyAnalysesController < ApplicationController
 
     analysis = Analysis::Starter.new(identifier).call
     reused = !analysis.previously_new_record?
-    ProductEvent.record("search_submitted", property_analysis: analysis, metadata: { reused: })
+    discovery_method = params[:discovery_method].presence_in(%w[address autocomplete map]) || "identifier"
+    ProductEvent.record("search_submitted", property_analysis: analysis, metadata: { reused:, discovery_method: })
     if params[:attach_to_journey] == "1"
       ProductEvent.record("property_attachment_started", property_analysis: analysis, metadata: { mode: "personalized_no_property" })
       attach_to_current_journey(analysis)
