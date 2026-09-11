@@ -1,5 +1,18 @@
 module Analysis
   class BuyerChecklistBuilder
+    TOPIC_KEYS = {
+      "area_missing" => "area_comparison",
+      "area_compare" => "area_comparison",
+      "location_missing" => "boundaries_access",
+      "design_visa" => "design_visa",
+      "building_permit" => "building_permit",
+      "planning_order" => "zoning_plans",
+      "occupancy" => "occupancy",
+      "ownership" => "title_chain",
+      "encumbrances" => "encumbrances",
+      "technical_inspection" => "technical_inspection"
+    }.freeze
+
     def initialize(analysis:, facts:)
       @analysis = analysis
       @facts = facts
@@ -30,7 +43,7 @@ module Analysis
     end
 
     def item(key, status)
-      { "key" => key, "status" => status }
+      { "key" => key, "status" => status, "topic_key" => TOPIC_KEYS.fetch(key) }
     end
   end
 end

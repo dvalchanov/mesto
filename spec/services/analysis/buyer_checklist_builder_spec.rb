@@ -11,10 +11,10 @@ RSpec.describe Analysis::BuyerChecklistBuilder do
     items = described_class.new(analysis:, facts: { "subject_area_sqm" => nil }).call
 
     expect(items).to include(
-      { "key" => "area_missing", "status" => "needs_document" },
-      { "key" => "location_missing", "status" => "needs_document" },
-      { "key" => "design_visa", "status" => "review" },
-      { "key" => "encumbrances", "status" => "not_checked" }
+      { "key" => "area_missing", "status" => "needs_document", "topic_key" => "area_comparison" },
+      { "key" => "location_missing", "status" => "needs_document", "topic_key" => "boundaries_access" },
+      { "key" => "design_visa", "status" => "review", "topic_key" => "design_visa" },
+      { "key" => "encumbrances", "status" => "not_checked", "topic_key" => "encumbrances" }
     )
   end
 end

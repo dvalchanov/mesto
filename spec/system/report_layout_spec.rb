@@ -20,7 +20,7 @@ RSpec.describe "Report reading hierarchy", type: :system do
     expect(page).to have_no_css(".report-coverage", visible: :all)
     expect(priority_column_count).to eq(3)
     expect(overview_bottom_borders).to eq({ "grid" => "0px", "overview" => "1px" })
-    expect(section_order).to eq(%w[identity records ownership context next-steps due-diligence])
+    expect(section_order).to eq(%w[identity records ownership context next-steps])
     expect(section_chrome.map { |section| section.fetch("id") }).to eq(section_order)
     expect(section_chrome.map { |section| section.except("id") }.uniq).to eq([
       {
@@ -34,6 +34,14 @@ RSpec.describe "Report reading hierarchy", type: :system do
         "titleLineHeight" => "36px"
       }
     ])
+    expect(missing_data_state_styles).to eq(
+      "graphBackgroundColor" => "rgb(247, 248, 245)",
+      "graphIconColor" => "rgb(23, 63, 52)",
+      "locationBackgroundColor" => "rgb(251, 248, 246)",
+      "locationBorderColor" => "rgb(222, 201, 193)",
+      "locationIconColor" => "rgb(163, 73, 67)",
+      "boundaryBackgroundColor" => "rgb(246, 247, 244)"
+    )
     expect(toc_position).to eq("sticky")
     expect(scroll_behavior).to eq("auto")
 
@@ -85,6 +93,46 @@ RSpec.describe "Report reading hierarchy", type: :system do
     expect(page.text.scan(I18n.t("reports.disclaimer", product_name: "Mesto")).size).to eq(1)
   end
 
+  it "uses the report design system for an unavailable paid report" do
+    analysis = create(:property_analysis, status: "partial", coverage_status: "partial")
+    analysis.source_runs.create!(
+      source_key: "cadastre",
+      status: "unavailable",
+      error_class: "DataCoverage::DatasetNotPrepared"
+    )
+
+    visit report_path(public_token: analysis)
+
+    expect(page).to have_css("[data-testid='paid-report-unavailable'] .button--secondary")
+    expect(unavailable_panel_styles).to eq(
+      "backgroundColor" => "rgb(255, 255, 255)",
+      "borderTopColor" => "rgb(185, 95, 63)",
+      "headerBackgroundColor" => "rgb(251, 247, 244)",
+      "statusIconColor" => "rgb(163, 73, 67)",
+      "buttonBackgroundColor" => "rgb(23, 63, 52)",
+      "buttonBorderColor" => "rgba(0, 0, 0, 0)"
+    )
+
+    page.current_window.resize_to(390, 844)
+    expect(unavailable_footer_direction).to eq("column")
+    expect(page_width).to be <= viewport_width
+  end
+
+  it "does not offer a futile retry when the property is outside search coverage" do
+    analysis = create(:property_analysis, status: "partial", coverage_status: "limited")
+    analysis.source_runs.create!(
+      source_key: "cadastre",
+      status: "unavailable",
+      error_class: "DataCoverage::OutsideSearchCoverage"
+    )
+
+    visit report_path(public_token: analysis)
+
+    expect(page).to have_css("[data-testid='paid-report-unavailable']")
+    expect(page).to have_no_button(I18n.t("reports.refresh.action"))
+    expect(page).to have_no_text(I18n.t("reports.paid_unavailable.retry_note"))
+  end
+
   it "keeps the footer flush with the viewport on a short report" do
     analysis = create(:property_analysis, status: "queued")
     page.current_window.resize_to(1_400, 1_600)
@@ -125,7 +173,7 @@ RSpec.describe "Report reading hierarchy", type: :system do
 
   def section_order
     page.evaluate_script(<<~JAVASCRIPT)
-      Array.from(document.querySelectorAll('#identity, #records, #ownership, #context, #next-steps, #due-diligence'))
+      Array.from(document.querySelectorAll('#identity, #records, #ownership, #context, #next-steps'))
         .map((section) => section.id)
     JAVASCRIPT
   end
@@ -154,6 +202,51 @@ RSpec.describe "Report reading hierarchy", type: :system do
 
   def toc_position
     page.evaluate_script("getComputedStyle(document.querySelector('.report-toc')).position")
+  end
+
+  def unavailable_panel_styles
+    page.evaluate_script(<<~JAVASCRIPT)
+      (() => {
+        const panel = document.querySelector("[data-testid='paid-report-unavailable']")
+        const button = panel.querySelector("button")
+        const panelStyle = getComputedStyle(panel)
+        const headerStyle = getComputedStyle(panel.querySelector(".report-section__header"))
+        const statusIconStyle = getComputedStyle(panel.querySelector(".report-unavailable__status-icon"))
+        const buttonStyle = getComputedStyle(button)
+        return {
+          backgroundColor: panelStyle.backgroundColor,
+          borderTopColor: panelStyle.borderTopColor,
+          headerBackgroundColor: headerStyle.backgroundColor,
+          statusIconColor: statusIconStyle.color,
+          buttonBackgroundColor: buttonStyle.backgroundColor,
+          buttonBorderColor: buttonStyle.borderColor
+        }
+      })()
+    JAVASCRIPT
+  end
+
+  def missing_data_state_styles
+    page.evaluate_script(<<~JAVASCRIPT)
+      (() => {
+        const graph = document.querySelector("[data-testid='property-graph-empty']")
+        const location = document.querySelector("[data-testid='neighborhood-location-missing']")
+        const boundary = document.querySelector(".property-graph__boundary")
+        const graphStyle = getComputedStyle(graph)
+        const locationStyle = getComputedStyle(location)
+        return {
+          graphBackgroundColor: graphStyle.backgroundColor,
+          graphIconColor: getComputedStyle(graph.querySelector(".report-state__icon")).color,
+          locationBackgroundColor: locationStyle.backgroundColor,
+          locationBorderColor: locationStyle.borderColor,
+          locationIconColor: getComputedStyle(location.querySelector(".report-state__icon")).color,
+          boundaryBackgroundColor: getComputedStyle(boundary).backgroundColor
+        }
+      })()
+    JAVASCRIPT
+  end
+
+  def unavailable_footer_direction
+    page.evaluate_script("getComputedStyle(document.querySelector('.report-unavailable__footer')).flexDirection")
   end
 
   def scroll_behavior

@@ -82,7 +82,7 @@ RSpec.describe "Property report journey", type: :request do
     expect(response.body).to include(
       I18n.t("reports.property_facts.title"),
       I18n.t("reports.findings.title"),
-      I18n.t("reports.due_diligence.title"),
+      I18n.t("reports.due_diligence.guide_title"),
       I18n.t("reports.due_diligence.topics.encumbrances.title"),
       I18n.t("reports.locked.cta")
     )

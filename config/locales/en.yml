@@ -697,9 +697,12 @@ en:
       location_missing_body: "We therefore do not show an arbitrary map or calculate schools, transport, green space, construction activity or flood risk for this property. An imported dataset is not the same as applying it to the property."
       location_missing_action: "To check these topics, open the identifier in KAIS or request a current cadastral scheme from the seller."
     buyer_checklist:
-      eyebrow: "05 · Next steps"
-      title: "What to check before paying a deposit"
-      description: "The public trail is the start of due diligence. This list turns findings and gaps into concrete questions for the seller and specialists."
+      eyebrow: "05 · Plan before a deposit"
+      title: "Your due-diligence plan before a deposit"
+      description: "Start with the specific actions for this property, then review the complete list of documents, searches, and specialists."
+      priorities_label: "Priorities for this property"
+      action_label: "Start here"
+      sources_label: "Official sources"
       statuses: { review: "Review the finding", buyer_check: "Compare documents", needs_document: "Request a document", not_checked: "Not checked here" }
       items:
         area_missing: "Request a current cadastral scheme/sketch and compare its area with the title deed and listing. Clarify usable area, built-up area and common parts separately."
@@ -713,25 +716,17 @@ en:
         encumbrances: "Request a current encumbrance certificate immediately before the transaction and review it with a professional."
         technical_inspection: "Arrange a technical inspection covering condition, defects, services, damp, common parts and the actual layout."
     due_diligence:
-      eyebrow: "06 · Action plan"
-      title: "Your due-diligence plan before a deposit"
-      description: "Mesto organises the public data checked and turns it into a practical plan for the complete review. For every next topic, you get the exact search, document, or professional to involve."
-      path_label: "How to use this plan"
-      path:
-        report:
-          title: "Start with what was checked"
-          body: "Use the facts and public records in the report as the basis for conversations and comparisons."
-        documents:
-          title: "Collect the right evidence"
-          body: "See what to request from the seller and which official searches to run for the exact property."
-        experts:
-          title: "Bring in the right professional"
-          body: "Know when a lawyer, notary, architect, or engineer is needed and what they should review."
-      reading_title: "Every status gives you a next step"
-      reading_body: "Green statuses take you to evidence in the report. The others tell you whether to compare a document, run an official search, or involve a professional. Expand a topic for concrete instructions, sources, and why the check matters."
+      guide_eyebrow: "Detailed review"
+      guide_title: "Complete guide by topic"
+      guide_description: "%{count} topics with specific documents, official sources, and specialists. Open a topic to see what we know, how to check it, and why it matters."
+      topic_count:
+        one: "1 topic"
+        other: "%{count} topics"
       available_label: "What you already know"
       obtain_label: "What to do next"
       importance_label: "Why it matters"
+      open_topic: "View details"
+      close_topic: "Hide details"
       deposit_warning_title: "Before transferring a deposit"
       deposit_warning_body: "Ask your lawyer to make payment conditional on satisfactory legal and technical due diligence, an exact property and price, deadlines, refund conditions, release of encumbrances, and proven authority of the recipient. A public-data report does not make a payment safe by itself."
       results:

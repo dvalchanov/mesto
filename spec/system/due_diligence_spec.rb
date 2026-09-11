@@ -1,17 +1,33 @@
 require "rails_helper"
 
-RSpec.describe "Due-diligence directory", type: :system do
-  it "shows each expandable topic on its own row at desktop and mobile widths" do
+RSpec.describe "Due-diligence plan", type: :system do
+  it "shows actionable property priorities and keeps the complete guide visible" do
     analysis = create(:property_analysis, status: "partial")
 
     page.current_window.resize_to(1_400, 1_000)
     visit report_path(public_token: analysis)
 
     directory = find('[data-testid="due-diligence"]')
-    expect(directory).to have_text(I18n.t("reports.due_diligence.title"))
-    expect(directory).to have_css(".due-diligence-path article", count: 3)
-    expect(directory).to have_text(I18n.t("reports.due_diligence.path.documents.title"))
-    expect(directory).to have_css("details", count: 30)
+    plan = find("#next-steps")
+    expect(plan.text).to include(
+      I18n.t("reports.buyer_checklist.title"),
+      I18n.t("reports.due_diligence.guide_title")
+    )
+    expect(plan).to have_css(".buyer-priority-label")
+    expect(plan).to have_css(".buyer-priority-list li", count: 6)
+    expect(directory).to have_css(".due-diligence-category", count: 6)
+    expect(directory).to have_css('details[data-topic]', count: 30, visible: true)
+    expect(directory).to have_no_css("details details")
+    expect(directory).to have_no_css(".due-diligence-guide__toggle")
+    expect(page).to have_no_css('.report-toc a[href="#due-diligence"]')
+
+    ownership = plan.find('[data-priority="ownership"]')
+    expect(ownership).to have_text(I18n.t("reports.due_diligence.topics.title_chain.title"))
+    expect(ownership).to have_text(I18n.t("reports.due_diligence.topics.title_chain.obtain"))
+    expect(ownership).to have_link(
+      I18n.t("reports.due_diligence.sources.property_registry"),
+      href: "https://portal.registryagency.bg/home-pr"
+    )
 
     encumbrances = directory.find('details[data-topic="encumbrances"]')
     expect(encumbrances[:open]).to eq("false")
@@ -25,21 +41,25 @@ RSpec.describe "Due-diligence directory", type: :system do
       href: "https://portal.registryagency.bg/home-pr"
     )
     expect(topic_background("encumbrances")).to eq(topic_background("title_chain"))
+    expect(font_size(".buyer-priority-list__instruction p")).to be >= 14
+    expect(font_size(".due-diligence-guide__heading p:not(.report-section-label)")).to be >= 14
+    expect(font_size(".due-diligence-topic__summary h5")).to be >= 15
 
-    expect(path_column_count).to eq(3)
+    expect(priority_column_count).to eq(2)
     expect(grid_column_count).to eq(1)
     page.current_window.resize_to(390, 844)
-    expect(path_column_count).to eq(1)
+    expect(priority_column_count).to eq(1)
     expect(grid_column_count).to eq(1)
+    expect(page_width).to be <= viewport_width
   end
 
   after do
     page.current_window.resize_to(1_400, 1_000)
   end
 
-  def path_column_count
+  def priority_column_count
     page.evaluate_script(<<~JAVASCRIPT)
-      getComputedStyle(document.querySelector('.due-diligence-path'))
+      getComputedStyle(document.querySelector('.buyer-priority-list'))
         .gridTemplateColumns
         .split(' ')
         .length
@@ -60,5 +80,19 @@ RSpec.describe "Due-diligence directory", type: :system do
       getComputedStyle(document.querySelector('[data-topic="#{topic}"]'))
         .backgroundColor
     JAVASCRIPT
+  end
+
+  def font_size(selector)
+    page.evaluate_script(<<~JAVASCRIPT)
+      parseFloat(getComputedStyle(document.querySelector('#{selector}')).fontSize)
+    JAVASCRIPT
+  end
+
+  def page_width
+    page.evaluate_script("document.documentElement.scrollWidth")
+  end
+
+  def viewport_width
+    page.evaluate_script("window.innerWidth")
   end
 end

@@ -1,80 +1,72 @@
-<section id="due-diligence" data-testid="due-diligence" class="report-section">
-  <header class="report-section__header">
+<% topic_count = sections.sum { |section| section.fetch("items").size } %>
+
+<div id="due-diligence" class="due-diligence-guide" data-testid="due-diligence" role="region" aria-labelledby="due-diligence-title">
+  <div class="due-diligence-guide__heading">
+    <span class="due-diligence-guide__icon" aria-hidden="true"><%= mesto_icon("document", css_class: "size-5") %></span>
     <div>
-      <p class="report-section-label"><%= t("reports.due_diligence.eyebrow") %></p>
-      <h2><%= t("reports.due_diligence.title") %></h2>
-      <p><%= t("reports.due_diligence.description") %></p>
+      <p class="report-section-label"><%= t("reports.due_diligence.guide_eyebrow") %></p>
+      <h3 id="due-diligence-title"><%= t("reports.due_diligence.guide_title") %></h3>
+      <p><%= t("reports.due_diligence.guide_description", count: topic_count) %></p>
     </div>
-  </header>
-
-  <div class="report-section__body">
-  <div class="due-diligence-path" aria-label="<%= t('reports.due_diligence.path_label') %>">
-    <% [
-      ["check", "report"],
-      ["document", "documents"],
-      ["route", "experts"]
-    ].each_with_index do |(icon, step), index| %>
-      <article>
-        <span class="due-diligence-path__icon"><%= mesto_icon(icon, css_class: "size-5") %></span>
-        <div>
-          <p class="due-diligence-path__step"><%= format("%02d", index + 1) %></p>
-          <h3><%= t("reports.due_diligence.path.#{step}.title") %></h3>
-          <p><%= t("reports.due_diligence.path.#{step}.body") %></p>
-        </div>
-      </article>
-    <% end %>
+    <span class="due-diligence-guide__count"><%= t("reports.due_diligence.topic_count", count: topic_count) %></span>
   </div>
 
-  <div class="due-diligence-note mt-5 p-4 text-sm leading-6">
-    <p class="font-bold"><%= t("reports.due_diligence.reading_title") %></p>
-    <p class="mt-1"><%= t("reports.due_diligence.reading_body") %></p>
-  </div>
+  <div class="due-diligence-guide__body">
+    <div class="due-diligence-guide__sections">
+      <% sections.each do |section| %>
+        <section class="due-diligence-category" aria-labelledby="due-diligence-<%= section['key'] %>">
+          <div class="due-diligence-category__heading">
+            <h4 id="due-diligence-<%= section['key'] %>"><%= t("reports.due_diligence.sections.#{section['key']}") %></h4>
+            <span><%= t("reports.due_diligence.topic_count", count: section.fetch("items").size) %></span>
+          </div>
+          <div class="due-diligence-list due-diligence-grid">
+            <% section["items"].each do |item| %>
+              <details id="due-diligence-topic-<%= item['key'] %>" data-topic="<%= item['key'] %>" class="due-diligence-topic group">
+                <summary class="due-diligence-topic__summary cursor-pointer list-none marker:hidden">
+                  <h5><%= t("reports.due_diligence.topics.#{item['key']}.title") %></h5>
+                  <span class="due-diligence-status <%= due_diligence_result_classes(item['result']) %>"><%= due_diligence_result_text(item) %></span>
+                  <span class="due-diligence-topic__action" aria-hidden="true">
+                    <span class="due-diligence-topic__action-open"><%= t("reports.due_diligence.open_topic") %></span>
+                    <span class="due-diligence-topic__action-close"><%= t("reports.due_diligence.close_topic") %></span>
+                  </span>
+                  <%= mesto_icon("chevron-down", css_class: "due-diligence-topic__chevron size-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180") %>
+                </summary>
+                <div class="due-diligence-topic__body">
+                  <dl class="grid gap-5 lg:grid-cols-3">
+                    <div>
+                      <dt><%= t("reports.due_diligence.available_label") %></dt>
+                      <dd class="due-diligence-topic__description mt-1"><%= t("reports.due_diligence.topics.#{item['key']}.available") %></dd>
+                    </div>
+                    <div>
+                      <dt><%= t("reports.due_diligence.obtain_label") %></dt>
+                      <dd class="due-diligence-topic__description mt-1"><%= t("reports.due_diligence.topics.#{item['key']}.obtain") %></dd>
+                    </div>
+                    <div>
+                      <dt><%= t("reports.due_diligence.importance_label") %></dt>
+                      <dd class="due-diligence-topic__importance mt-1"><%= t("reports.due_diligence.topics.#{item['key']}.importance") %></dd>
+                    </div>
+                  </dl>
+                  <% if item["sources"].any? %>
+                    <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-200 pt-4">
+                      <% item["sources"].each do |source| %>
+                        <%= link_to t("reports.due_diligence.sources.#{source['key']}", default: source_name(source["key"])), source["url"], target: "_blank", rel: "noopener noreferrer", class: "report-source-link" %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </details>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+    </div>
 
-  <div class="mt-7 space-y-8">
-    <% sections.each do |section| %>
-      <section aria-labelledby="due-diligence-<%= section['key'] %>">
-        <h3 id="due-diligence-<%= section['key'] %>" class="text-lg font-black text-slate-950"><%= t("reports.due_diligence.sections.#{section['key']}") %></h3>
-        <div class="due-diligence-list due-diligence-grid mt-3 grid grid-cols-1">
-          <% section["items"].each do |item| %>
-            <details data-topic="<%= item['key'] %>" class="due-diligence-topic group">
-              <summary class="due-diligence-topic__summary cursor-pointer list-none marker:hidden">
-                <h4 class="text-sm font-bold leading-6 text-slate-900"><%= t("reports.due_diligence.topics.#{item['key']}.title") %></h4>
-                <span class="due-diligence-status text-xs font-bold <%= due_diligence_result_classes(item['result']) %>"><%= due_diligence_result_text(item) %></span>
-                <%= mesto_icon("chevron-down", css_class: "due-diligence-topic__chevron size-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180") %>
-              </summary>
-              <div class="due-diligence-topic__body">
-                <dl class="grid gap-5 text-sm leading-6 lg:grid-cols-3">
-                  <div>
-                    <dt class="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"><%= t("reports.due_diligence.available_label") %></dt>
-                    <dd class="due-diligence-topic__description mt-1"><%= t("reports.due_diligence.topics.#{item['key']}.available") %></dd>
-                  </div>
-                  <div>
-                    <dt class="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"><%= t("reports.due_diligence.obtain_label") %></dt>
-                    <dd class="due-diligence-topic__description mt-1"><%= t("reports.due_diligence.topics.#{item['key']}.obtain") %></dd>
-                  </div>
-                  <div>
-                    <dt class="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"><%= t("reports.due_diligence.importance_label") %></dt>
-                    <dd class="mt-1 font-semibold text-slate-900"><%= t("reports.due_diligence.topics.#{item['key']}.importance") %></dd>
-                  </div>
-                </dl>
-                <% if item["sources"].any? %>
-                  <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-200 pt-4">
-                    <% item["sources"].each do |source| %>
-                      <%= link_to t("reports.due_diligence.sources.#{source['key']}", default: source_name(source["key"])), source["url"], target: "_blank", rel: "noopener noreferrer", class: "report-source-link" %>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-            </details>
-          <% end %>
-        </div>
-      </section>
-    <% end %>
+    <div class="report-state report-state--attention report-state--compact due-diligence-guide__warning">
+      <span class="report-state__icon" aria-hidden="true"><%= mesto_icon("shield", css_class: "size-5") %></span>
+      <div class="report-state__content">
+        <span class="report-state__badge"><%= t("reports.due_diligence.deposit_warning_title") %></span>
+        <p><%= t("reports.due_diligence.deposit_warning_body") %></p>
+      </div>
+    </div>
   </div>
-
-  <div class="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950">
-    <p class="font-black"><%= t("reports.due_diligence.deposit_warning_title") %></p>
-    <p class="mt-1"><%= t("reports.due_diligence.deposit_warning_body") %></p>
-  </div>
-  </div>
-</section>
+</div>
