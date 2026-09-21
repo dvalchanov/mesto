@@ -28,9 +28,9 @@ module PropertyFinder
 
     def matching_scope
       identifiers = matching_building_identifiers
-      return CadastralProperty.none if identifiers.empty?
+      return CadastralProperty.usable.none if identifiers.empty?
 
-      CadastralProperty.where(
+      CadastralProperty.usable.where(
         identifier_level: "building",
         cadastral_identifier: identifiers
       ).where.not(geometry: nil)
@@ -68,13 +68,13 @@ module PropertyFinder
 
     def matching_building_records
       AddressQuery.new(query).apply(
-        CadastralProperty.where(identifier_level: "building").where.not(geometry: nil)
+        CadastralProperty.usable.where(identifier_level: "building").where.not(geometry: nil)
       ).order(:cadastral_identifier).limit(MAX_MATCHING_BUILDINGS + 1)
     end
 
     def matching_unit_records
       scope = AddressQuery.new(query).apply(
-        CadastralProperty.where(identifier_level: "individual_object")
+        CadastralProperty.usable.where(identifier_level: "individual_object")
       )
       scope
         .select(Arel.sql("DISTINCT ON (#{BUILDING_IDENTIFIER_SQL}) cadastral_properties.*"))

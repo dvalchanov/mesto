@@ -7,6 +7,8 @@ class Order < ApplicationRecord
   before_validation :assign_public_token, on: :create
 
   validates :public_token, :product_code, :email, :currency, :payment_provider, presence: true
+  validates :terms_accepted_at, :immediate_performance_consented_at,
+    :withdrawal_loss_acknowledged_at, :legal_document_version, presence: true, on: :create
   validates :public_token, uniqueness: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :status, inclusion: { in: STATUSES }

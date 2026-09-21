@@ -1,13 +1,19 @@
 module Payments
   class FakeGateway < Gateway
-    def create_order(property_analysis:, email:, product_code: "full_property_report")
+    def create_order(property_analysis:, email:, product_code: "full_property_report", consent_evidence: nil)
       product = ProductCatalog.fetch(product_code)
       raise ArgumentError, "Unknown product" unless product
+      consent_evidence ||= ConsentEvidence.recorded if Rails.env.test?
+      raise ArgumentError, "Complete checkout consent evidence is required" unless consent_evidence&.complete?
 
       order = property_analysis.orders.create!(
         product_code:, email:, amount_cents: product.fetch(:amount_cents),
         currency: product.fetch(:currency), status: "pending", payment_provider: "fake",
-        provider_reference: "fake_#{SecureRandom.uuid}"
+        provider_reference: "fake_#{SecureRandom.uuid}",
+        terms_accepted_at: consent_evidence.terms_accepted_at,
+        immediate_performance_consented_at: consent_evidence.immediate_performance_consented_at,
+        withdrawal_loss_acknowledged_at: consent_evidence.withdrawal_loss_acknowledged_at,
+        legal_document_version: consent_evidence.legal_document_version
       )
       ProductEvent.record("checkout_started", property_analysis:, order:)
       order

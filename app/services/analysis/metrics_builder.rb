@@ -184,7 +184,7 @@ module Analysis
       return @current_amenity_dataset if defined?(@current_amenity_dataset)
 
       key = DataSources.config.dig("openstreetmap", "dataset_key")
-      @current_amenity_dataset = SpatialDataset.prepared.find_by(
+      @current_amenity_dataset = SpatialDataset.usable.find_by(
         key:,
         coverage_profile_key: @analysis.coverage_profile_key
       )
@@ -241,7 +241,7 @@ module Analysis
     end
 
     def dataset_for_category(category)
-      SpatialDataset.prepared.find_by(
+      SpatialDataset.usable.find_by(
         key: category,
         coverage_profile_key: @analysis.coverage_profile_key
       )

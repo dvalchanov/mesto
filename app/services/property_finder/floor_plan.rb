@@ -15,7 +15,7 @@ module PropertyFinder
     private
 
     def building_feature
-      building = CadastralProperty.find_by(
+      building = CadastralProperty.usable.find_by(
         identifier_level: "building",
         cadastral_identifier: @building_identifier
       )

@@ -1,0 +1,137 @@
+<% content_for :title, localized_copy("Източници на данни и методология | #{product_name}", "Data sources and methodology | #{product_name}") %>
+<% content_for :description, localized_copy("Пълен регистър на източниците на Mesto: какво получаваме, как го проверяваме, правно основание, атрибуция и ограничения.", "Mesto's source register: what we obtain, how we verify it, legal basis, attribution, and limitations.") %>
+
+<% spatial_evidence = ->(key) do
+  dataset = @spatial_datasets[key]
+  if dataset&.last_imported_at
+    localized_copy("Локално подготвени: #{dataset.spatial_features.count} записа; последен импорт #{l(dataset.last_imported_at, format: :short)}.", "Locally prepared: #{dataset.spatial_features.count} records; last import #{l(dataset.last_imported_at, format: :short)}.")
+  else
+    localized_copy("Няма завършен локален импорт.", "No completed local import.")
+  end
+end %>
+
+<section class="site-shell legal-page">
+  <div class="legal-page__grid">
+    <%= render "navigation" %>
+    <article class="legal-page__main">
+      <header class="legal-page__header">
+        <p class="eyebrow"><span></span><%= localized_copy("Публичен регистър на източниците", "Public source register") %></p>
+        <h1><%= localized_copy("Откъде идват данните", "Where the data comes from") %></h1>
+        <p class="legal-page__lead"><%= localized_copy("За всеки източник показваме какво получаваме, по какъв начин и при какви условия. Технически достъп не означава автоматично право за повторна употреба.", "For every source we show what is obtained, how, and under which conditions. Technical access does not automatically mean a right of reuse.") %></p>
+        <p class="legal-page__updated"><%= localized_copy("Регистър проверен на", "Register checked") %>: <%= legal_document_version %></p>
+      </header>
+
+      <section class="legal-section" id="method">
+        <h2><%= localized_copy("1. Как Mesto получава и използва данни", "1. How Mesto obtains and uses data") %></h2>
+        <ol>
+          <li><%= localized_copy("Източникът се вписва с официален URL, собственик, обхват, метод за получаване, честота, атрибуция и доказателство за разрешение.", "A source is registered with its official URL, owner, scope, acquisition method, frequency, attribution, and permission evidence.") %></li>
+          <li><%= localized_copy("Автоматичният импорт създава проверима снимка, checksum, дата и брой записи. Сурови отговори от заявки за конкретен отчет по подразбиране не се пазят.", "Automated import records a verifiable snapshot, checksum, date, and record count. Raw responses from report-specific requests are not retained by default.") %></li>
+          <li><%= localized_copy("В публичния продукт включваме източник само след като приложимите условия са документирани и изискванията за атрибуция, защита на личните данни и повторна употреба са приложени.", "A source is included in the public product only after its applicable terms are documented and the attribution, personal-data, and reuse requirements are implemented.") %></li>
+          <li><%= localized_copy("Всеки факт в отчета носи източник, дата и ограничение; изчисленията на Mesto са отделени от официалните факти.", "Every report fact carries its source, date, and limitation; Mesto calculations are separated from official facts.") %></li>
+        </ol>
+      </section>
+
+      <section class="legal-section" id="sources">
+        <h2><%= localized_copy("2. Източници, лицензи и договори", "2. Sources, licences, and contracts") %></h2>
+        <div class="legal-source-list">
+          <% cadastre_config = DataSources.config.dig("cadastre", "open_data") %>
+          <article class="legal-source">
+            <div class="legal-source__header"><h3><%= localized_copy("АГКК / КАИС - отворени данни", "GCCA / KAIS open data") %></h3></div>
+            <p><%= localized_copy("Кадастрални парцели, сгради, самостоятелни обекти и отделни архиви за права. При правата Mesto внася само записи за юридически лица и пропуска редовете за физически лица.", "Cadastral parcels, buildings, individual units, and separate rights archives. For rights data Mesto imports legal-entity rows only and omits natural-person rows.") %></p>
+            <dl>
+              <dt><%= localized_copy("Получаване", "Acquisition") %></dt><dd><%= localized_copy("Фоново изтегляне на официални ZIP архиви по район; не се scrape-ва интерактивната справка.", "Background download of official district ZIP archives; the interactive lookup is not scraped.") %></dd>
+              <dt><%= localized_copy("Доказателство", "Evidence") %></dt><dd><%= localized_copy("#{@cadastre_imports.length} локално импортирани архива; #{@cadastre_imports.sum(&:records_seen)} прочетени реда.", "#{@cadastre_imports.length} archives imported locally; #{@cadastre_imports.sum(&:records_seen)} rows read.") %></dd>
+              <dt><%= localized_copy("Правно", "Legal") %></dt><dd><%= localized_copy("Геопространствените кадастрални теми попадат в режима за набори от данни с висока стойност, но страницата на КАИС не показва достатъчно ясен лиценз за всички шест архива. Преди активиране е нужно писмено потвърждение от АГКК, особено за самостоятелните обекти и архивите за права.", "Geospatial cadastral themes fall within the high-value dataset regime, but the KAIS page does not display a sufficiently clear licence for all six archives. Written GCCA confirmation is required before activation, particularly for individual units and rights archives.") %></dd>
+              <dt><%= localized_copy("Официално", "Official") %></dt><dd><%= link_to "kais.cadastre.bg/bg/OpenData", cadastre_config.fetch("portal_url"), target: "_blank", rel: "noopener" %> · <%= link_to localized_copy("условия", "terms"), "https://kais.cadastre.bg/bg/Terms", target: "_blank", rel: "noopener" %></dd>
+            </dl>
+          </article>
+
+          <% sofiaplan_config = DataSources.config.fetch("sofiaplan") %>
+          <article class="legal-source">
+            <div class="legal-source__header"><h3><%= localized_copy("Софияплан API", "Sofiaplan API") %></h3></div>
+            <p><%= localized_copy("Училища, детски градини, паркове и градини, метростанции и райони с потенциален риск от наводнения.", "Schools, kindergartens, parks and gardens, metro stations, and areas with potential flood risk.") %></p>
+            <dl>
+              <dt><%= localized_copy("Получаване", "Acquisition") %></dt><dd><%= localized_copy("Версиониран официален API, периодичен фонов импорт на избрани фиксирани dataset ID.", "Versioned official API with periodic background import of selected fixed dataset IDs.") %></dd>
+              <dt><%= localized_copy("Доказателство", "Evidence") %></dt><dd><%= %w[schools kindergartens green_spaces transit flood_risk].map { |key| spatial_evidence.call(key) }.join(" ") %></dd>
+              <dt><%= localized_copy("Правно", "Legal") %></dt><dd><%= localized_copy("Софияплан публикува API като отворени данни и изисква посочване на източника. За всеки използван набор прилагаме условията и атрибуцията, посочени от издателя.", "Sofiaplan publishes the API as open data and requires attribution. For each dataset used, we apply the terms and attribution specified by the publisher.") %></dd>
+              <dt><%= localized_copy("Официално", "Official") %></dt><dd><%= link_to "api.sofiaplan.bg", "https://sofiaplan.bg/api/", target: "_blank", rel: "noopener" %> · <%= link_to localized_copy("права за ползване", "reuse rights"), "https://sofiaplan.bg/%D0%BF%D1%80%D0%B0%D0%B2%D0%B0-%D0%B7%D0%B0-%D0%BF%D0%BE%D0%BB%D0%B7%D0%B2%D0%B0%D0%BD%D0%B5-%D0%BD%D0%B0-%D0%BC%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%B0%D0%BB%D0%B8/", target: "_blank", rel: "noopener" %></dd>
+            </dl>
+          </article>
+
+          <% DataSources.config.fetch("arcgis").each do |key, source_config| %>
+            <article class="legal-source">
+              <div class="legal-source__header"><h3><%= source_config.fetch("name") %> - ArcGIS</h3></div>
+              <p><%= localized_copy("Пространствен слой на Софияплан, който се съпоставя с геометрията на парцела, когато тя е надеждна.", "A Sofiaplan spatial layer intersected with parcel geometry where that geometry is reliable.") %></p>
+              <dl>
+                <dt><%= localized_copy("Получаване", "Acquisition") %></dt><dd><%= localized_copy("Официална ArcGIS FeatureServer услуга; ограничени страници и фонов импорт.", "Official ArcGIS FeatureServer; bounded pages and background import.") %></dd>
+                <dt><%= localized_copy("Доказателство", "Evidence") %></dt><dd><%= spatial_evidence.call("arcgis_#{key}") %></dd>
+                <dt><%= localized_copy("Правно", "Legal") %></dt><dd><%= localized_copy("Изисква потвърждение, че общите права за отворени материали на Софияплан покриват точно този FeatureServer слой, съхранение и търговска повторна употреба.", "Requires confirmation that Sofiaplan's general open-material terms cover this exact FeatureServer layer, storage, and commercial reuse.") %></dd>
+                <dt><%= localized_copy("Официално", "Official") %></dt><dd><%= link_to source_config.fetch("url"), source_config.fetch("url"), target: "_blank", rel: "noopener" %></dd>
+              </dl>
+            </article>
+          <% end %>
+
+          <% osm_config = DataSources.config.fetch("openstreetmap") %>
+          <article class="legal-source">
+            <div class="legal-source__header"><h3>OpenStreetMap / Overpass</h3></div>
+            <p><%= localized_copy("Училища и детски градини в ограничената зона на покритие и изчислено разстояние до имота.", "Schools and kindergartens within the bounded coverage area and calculated distance from the property.") %></p>
+            <dl>
+              <dt><%= localized_copy("Получаване", "Acquisition") %></dt><dd><%= localized_copy("Ограничена фонова Overpass заявка; приложението чете подготвената локална база, а не изпраща заявка при всяко отваряне на отчет.", "Bounded background Overpass query; the application reads the prepared local database rather than querying on every report view.") %></dd>
+              <dt><%= localized_copy("Доказателство", "Evidence") %></dt><dd><%= spatial_evidence.call(osm_config.fetch("dataset_key")) %></dd>
+              <dt><%= localized_copy("Правно", "Legal") %></dt><dd>Open Database Licence (ODbL); © OpenStreetMap contributors. <%= localized_copy("При публично разпространяване на производна база се проверяват и share-alike задълженията.", "Share-alike duties are checked if a derivative database is publicly distributed.") %></dd>
+              <dt><%= localized_copy("Официално", "Official") %></dt><dd><%= link_to "openstreetmap.org/copyright", osm_config.fetch("permission_reference"), target: "_blank", rel: "noopener" %> · <%= link_to "Attribution Guidelines", "https://osmfoundation.org/wiki/Licence/Attribution_Guidelines", target: "_blank", rel: "noopener" %></dd>
+            </dl>
+          </article>
+
+          <% nag_config = DataSources.config.fetch("nag") %>
+          <article class="legal-source">
+            <div class="legal-source__header"><h3><%= localized_copy("НАГ - публични регистри", "Sofia Architecture and Urban Planning - public registers") %></h3></div>
+            <p><%= localized_copy("Разрешения за строеж, визи за проектиране, устройствени заповеди и удостоверения за въвеждане в експлоатация.", "Building permits, design visas, planning orders, and occupancy certificates.") %></p>
+            <dl>
+              <dt><%= localized_copy("Получаване", "Acquisition") %></dt><dd><%= localized_copy("Само ограничено търсене по точния кадастрален идентификатор, с пауза между заявките; няма масово обхождане.", "Only bounded lookup by exact cadastral identifier with delay between requests; no bulk crawling.") %></dd>
+              <dt><%= localized_copy("Доказателство", "Evidence") %></dt><dd><%= localized_copy("И четирите официални endpoint-а отговориха с HTTP 200 при проверката; за извършените проверки се пазят локални snapshot-и.", "All four official endpoints returned HTTP 200 during verification; local snapshots are retained for completed checks.") %></dd>
+              <dt><%= localized_copy("Правно", "Legal") %></dt><dd><%= localized_copy("Регистърът е публично видим, но не е публикуван достатъчно ясен лиценз/API режим за автоматизирана търговска повторна употреба. Нужно е писмено разрешение или договорни условия от Столична община/НАГ.", "The register is publicly visible, but no sufficiently clear licence/API regime for automated commercial reuse is published. Written permission or contractual terms from Sofia Municipality/NAAG are required.") %></dd>
+              <dt><%= localized_copy("Официално", "Official") %></dt><dd><%= link_to "nag.sofia.bg", nag_config.dig("registers", "building_permits", "url"), target: "_blank", rel: "noopener" %></dd>
+            </dl>
+          </article>
+
+          <% vies_config = DataSources.config.fetch("vies") %>
+          <article class="legal-source">
+            <div class="legal-source__header"><h3>European Commission VIES</h3></div>
+            <p><%= localized_copy("Проверка на VAT статус само когато от друг разрешен официален запис е установен точен валиден ЕИК на юридическо лице.", "VAT-status check only where an exact valid legal-entity UIC has been established from another authorised official record.") %></p>
+            <dl>
+              <dt><%= localized_copy("Получаване", "Acquisition") %></dt><dd><%= localized_copy("Единична SOAP заявка по точен ЕИК; пазим резултата, датата и името, но не адреса от отговора.", "Single SOAP request by exact UIC; we retain the result, date, and name, but not the response address.") %></dd>
+              <dt><%= localized_copy("Правно", "Legal") %></dt><dd><%= localized_copy("Публична услуга за потвърждение на VAT регистрация. Резултатът не се представя като извлечение от търговски регистър.", "Public VAT-registration validation service. The result is not presented as a commercial-register extract.") %></dd>
+              <dt><%= localized_copy("Официално", "Official") %></dt><dd><%= link_to "European Commission VIES", "https://ec.europa.eu/taxation_customs/vies?locale=en", target: "_blank", rel: "noopener" %></dd>
+            </dl>
+          </article>
+
+          <article class="legal-source">
+            <div class="legal-source__header"><h3>OpenFreeMap</h3></div>
+            <p><%= localized_copy("Доставя стила и картографските плочки във визуализациите. Браузърът се свързва директно с услугата; Mesto не представя картата като официална кадастрална скица.", "Provides style and map tiles for visualisations. The browser connects directly to the service; Mesto does not present the map as an official cadastral sketch.") %></p>
+            <dl>
+              <dt><%= localized_copy("Правно", "Legal") %></dt><dd><%= localized_copy("Използваме публикуваната безплатна услуга и показваме изискваната атрибуция на OpenFreeMap/OpenStreetMap. Техническата заявка от браузъра е описана и в политиката за поверителност.", "We use the published free service and display the required OpenFreeMap/OpenStreetMap attribution. The browser request is also described in the privacy notice.") %></dd>
+              <dt><%= localized_copy("Официално", "Official") %></dt><dd><%= link_to "openfreemap.org", "https://openfreemap.org/", target: "_blank", rel: "noopener" %></dd>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section class="legal-section" id="hvd">
+        <h2><%= localized_copy("3. Набори от данни с висока стойност", "3. High-value datasets") %></h2>
+        <p><%= localized_copy("Директива (ЕС) 2019/1024 и Регламент за изпълнение (ЕС) 2023/138 изискват изброените набори с висока стойност да се предоставят безплатно, чрез API и масово изтегляне, и при условия, съвместими с CC BY 4.0, CC0 или еквивалентни. Това подкрепя повторната употреба, но не заменя необходимостта да установим, че точният файл и полета са в приложното поле и да спазим атрибуция, защита на личните данни и ограничения за сигурност.", "Directive (EU) 2019/1024 and Implementing Regulation (EU) 2023/138 require listed high-value datasets to be made available free of charge, through APIs and bulk download, and under conditions compatible with CC BY 4.0, CC0, or equivalent. This supports reuse but does not replace the need to establish that the exact file and fields are in scope and to comply with attribution, personal-data, and security limits.") %></p>
+        <ul>
+          <li><%= localized_copy("Най-силен кандидат: кадастрални парцели и сгради като геопространствени кадастрални парцели.", "Strongest match: cadastral parcels and buildings as geospatial cadastral parcels.") %></li>
+          <li><%= localized_copy("Вероятно приложимо според конкретния набор: риск от наводнения и част от транспортните/земеползващи слоеве.", "Potentially applicable depending on the exact dataset: flood risk and some transport/land-use layers.") %></li>
+          <li><%= localized_copy("Не са автоматично обхванати: кадастрални права/собственици, регистрите на НАГ, училища, детски градини и аналитичният слой „потенциал за развитие“.", "Not automatically covered: cadastral rights/owners, NAAG registers, schools, kindergartens, and the analytical development-potential layer.") %></li>
+        </ul>
+        <p><%= link_to "Directive (EU) 2019/1024", "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32019L1024", target: "_blank", rel: "noopener" %> · <%= link_to "Implementing Regulation (EU) 2023/138", "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32023R0138", target: "_blank", rel: "noopener" %> · <%= link_to localized_copy("Закон за достъп до обществена информация", "Bulgarian Access to Public Information Act"), "https://pitay.government.bg/documents/zakon-za-dostup-do-obshestvena-informaciya", target: "_blank", rel: "noopener" %></p>
+      </section>
+
+      <section class="legal-section" id="corrections">
+        <h2><%= localized_copy("4. Поправки и въпроси", "4. Corrections and questions") %></h2>
+        <p><%= localized_copy("Ако си представител на източник или засегнато лице и смяташ, че приписването, лицензът, записът или връзката с имот са грешни, пиши на", "If you represent a source or are an affected person and believe attribution, licence, a record, or its property link is wrong, email") %> <%= mail_to legal_contact_email %>. <%= localized_copy("Ще ограничим спорното показване, когато е необходимо, докато проверим официалния запис и правното основание.", "Where appropriate, we will restrict the disputed display while checking the official record and legal basis.") %></p>
+      </section>
+    </article>
+  </div>
+</section>

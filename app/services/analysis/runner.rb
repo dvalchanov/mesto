@@ -146,12 +146,22 @@ module Analysis
       prepare_nag_sources
       nag_config.each do |key, config|
         source_key = key_for_nag(key)
-        snapshot = SourceSnapshot.latest_for_identifiers(
+        permission_allowed = DataSources::PermissionGate.production_use_allowed?(
+          nag_config.fetch("permission_status", "review_required")
+        )
+        snapshot = permission_allowed && SourceSnapshot.latest_for_identifiers(
           source_key,
           identifiers: @analysis.identifiers_for_matching,
           profile: @coverage_profile
         )
-        result = if snapshot&.status == "succeeded"
+        result = if !permission_allowed
+          DataSources::Result.unavailable(
+            source_url: config.fetch("url"),
+            error: DataSources::PermissionGate::PermissionUnsettled.new(
+              "Production use of #{source_key} is blocked until its permission record is approved"
+            )
+          )
+        elsif snapshot&.status == "succeeded"
           DataSources::Result.success(
             data: {
               "record_count" => snapshot.record_count,
@@ -183,6 +193,10 @@ module Analysis
     end
 
     def prepare_nag_sources
+      return unless DataSources::PermissionGate.production_use_allowed?(
+        nag_config.fetch("permission_status", "review_required")
+      )
+
       enabled = ActiveModel::Type::Boolean.new.cast(
         DataSources.config.dig("nag", "on_demand_ingestion_enabled")
       )
@@ -225,7 +239,7 @@ module Analysis
           )
         )
       else
-        rights = CadastreRight.for_identifiers(@analysis.identifiers_for_matching)
+        rights = CadastreRight.usable.for_identifiers(@analysis.identifiers_for_matching)
         result = DataSources::Result.success(
           data: {
             "record_count" => rights.count,
@@ -250,7 +264,7 @@ module Analysis
 
     def expected_cadastre_ownership_archive_keys
       archive_names = DataSources::CadastreOpenData::DistrictSynchronizer::ARCHIVE_NAMES
-      CadastralProperty.where(cadastral_identifier: @analysis.identifiers_for_matching).filter_map do |property|
+      CadastralProperty.usable.where(cadastral_identifier: @analysis.identifiers_for_matching).filter_map do |property|
         rights_kind = "#{property.identifier_level}_rights".to_sym
         directory = property.source_archive_key.rpartition("/").first
         next if directory.blank? || !archive_names.key?(rights_kind)
@@ -371,7 +385,7 @@ module Analysis
     def track_planning_datasets
       arcgis_config.each do |key, config|
         source_key = "arcgis_#{key}"
-        dataset = SpatialDataset.prepared.find_by(key: source_key, coverage_profile_key: @coverage_profile.key)
+        dataset = SpatialDataset.usable.find_by(key: source_key, coverage_profile_key: @coverage_profile.key)
         result = prepared_planning_result(dataset, config)
         record_result(source_key, result, request_metadata: {
           access: "prepared_database",
@@ -406,7 +420,7 @@ module Analysis
 
     def track_sofiaplan_datasets
       DataSources.config.dig("sofiaplan", "datasets").each do |key, config|
-        dataset = SpatialDataset.prepared.find_by(key:, coverage_profile_key: @coverage_profile.key)
+        dataset = SpatialDataset.usable.find_by(key:, coverage_profile_key: @coverage_profile.key)
         result = if dataset && @analysis.location_point
           DataSources::Result.success(
             data: {
@@ -431,7 +445,7 @@ module Analysis
 
     def track_openstreetmap_dataset
       config = DataSources.config.fetch("openstreetmap")
-      dataset = SpatialDataset.prepared.find_by(
+      dataset = SpatialDataset.usable.find_by(
         key: config.fetch("dataset_key"),
         coverage_profile_key: @coverage_profile.key
       )

@@ -12,7 +12,12 @@ RSpec.describe "SEO metadata", type: :request do
       terms_path(locale: nil),
       calculators_path(locale: nil),
       purchase_calculator_path(locale: nil),
-      mortgage_calculator_path(locale: nil)
+      mortgage_calculator_path(locale: nil),
+      legal_notice_path(locale: nil),
+      terms_of_use_path(locale: nil),
+      privacy_policy_path(locale: nil),
+      cookie_policy_path(locale: nil),
+      data_sources_policy_path(locale: nil)
     ]
     paths += catalog.published("stage").map { |entry| new_build_stage_path(stage: entry["slug"], locale: nil) }
     paths += catalog.published("document").map { |entry| education_document_path(slug: entry["slug"], locale: nil) }

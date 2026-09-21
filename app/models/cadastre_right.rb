@@ -12,6 +12,15 @@ class CadastreRight < ApplicationRecord
 
   scope :for_identifiers, ->(identifiers) { where(cadastral_identifier: Array(identifiers).compact) }
 
+  def self.usable
+    return all unless Rails.env.production?
+
+    approved_keys = CadastreSourceArchive.for_profile(DataCoverage.profile)
+      .where(object_kind: %w[parcel_rights building_rights individual_object_rights], permission_status: "approved")
+      .select(:source_archive_key)
+    where(source_archive_key: approved_keys)
+  end
+
   private
 
   def valid_company_eik

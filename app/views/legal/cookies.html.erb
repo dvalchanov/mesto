@@ -1,0 +1,46 @@
+<% content_for :title, localized_copy("Политика за бисквитки | #{product_name}", "Cookie notice | #{product_name}") %>
+<% content_for :description, localized_copy("Кои необходими бисквитки и браузърно хранилище използва Mesto, защо са нужни, колко време се пазят и как се управляват.", "The necessary cookies and browser storage Mesto uses, why they are needed, how long they last, and how to manage them.") %>
+
+<section class="site-shell legal-page">
+  <div class="legal-page__grid">
+    <%= render "navigation" %>
+    <article class="legal-page__main">
+      <header class="legal-page__header">
+        <p class="eyebrow"><span></span><%= localized_copy("Технологии в браузъра", "Browser technologies") %></p>
+        <h1><%= localized_copy("Политика за бисквитки", "Cookie notice") %></h1>
+        <p class="legal-page__lead"><%= localized_copy("Mesto използва само технически необходими бисквитки и временно браузърно хранилище. Към тази версия няма рекламни или аналитични бисквитки.", "Mesto uses only technically necessary cookies and temporary browser storage. This version uses no advertising or analytics cookies.") %></p>
+        <p class="legal-page__updated"><%= localized_copy("В сила от", "Effective") %>: <%= legal_document_version %></p>
+      </header>
+
+      <section class="legal-section" id="cookies">
+        <h2><%= localized_copy("1. Бисквитки на Mesto", "1. Mesto cookies") %></h2>
+        <dl class="legal-definition">
+          <dt>mesto_guest_identity</dt><dd><%= localized_copy("Подписан, HttpOnly идентификатор, който свързва твоите лични планове и запазени сценарии само в този браузър. SameSite=Lax; до 180 дни.", "Signed HttpOnly identifier linking personal journeys and saved scenarios only in this browser. SameSite=Lax; up to 180 days.") %></dd>
+          <dt>mesto_current_journey</dt><dd><%= localized_copy("Подписан, HttpOnly идентификатор на текущо избрания личен план. SameSite=Lax; до 180 дни.", "Signed HttpOnly identifier for the currently selected personal journey. SameSite=Lax; up to 180 days.") %></dd>
+          <dt>session / CSRF</dt><dd><%= localized_copy("Рамката може да създаде краткотрайна сесийна стойност за защита на формуляри срещу подправени заявки. Пази се за сесията или до технически необходимия срок.", "The framework may create a short-lived session value to protect forms against forged requests. It lasts for the session or the technically necessary period.") %></dd>
+        </dl>
+        <p><%= localized_copy("Тези бисквитки не се използват за реклама, проследяване между сайтове или изграждане на маркетингов профил. Те са необходими за изрично поискани функции и сигурност, затова не разчитаме на съгласие за тях.", "These cookies are not used for advertising, cross-site tracking, or marketing profiles. They are necessary for explicitly requested features and security, so we do not rely on consent for them.") %></p>
+      </section>
+
+      <section class="legal-section" id="storage">
+        <h2><%= localized_copy("2. Временно браузърно хранилище", "2. Temporary browser storage") %></h2>
+        <p><%= localized_copy("Калкулаторите използват sessionStorage с ключове като mesto:calculator-draft:purchase:v1 и mesto:calculator-draft:mortgage:v1, за да възстановят неприключени входни стойности при обновяване на страницата. Черновата остава само в текущия раздел на браузъра, изчезва при приключване на сесията и се изчиства при „Започни отначало“. Тя не се изпраща към нас, освен когато изрично изчислиш или запазиш сценария.", "Calculators use sessionStorage keys such as mesto:calculator-draft:purchase:v1 and mesto:calculator-draft:mortgage:v1 to restore unfinished inputs after a refresh. The draft remains only in the current browser tab, disappears when the session ends, and is cleared by Start over. It is not sent to us unless you expressly calculate or save the scenario.") %></p>
+      </section>
+
+      <section class="legal-section" id="third-parties">
+        <h2><%= localized_copy("3. Външни ресурси", "3. External resources") %></h2>
+        <p><%= localized_copy("Google Fonts и jsDelivr в момента доставят шрифтове и MapLibre код, а OpenFreeMap доставя стил и картографски плочки на страниците с карта. Не ги използваме за собствена реклама или аналитика и не поставяме техни бисквитки, но директната заявка на браузъра разкрива IP адрес, URL/referrer според настройките на браузъра и технически заглавки на съответния доставчик.", "Google Fonts and jsDelivr currently deliver fonts and MapLibre code, while OpenFreeMap supplies style and map tiles on map pages. We do not use them for our own advertising or analytics and do not set their cookies, but the browser request discloses the IP address, URL/referrer according to browser settings, and technical headers to the respective provider.") %></p>
+        <ul>
+          <li><%= link_to "Google Privacy Policy", "https://policies.google.com/privacy", target: "_blank", rel: "noopener" %></li>
+          <li><%= link_to "jsDelivr Privacy Policy", "https://www.jsdelivr.com/terms/privacy-policy", target: "_blank", rel: "noopener" %></li>
+          <li><%= link_to "OpenFreeMap Privacy Policy", "https://openfreemap.org/privacy/", target: "_blank", rel: "noopener" %></li>
+        </ul>
+      </section>
+
+      <section class="legal-section" id="control">
+        <h2><%= localized_copy("4. Управление", "4. Managing storage") %></h2>
+        <p><%= localized_copy("Можеш да изтриеш бисквитките и хранилището от настройките на браузъра. Ако блокираш необходимите бисквитки, личният план, запазените сценарии или защитените формуляри може да не работят. Ако в бъдеще добавим незадължителна аналитика или реклама, тя няма да се активира преди избор чрез механизъм за съгласие и тази страница ще бъде обновена.", "You can delete cookies and storage through browser settings. Blocking necessary cookies may prevent personal journeys, saved scenarios, or protected forms from working. If optional analytics or advertising is introduced in future, it will not activate before a consent choice and this notice will be updated.") %></p>
+      </section>
+    </article>
+  </div>
+</section>

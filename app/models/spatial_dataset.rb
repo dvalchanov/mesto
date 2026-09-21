@@ -10,6 +10,11 @@ class SpatialDataset < ApplicationRecord
 
   scope :prepared, -> { where.not(last_imported_at: nil) }
 
+  def self.usable
+    relation = prepared
+    Rails.env.production? ? relation.where(permission_status: "approved") : relation
+  end
+
   def revision_key
     source_revision.presence || source_checksum.presence || last_imported_at&.iso8601
   end

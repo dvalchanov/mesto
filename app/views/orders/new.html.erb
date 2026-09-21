@@ -13,8 +13,17 @@
         <div>
           <%= form.label :email, t("checkout.email"), class: "form-label" %>
           <%= form.email_field :email, required: true, autocomplete: "email", placeholder: t("checkout.email_placeholder") %>
-          <% if @order.errors.any? %><p class="form-error"><%= t("checkout.invalid_email") %></p><% end %>
+          <% if @order.errors[:email].any? %><p class="form-error"><%= t("checkout.invalid_email") %></p><% end %>
         </div>
+        <label class="checkout-consent">
+          <%= check_box_tag "order[accept_terms]", "1", params.dig(:order, :accept_terms) == "1", required: true %>
+          <span><%= localized_copy("Приемам", "I accept the") %> <%= link_to localized_copy("Общите условия", "Terms of use"), terms_of_use_path, target: "_blank", rel: "noopener" %> <%= localized_copy("и потвърждавам, че прочетох", "and confirm that I have read the") %> <%= link_to localized_copy("Политиката за поверителност", "Privacy notice"), privacy_policy_path, target: "_blank", rel: "noopener" %>.</span>
+        </label>
+        <label class="checkout-consent">
+          <%= check_box_tag "order[accept_immediate_delivery]", "1", params.dig(:order, :accept_immediate_delivery) == "1", required: true %>
+          <span><%= localized_copy("Изрично искам изпълнението и доставката на цифровия отчет да започнат веднага и потвърждавам, че след пълното му отключване губя 14-дневното право на отказ.", "I expressly request immediate performance and delivery of the digital report and acknowledge that, once it is fully unlocked, I lose the 14-day withdrawal right.") %> <%= link_to localized_copy("Повече информация", "Learn more"), terms_of_use_path(anchor: "withdrawal"), target: "_blank", rel: "noopener" %>.</span>
+        </label>
+        <% @order.errors[:base].each do |message| %><p class="form-error"><%= message %></p><% end %>
         <%= form.button class: "button button--primary button--wide" do %>
           <%= mesto_icon("lock", css_class: "size-4") %><%= t("checkout.submit") %><%= mesto_icon("arrow-right", css_class: "size-4") %>
         <% end %>
@@ -32,6 +41,7 @@
         <div><span><%= t("checkout.product") %></span><span><%= t(@product.fetch(:name_key)) %></span></div>
         <div><span><%= t("checkout.amount") %></span><strong><%= formatted_price(@product.fetch(:amount_cents), @product.fetch(:currency)) %></strong></div>
       </div>
+      <p class="checkout-legal-note"><%= localized_copy("Продуктът е цифрово съдържание за конкретния имот. Крайната цена е показана по-горе; не се добавят непоказани такси.", "The product is digital content for the specific property. The total price is shown above; no undisclosed charges are added.") %></p>
     </aside>
   </div>
 </section>

@@ -1184,6 +1184,8 @@ en:
     email: "Email address"
     email_placeholder: "name@example.com"
     invalid_email: "Enter a valid email address."
+    consent_required: "Accept the Terms of use to continue."
+    immediate_consent_required: "Confirm immediate delivery and its effect on the withdrawal right."
     fake_banner: "Test payment - you will not be charged and no real card details are entered."
     submit: "Pay test €24.90"
     includes_title: "You will unlock"

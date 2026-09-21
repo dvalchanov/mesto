@@ -38,6 +38,20 @@ module Mesto
 
     config.x.product_name = ENV.fetch("PRODUCT_NAME", "Mesto")
     config.x.app_host = ENV.fetch("APP_HOST", "mesto.bg")
+    config.x.legal_entity_name = ENV.fetch("LEGAL_ENTITY_NAME", "КАДИВЕЛ ЕООД")
+    config.x.legal_entity_name_en = ENV.fetch("LEGAL_ENTITY_NAME_EN", "KADIVEL EOOD")
+    config.x.legal_entity_eik = ENV.fetch("LEGAL_ENTITY_EIK", "208282493")
+    config.x.legal_entity_address = ENV.fetch(
+      "LEGAL_ENTITY_ADDRESS",
+      "гр. София 1407, ул. Борис Руменов № 9ж, вх. Б, ет. 4, ап. 10, България"
+    )
+    config.x.legal_entity_address_en = ENV.fetch(
+      "LEGAL_ENTITY_ADDRESS_EN",
+      "9zh Boris Rumenov St., entrance B, floor 4, apartment 10, Sofia 1407, Bulgaria"
+    )
+    config.x.general_contact_email = ENV.fetch("GENERAL_CONTACT_EMAIL", "hi@mesto.bg")
+    config.x.legal_contact_email = ENV.fetch("LEGAL_CONTACT_EMAIL", "legal@mesto.bg")
+    config.x.legal_document_version = ENV.fetch("LEGAL_DOCUMENT_VERSION", "2026-09-21")
     config.x.data_source_mode = ENV.fetch("DATA_SOURCE_MODE", Rails.env.test? ? "fixture" : "live")
     config.x.store_raw_source_responses = ActiveModel::Type::Boolean.new.cast(
       ENV.fetch("STORE_RAW_SOURCE_RESPONSES", Rails.env.production? ? "false" : "false")

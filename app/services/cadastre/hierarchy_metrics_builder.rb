@@ -41,7 +41,7 @@ module Cadastre
     end
 
     def related_records(level, parent_identifier)
-      CadastralProperty.where(identifier_level: level)
+      CadastralProperty.usable.where(identifier_level: level)
         .where("cadastral_identifier LIKE ?", "#{parent_identifier}.%")
     end
 

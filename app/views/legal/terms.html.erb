@@ -1,0 +1,71 @@
+<% content_for :title, localized_copy("Общи условия за ползване | #{product_name}", "Terms of use | #{product_name}") %>
+<% content_for :description, localized_copy("Условията за използване на Mesto, поръчване на цифров отчет, плащане, доставка, рекламации и ограничения на информационната услуга.", "Terms for using Mesto, ordering a digital report, payment, delivery, complaints, and the limits of the information service.") %>
+
+<section class="site-shell legal-page">
+  <div class="legal-page__grid">
+    <%= render "navigation" %>
+    <article class="legal-page__main">
+      <header class="legal-page__header">
+        <p class="eyebrow"><span></span><%= localized_copy("Договорни условия", "Contract terms") %></p>
+        <h1><%= localized_copy("Общи условия", "Terms of use") %></h1>
+        <p class="legal-page__lead"><%= localized_copy("Тези условия уреждат достъпа до сайта, безплатните инструменти и покупката на цифрови отчети от Mesto.", "These terms govern access to the website, free tools, and purchases of Mesto digital reports.") %></p>
+        <p class="legal-page__updated"><%= localized_copy("В сила от", "Effective") %>: <%= legal_document_version %></p>
+      </header>
+
+      <section class="legal-section" id="parties">
+        <h2><%= localized_copy("1. Страни и приемане", "1. Parties and acceptance") %></h2>
+        <p><%= localized_copy("Услугата се предоставя от #{legal_entity_name}, ЕИК #{legal_entity_eik}, с адрес #{legal_entity_address} („Mesto“, „ние“). Данните за контакт са на страницата", "The service is provided by #{legal_entity_name}, UIC #{legal_entity_eik}, registered at #{legal_entity_address} (“Mesto”, “we”). Contact details appear on the") %> <%= link_to localized_copy("„За оператора“", "Operator information page"), legal_notice_path %>.</p>
+        <p><%= localized_copy("С използването на сайта се съгласяваш с правилата, приложими към безплатните функции. Договор за платен отчет се сключва едва след като видиш основните характеристики и крайната цена, приемеш тези условия, дадеш отделното съгласие за незабавно изпълнение и поръчката бъде потвърдена.", "By using the site you agree to the rules applicable to free features. A contract for a paid report is formed only after the main characteristics and total price are shown, you accept these terms, give the separate consent to immediate performance, and the order is confirmed.") %></p>
+      </section>
+
+      <section class="legal-section" id="service">
+        <h2><%= localized_copy("2. Услугата", "2. The service") %></h2>
+        <p><%= localized_copy("Mesto съпоставя въведен адрес или кадастрален идентификатор с предварително подготвени или ограничено заявени официални и отворени набори от данни. Резултатът може да съдържа идентификация на обекта, карта, близки обекти, устройствени слоеве, административни следи и въпроси за допълнителна проверка.", "Mesto relates an entered address or cadastral identifier to prepared or narrowly queried official and open datasets. Results may include object identification, maps, nearby features, planning layers, administrative traces, and questions for further verification.") %></p>
+        <ul>
+          <li><%= localized_copy("Безплатните функции и предварителният преглед са достъпни без регистрация.", "Free tools and report previews are available without registration.") %></li>
+          <li><%= localized_copy("Платеният продукт е цифрово съдържание - отключване на наличния пълен отчет за конкретния имот.", "The paid product is digital content: the unlocking of the available full report for the specific property.") %></li>
+          <li><%= localized_copy("Обхватът и наличността зависят от покритието, актуалността и техническия достъп до източниците.", "Scope and availability depend on source coverage, currency, and technical access.") %></li>
+        </ul>
+      </section>
+
+      <section class="legal-section" id="sources">
+        <h2><%= localized_copy("3. Публични данни и ограничения", "3. Public data and limitations") %></h2>
+        <p><%= localized_copy("За всеки източник посочваме доставчик, връзка, дата на извличане или релевантност и известни ограничения. Липса на съвпадение означава само, че не сме намерили запис при извършената проверка; тя не доказва, че документ или факт не съществува.", "For each source we identify the provider, link, retrieval or relevance date, and known limitations. No match only means that our check did not find a record; it does not prove that a document or fact does not exist.") %></p>
+        <p><%= localized_copy("Правата върху оригиналните набори остават на съответните им създатели и лицензодатели. Ползваме ги само при документирано основание и съгласно приложимите условия. Подробности има в", "Rights in original datasets remain with their respective creators and licensors. We use them only where a documented basis exists and subject to applicable terms. Details are on the") %> <%= link_to localized_copy("страницата за източниците", "sources page"), data_sources_policy_path %>.</p>
+      </section>
+
+      <section class="legal-section" id="orders">
+        <h2><%= localized_copy("4. Цена, поръчка и доставка", "4. Price, order, and delivery") %></h2>
+        <p><%= localized_copy("Крайната цена и валутата се показват непосредствено преди поръчката. Не добавяме непоказани такси. Наличните платежни методи и доставчикът на плащането се показват на екрана за плащане.", "The total price and currency are shown immediately before ordering. We do not add undisclosed charges. Available payment methods and the payment provider are identified at checkout.") %></p>
+        <p><%= localized_copy("Стъпките са: избираш наличния отчет, въвеждаш и проверяваш имейла, преглеждаш продукта и крайната цена, приемаш условията и отделното съгласие за незабавно изпълнение, след което потвърждаваш плащането. До последното потвърждение можеш да се върнеш и да поправиш въведеното. Договорът може да бъде сключен на български или английски според избраната версия на сайта. Записваме поръчката, версията на условията и времето на съгласията; копие може да бъде поискано по имейл. Не прилагаме доброволен професионален кодекс за тази услуга.", "The steps are: select the available report, enter and check the email, review the product and total price, accept the terms and separate immediate-performance consent, and then confirm payment. Until the final confirmation you can go back and correct the information entered. The contract may be concluded in Bulgarian or English according to the selected site version. We record the order, terms version, and consent times; a copy may be requested by email. No voluntary professional code of conduct applies to this service.") %></p>
+        <p><%= localized_copy("Отчетът е еднократно закупено цифрово съдържание, а не абонамент. Достъпва се като уеб страница с актуален браузър и интернет връзка; JavaScript е необходим за интерактивната карта. Не е нужно специално устройство или собственически софтуер. Когато законът изисква актуализация за сигурност или съответствие, я предоставяме за приложимия период.", "The report is digital content purchased once, not a subscription. It is accessed as a web page with a current browser and an internet connection; JavaScript is required for the interactive map. No special device or proprietary software is required. Where the law requires a security or conformity update, we provide it for the applicable period.") %></p>
+        <p><%= localized_copy("Платеният отчет се доставя чрез незабавно отключване на страницата на отчета след успешно плащане. Изпращаме или показваме потвърждение на поръчката и текста на дадените съгласия на траен носител, когато реалният платежен процес бъде активиран.", "The paid report is supplied by immediately unlocking the report page after successful payment. When the live payment flow is enabled, we send or provide durable confirmation of the order and the consent wording you accepted.") %></p>
+        <div class="legal-callout"><p><%= localized_copy("Преди плащане изрично избираш дали искаш доставката да започне веднага и потвърждаваш, че след пълното предоставяне на цифровото съдържание губиш 14-дневното право на отказ. Това не ограничава правата ти при недоставено или несъответстващо цифрово съдържание.", "Before payment you expressly choose whether delivery should begin immediately and acknowledge that, once the digital content is fully supplied, the 14-day withdrawal right is lost. This does not limit your remedies for content that is not supplied or is not in conformity.") %></p></div>
+      </section>
+
+      <section class="legal-section" id="withdrawal">
+        <h2><%= localized_copy("5. Отказ, рекламации и възстановяване", "5. Withdrawal, complaints, and refunds") %></h2>
+        <p><%= localized_copy("Преди активиране на реални платени потребителски поръчки ще публикуваме приложимите условия за отказ, образец и правила за възстановяване. В момента такива поръчки не се приемат.", "Before real paid consumer orders are enabled, we will publish the applicable withdrawal conditions, model notice, and refund rules. Such orders are not currently accepted.") %></p>
+        <p><%= localized_copy("Ако отчетът не се отключи, е технически недостъпен или съществено не съответства на описанието, пиши ни. Ще опитаме да приведем цифровото съдържание в съответствие без неоправдано забавяне или ще приложим предвиденото от закона намаляване на цената или прекратяване и възстановяване.", "If a report is not unlocked, is technically inaccessible, or materially fails to conform to its description, contact us. We will seek to bring the digital content into conformity without undue delay or apply the statutory price reduction or termination and refund remedies.") %></p>
+      </section>
+
+      <section class="legal-section" id="use">
+        <h2><%= localized_copy("6. Допустимо използване", "6. Acceptable use") %></h2>
+        <p><%= localized_copy("Можеш да използваш отчета за лична проверка и да го споделяш със своите професионални консултанти. Не трябва да извличаш масово данни, да заобикаляш ограничения, да натоварваш автоматизирано услугата, да продаваш повторно отчетите или да използваш данните за тормоз, дискриминация, профилиране на физически лица или незаконни цели.", "You may use a report for personal due diligence and share it with your professional advisers. You must not scrape data at scale, bypass restrictions, overload the service, resell reports, or use data for harassment, discrimination, profiling of individuals, or unlawful purposes.") %></p>
+        <p><%= localized_copy("Пази връзката към личния отчет. Всеки, който разполага с непредвидимия публичен идентификатор, може да отвори съответната страница.", "Keep the link to a private report secure. Anyone who obtains its unguessable public identifier may be able to open that report page.") %></p>
+      </section>
+
+      <section class="legal-section" id="liability">
+        <h2><%= localized_copy("7. Наличност и отговорност", "7. Availability and liability") %></h2>
+        <p><%= localized_copy("Полагаме професионална грижа за точността на преобразуването и ясното посочване на произхода. Не контролираме пълнотата, правилността или непрекъснатата работа на външните регистри. Можем временно да ограничим функция, когато източникът, сигурността или правото за повторна употреба не са достатъчно ясни.", "We use professional care in transformation and source attribution. We do not control the completeness, correctness, or continuous availability of external registers. We may temporarily restrict a feature where the source, security, or right of reuse is not sufficiently clear.") %></p>
+        <p><%= localized_copy("Не изключваме и не ограничаваме отговорност, която не може да бъде изключена по закон, включително задължителните права на потребителите. Доколкото законът допуска, не отговаряме за решение за покупка, финансиране или строителство, взето без независима професионална проверка.", "We do not exclude or limit liability that cannot lawfully be excluded, including mandatory consumer rights. To the extent permitted by law, we are not responsible for a purchase, financing, or construction decision made without independent professional verification.") %></p>
+      </section>
+
+      <section class="legal-section" id="final">
+        <h2><%= localized_copy("8. Промени и приложимо право", "8. Changes and governing law") %></h2>
+        <p><%= localized_copy("Можем да актуализираме условията за бъдещо използване. Версията, приета при поръчката, остава записана към нея. Съществена промяна не се прилага със задна дата в ущърб на вече придобити потребителски права.", "We may update these terms for future use. The version accepted with an order remains recorded against it. A material change will not apply retroactively to the detriment of rights already acquired by a consumer.") %></p>
+        <p><%= localized_copy("Прилага се българското право, без това да лишава потребителя от задължителната защита на държавата по обичайното му местопребиваване. Компетентността на съдилищата се определя от приложимите задължителни правила.", "Bulgarian law applies without depriving a consumer of mandatory protection in their country of habitual residence. Court jurisdiction is determined by applicable mandatory rules.") %></p>
+      </section>
+    </article>
+  </div>
+</section>

@@ -8,7 +8,7 @@ module Payments
       FakeGateway.new
     end
 
-    def create_order(property_analysis:, email:, product_code:)
+    def create_order(property_analysis:, email:, product_code:, consent_evidence:)
       raise NotImplementedError
     end
   end

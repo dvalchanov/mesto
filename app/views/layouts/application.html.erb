@@ -111,10 +111,21 @@
               <%= link_to t("navigation.glossary"), terms_path %>
               <%= link_to t("navigation.my_mesto"), my_mesto_path %>
             </div>
+            <div>
+              <p class="site-footer__label"><%= localized_copy("Данни", "Data") %></p>
+              <%= link_to localized_copy("Източници и методология", "Sources and methodology"), data_sources_policy_path %>
+              <%= link_to localized_copy("Поверителност", "Privacy"), privacy_policy_path %>
+              <%= link_to localized_copy("Бисквитки", "Cookies"), cookie_policy_path %>
+            </div>
+            <div>
+              <p class="site-footer__label"><%= localized_copy("Правна информация", "Legal") %></p>
+              <%= link_to localized_copy("За оператора", "Operator information"), legal_notice_path %>
+              <%= link_to localized_copy("Общи условия", "Terms of use"), terms_of_use_path %>
+            </div>
           </div>
         </div>
         <div class="site-footer__bottom">
-          <p>© <%= Time.current.year %> <%= product_name %> · <%= t("layout.footer") %></p>
+          <p>© <%= Time.current.year %> <%= product_name %> · <%= legal_entity_name %>, <%= localized_copy("ЕИК", "UIC") %> <%= legal_entity_eik %></p>
           <p><%= t("reports.disclaimer", product_name:) %></p>
         </div>
       </div>

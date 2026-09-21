@@ -46,7 +46,7 @@ module Analysis
     end
 
     def dataset_revisions
-      @dataset_revisions ||= SpatialDataset.prepared
+      @dataset_revisions ||= SpatialDataset.usable
         .where(coverage_profile_key: @analysis.coverage_profile_key)
         .to_h { |dataset| [ dataset.key, [ dataset.importer_version, dataset.revision_key ] ] }
     end

@@ -10,6 +10,11 @@ class PruneAnonymousJourneysJob < ApplicationJob
       deleted += 1
     end
 
+    BudgetScenario.where(updated_at: ...cutoff).find_each do |scenario|
+      scenario.destroy!
+      deleted += 1
+    end
+
     deleted
   end
 end
