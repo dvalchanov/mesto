@@ -110,7 +110,7 @@ module PropertyGraph
       entities = @analysis.identifiers_for_matching.to_h do |identifier|
         [ identifier, Entity.find_by(canonical_key: "cadastre:#{identifier}") ]
       end
-      claims = CadastreRight.for_identifiers(entities.keys).order(:id).filter_map do |right|
+      claims = CadastreRight.usable.for_identifiers(entities.keys).order(:id).filter_map do |right|
         subject = entities[right.cadastral_identifier]
         next unless subject
 
@@ -219,7 +219,7 @@ module PropertyGraph
 
     def build_planning_relationships
       parcel = Entity.find_by(canonical_key: "cadastre:#{@analysis.parcel_identifier}")
-      datasets = SpatialDataset.prepared.where(
+      datasets = SpatialDataset.usable.where(
         key: %w[arcgis_development_potential arcgis_functional_zoning],
         coverage_profile_key: @analysis.coverage_profile_key
       )

@@ -1,0 +1,46 @@
+<% content_for :title, localized_copy("Правна информация и оператор | #{product_name}", "Legal and operator information | #{product_name}") %>
+<% content_for :description, localized_copy("Данни за оператора на Mesto, контакти, обхват на услугата и начини за подаване на въпроси, жалби и искания.", "Mesto operator details, contacts, service scope, and ways to submit questions, complaints, and requests.") %>
+
+<section class="site-shell legal-page">
+  <div class="legal-page__grid">
+    <%= render "navigation" %>
+    <article class="legal-page__main">
+      <header class="legal-page__header">
+        <p class="eyebrow"><span></span><%= localized_copy("Правна информация", "Legal information") %></p>
+        <h1><%= localized_copy("Кой стои зад Mesto", "Who operates Mesto") %></h1>
+        <p class="legal-page__lead"><%= localized_copy("Тук ще намериш идентификационните и контактните данни на дружеството, което предоставя сайта и услугите на Mesto.", "This page identifies the company that provides the Mesto website and services and explains how to contact it.") %></p>
+        <p class="legal-page__updated"><%= localized_copy("Версия", "Version") %>: <%= legal_document_version %></p>
+      </header>
+
+      <section class="legal-section" id="operator">
+        <h2><%= localized_copy("Оператор и доставчик", "Operator and service provider") %></h2>
+        <dl class="legal-definition">
+          <dt><%= localized_copy("Дружество", "Company") %></dt><dd><%= legal_entity_name %></dd>
+          <dt><%= localized_copy("ЕИК", "UIC") %></dt><dd><%= legal_entity_eik %></dd>
+          <dt><%= localized_copy("Седалище и адрес", "Registered office") %></dt><dd><%= legal_entity_address %></dd>
+          <dt><%= localized_copy("Общи въпроси", "General enquiries") %></dt><dd><%= mail_to general_contact_email %></dd>
+          <dt><%= localized_copy("Правни въпроси и лични данни", "Legal and personal-data matters") %></dt><dd><%= mail_to legal_contact_email %></dd>
+          <dt><%= localized_copy("Услуга", "Service") %></dt><dd><%= product_name %> / mesto.bg</dd>
+        </dl>
+        <p><%= localized_copy("За услугата, плащанията и съдържанието използвай общия адрес. За договори, правни въпроси и упражняване на права относно лични данни използвай правния адрес.", "Use the general address for service, payment, and content questions. Use the legal address for contracts, legal matters, and exercising personal-data rights.") %></p>
+      </section>
+
+      <section class="legal-section" id="service">
+        <h2><%= localized_copy("Какво е Mesto", "What Mesto is") %></h2>
+        <p><%= localized_copy("Mesto е информационна услуга, която подрежда данни за имоти, устройствено планиране, административни актове и заобикалящата среда от посочени публични източници. Mesto не е държавен регистър, удостоверителна услуга, агенция за недвижими имоти, адвокат, нотариус, инженер или оценител.", "Mesto is an information service that organises property, planning, administrative-record, and neighbourhood data from identified public sources. Mesto is not an official register, certification service, estate agency, lawyer, notary, engineer, or valuer.") %></p>
+        <div class="legal-callout"><p><%= localized_copy("Отчетът е отправна точка за проверка, а не доказателство за право на собственост, тежести, законосъобразност на строеж или инвестиционна стойност. За официално удостоверяване използвай съответния регистър и квалифициран специалист.", "A report is a starting point for due diligence, not proof of title, encumbrances, construction legality, or investment value. Use the competent register and a qualified professional for official verification.") %></p></div>
+        <p><%= localized_copy("Точните източници, начинът на получаване и статусът на разрешението за всеки от тях са описани в страницата", "The exact sources, acquisition method, and permission status for each are described on the") %> <%= link_to localized_copy("„Източници и методология“", "Sources and methodology page"), data_sources_policy_path %>.</p>
+      </section>
+
+      <section class="legal-section" id="complaints">
+        <h2><%= localized_copy("Въпроси, рекламации и спорове", "Questions, complaints, and disputes") %></h2>
+        <p><%= localized_copy("Първо ни пиши на", "Please contact us first at") %> <%= mail_to general_contact_email %> <%= localized_copy("и включи номера на поръчката или публичния идентификатор на отчета, ако има такъв. Ще потвърдим получаването и ще отговорим в разумен срок.", "and include the order number or report public identifier, if available. We will acknowledge receipt and respond within a reasonable time.") %></p>
+        <ul>
+          <li><%= localized_copy("Потребителска жалба може да бъде подадена до Комисията за защита на потребителите (КЗП).", "A consumer complaint may be submitted to the Bulgarian Consumer Protection Commission (CPC).") %> <%= link_to "kzp.bg", "https://kzp.bg/bg/kak-se-podava-zhalba-signal", target: "_blank", rel: "noopener" %></li>
+          <li><%= localized_copy("Спор може да бъде отнесен и до приложимата обща помирителна комисия, ако страните изберат доброволно извънсъдебно решаване.", "A dispute may also be referred to the competent general conciliation commission where the parties choose voluntary out-of-court resolution.") %> <%= link_to localized_copy("Информация от КЗП", "CPC information"), "https://kzp.bg/bg/koi-sa-vidovete-pomiritelni-komisii", target: "_blank", rel: "noopener" %></li>
+        </ul>
+        <p><%= localized_copy("Не препращаме към вече закритата европейска ODR платформа. Регламент (ЕС) 2024/3228 я прекрати, считано от 20 юли 2025 г.", "We do not link to the discontinued EU ODR platform. Regulation (EU) 2024/3228 repealed it with effect from 20 July 2025.") %></p>
+      </section>
+    </article>
+  </div>
+</section>

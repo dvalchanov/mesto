@@ -57,16 +57,16 @@ module Analysis
           "building" => @analysis.building_identifier,
           "individual_object" => @analysis.individual_object_identifier
         }.compact
-        records = CadastralProperty.where(cadastral_identifier: identifiers.values)
+        records = CadastralProperty.usable.where(cadastral_identifier: identifiers.values)
           .index_by(&:cadastral_identifier)
         identifiers.transform_values { |identifier| records[identifier] }.compact
       end
     end
 
     def nearby_buildings
-      return CadastralProperty.none unless location_point
+      return CadastralProperty.usable.none unless location_point
 
-      relation = CadastralProperty.where(identifier_level: "building")
+      relation = CadastralProperty.usable.where(identifier_level: "building")
         .where.not(geometry: nil)
         .near(location_point, BUILDING_RADIUS_METRES)
         .nearest_to(location_point)
@@ -250,14 +250,14 @@ module Analysis
     def current_amenity_dataset
       return @current_amenity_dataset if defined?(@current_amenity_dataset)
 
-      @current_amenity_dataset = SpatialDataset.prepared.find_by(
+      @current_amenity_dataset = SpatialDataset.usable.find_by(
         key: DataSources.config.dig("openstreetmap", "dataset_key"),
         coverage_profile_key: @analysis.coverage_profile_key
       )
     end
 
     def spatial_dataset_for(category)
-      SpatialDataset.prepared.find_by(key: category, coverage_profile_key: @analysis.coverage_profile_key)
+      SpatialDataset.usable.find_by(key: category, coverage_profile_key: @analysis.coverage_profile_key)
     end
 
     def location_point

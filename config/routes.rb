@@ -31,6 +31,14 @@ Rails.application.routes.draw do
     # Defines the root path route ("/")
     root "home#show"
 
+  get "pravna-informatsia", to: "legal#notice", as: :legal_notice
+  get "obshti-uslovia", to: "legal#terms", as: :terms_of_use
+  get "poveritelnost", to: "legal#privacy", as: :privacy_policy
+  get "biskvitki", to: "legal#cookie_notice", as: :cookie_policy
+  get "iztochnitsi-na-danni", to: "legal#data_sources", as: :data_sources_policy
+  # TODO: Before enabling real paid consumer orders, add a lawyer-reviewed
+  # withdrawal/refund notice and the statutory model withdrawal form.
+
   get "kalkulator", to: "calculators#index", as: :calculators
   get "kalkulator/pokupka-na-imot", to: "calculators#purchase", as: :purchase_calculator
   post "kalkulator/pokupka-na-imot", to: "calculators#calculate_purchase", as: :calculate_purchase_calculator

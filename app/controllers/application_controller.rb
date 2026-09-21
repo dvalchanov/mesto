@@ -9,7 +9,8 @@ class ApplicationController < ActionController::Base
   before_action :redirect_legacy_locale_query
   around_action :switch_locale
 
-  helper_method :product_name
+  helper_method :product_name, :legal_entity_name, :legal_entity_eik, :legal_entity_address,
+    :general_contact_email, :legal_contact_email, :legal_document_version
 
   def default_url_options
     { locale: I18n.locale == I18n.default_locale ? nil : I18n.locale }
@@ -38,4 +39,15 @@ class ApplicationController < ActionController::Base
   def product_name
     Rails.application.config.x.product_name
   end
+
+  def legal_entity_name
+    I18n.locale == :en ? Rails.application.config.x.legal_entity_name_en : Rails.application.config.x.legal_entity_name
+  end
+  def legal_entity_eik = Rails.application.config.x.legal_entity_eik
+  def legal_entity_address
+    I18n.locale == :en ? Rails.application.config.x.legal_entity_address_en : Rails.application.config.x.legal_entity_address
+  end
+  def general_contact_email = Rails.application.config.x.general_contact_email
+  def legal_contact_email = Rails.application.config.x.legal_contact_email
+  def legal_document_version = Rails.application.config.x.legal_document_version
 end

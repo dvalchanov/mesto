@@ -57,11 +57,59 @@ namespace :data_sources do
       end
     end
 
+    osm_config = DataSources.config.fetch("openstreetmap")
+    osm_result = DataSources::OpenStreetMap::NearbyAmenitiesClient.new.fetch_coverage(
+      bounds: DataCoverage.profile.bounding_box
+    )
+    checks["openstreetmap_overpass"] = if osm_result.success?
+      DataSources::Result.success(
+        data: { feature_count: osm_result.data.fetch("features", []).length },
+        source_url: osm_result.source_url,
+        fetched_at: osm_result.fetched_at,
+        relevant_at: osm_result.relevant_at
+      )
+    else
+      osm_result
+    end
+
+    cadastre_config = DataSources.config.dig("cadastre", "open_data")
+    begin
+      response = DataSources::HttpClient.new.get(cadastre_config.fetch("portal_url"))
+      checks["cadastre_open_data_portal"] = DataSources::Result.success(
+        data: { status: response.status, content_type: response.headers["content-type"] },
+        source_url: cadastre_config.fetch("portal_url")
+      )
+    rescue StandardError => error
+      checks["cadastre_open_data_portal"] = DataSources::Result.unavailable(
+        source_url: cadastre_config.fetch("portal_url"), error:
+      )
+    end
+
+    checks["vies_validation"] = Vies::Provider.configured.lookup(
+      eik: Rails.application.config.x.legal_entity_eik
+    )
+
     checks.each do |key, result|
       imported = SpatialDataset.find_by(key: key.delete_prefix("sofiaplan_dataset_"))&.last_imported_at
       detail = result.success? ? result.data.to_s.truncate(100) : result.error.message
       puts [ key, result.status, "latest_import=#{imported || '-'}", detail ].join("\t")
     end
+
+    puts "permissions"
+    production_allowed = ->(permission_status) { permission_status == "approved" }
+    puts [ "cadastre", cadastre_config.fetch("permission_status"), "production_allowed=#{production_allowed.call(cadastre_config.fetch('permission_status'))}" ].join("\t")
+    puts [ "sofiaplan", DataSources.config.dig("sofiaplan", "permission_status"), "production_allowed=#{production_allowed.call(DataSources.config.dig('sofiaplan', 'permission_status'))}" ].join("\t")
+    DataSources.config.fetch("arcgis").each do |key, config|
+      puts [ "arcgis_#{key}", config.fetch("permission_status"), "production_allowed=#{production_allowed.call(config.fetch('permission_status'))}" ].join("\t")
+    end
+    puts [ "openstreetmap", osm_config.fetch("permission_status"), "production_allowed=#{production_allowed.call(osm_config.fetch('permission_status'))}" ].join("\t")
+    puts [ "nag", DataSources.config.dig("nag", "permission_status"), "production_allowed=#{production_allowed.call(DataSources.config.dig('nag', 'permission_status'))}" ].join("\t")
+    puts [ "commercial_register", DataSources.config.dig("commercial_register", "permission_status"), "provider=#{DataSources.config.dig('commercial_register', 'provider')}" ].join("\t")
+    puts [ "property_register", DataSources.config.dig("property_register", "permission_status"), "provider=#{DataSources.config.dig('property_register', 'provider')}" ].join("\t")
+    puts [ "vies", DataSources.config.dig("vies", "permission_status"), "production_allowed=#{production_allowed.call(DataSources.config.dig('vies', 'permission_status'))}" ].join("\t")
+
+    failed_checks = checks.reject { |_key, result| result.success? }
+    abort("Data-source check failed: #{failed_checks.keys.join(', ')}") if failed_checks.any?
   end
 end
 
@@ -203,18 +251,20 @@ namespace :cadastre do
     entries.each { |entry| puts [ entry.id, entry.district, entry.object_kind, entry.source_archive_key ].join("\t") }
   end
 
-  desc "Record an explicit source-permission approval for a catalog district"
-  task :approve_district_permissions, [ :district, :reference ] => :environment do |_task, args|
-    abort("Provide a district and supporting permission reference") if args[:district].blank? || args[:reference].blank?
+  desc "Record permission approval for one exact cadastral archive kind in a district"
+  task :approve_archive_permission, [ :district, :archive_kind, :reference ] => :environment do |_task, args|
+    abort("Provide a district, archive kind, and supporting permission reference") if args.values_at(:district, :archive_kind, :reference).any?(&:blank?)
 
-    entries = CadastreSourceArchive.for_profile(DataCoverage.profile).where(district: args[:district])
-    abort("Catalog the district first") if entries.empty?
+    entries = CadastreSourceArchive.for_profile(DataCoverage.profile).where(
+      district: args[:district], object_kind: args[:archive_kind]
+    )
+    abort("Catalog the district first or provide a valid archive kind") if entries.empty?
     entries.update_all(
       permission_status: "approved",
       permission_reference: args[:reference],
       updated_at: Time.current
     )
-    puts "approved=#{entries.count}\tdistrict=#{args[:district]}\treference=#{args[:reference]}"
+    puts "approved=#{entries.count}\tdistrict=#{args[:district]}\tarchive_kind=#{args[:archive_kind]}\treference=#{args[:reference]}"
   end
 
   desc "Enqueue enabled archive imports for the current coverage profile"
@@ -236,6 +286,20 @@ namespace :cadastre do
 
     entries.update_all(enabled: true, updated_at: Time.current)
     puts "enabled=#{entries.count}\tdistrict=#{args[:district]}"
+  end
+
+  desc "Enable one exact reviewed cadastral archive without enabling unrelated archives"
+  task :enable_archive, [ :district, :archive_kind ] => :environment do |_task, args|
+    abort("Provide a district and archive kind") if [ args[:district], args[:archive_kind] ].any?(&:blank?)
+
+    entry = CadastreSourceArchive.for_profile(DataCoverage.profile).find_by(
+      district: args[:district], object_kind: args[:archive_kind]
+    )
+    abort("Catalog the district first or provide a valid archive kind") unless entry
+    abort("Approve and document this exact archive permission before enabling it") unless entry.permission_status == "approved"
+
+    entry.update!(enabled: true)
+    puts "enabled=1\tdistrict=#{args[:district]}\tarchive_kind=#{args[:archive_kind]}"
   end
 
   desc "Preview or explicitly prune cadastral rows outside the supporting-data boundary"

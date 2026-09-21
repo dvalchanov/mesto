@@ -7,7 +7,7 @@ class PropertyFinderController < ApplicationController
     @filters = filter_params
     @building_identifier = building_identifier_param
     if @address.blank? && @building_identifier
-      @address = CadastralProperty.find_by(
+      @address = CadastralProperty.usable.find_by(
         identifier_level: "building",
         cadastral_identifier: @building_identifier
       )&.address.to_s

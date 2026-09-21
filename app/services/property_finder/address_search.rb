@@ -64,7 +64,7 @@ module PropertyFinder
     end
 
     def individual_objects
-      CadastralProperty.where(identifier_level: "individual_object")
+      CadastralProperty.usable.where(identifier_level: "individual_object")
     end
 
     def scope_for_buildings(identifiers)
@@ -120,7 +120,7 @@ module PropertyFinder
     end
 
     def building_addresses(identifiers)
-      recorded_addresses = CadastralProperty.where(
+      recorded_addresses = CadastralProperty.usable.where(
         identifier_level: "building",
         cadastral_identifier: identifiers
       ).pluck(:cadastral_identifier, :address).to_h

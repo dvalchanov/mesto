@@ -26,7 +26,8 @@ module DataSources
               coverage_geometry: @profile.supporting_geometry,
               enabled: false,
               discovered_at: Time.current,
-              permission_status: open_data_config.fetch("permission_status", "review_required"),
+              permission_status: open_data_config.fetch("permission_by_object_kind", {})
+                .fetch(object_kind.to_s, open_data_config.fetch("permission_status", "review_required")),
               attribution: open_data_config["attribution"],
               permission_reference: open_data_config["permission_reference"],
               metadata: {

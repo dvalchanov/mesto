@@ -47,7 +47,7 @@ module Cadastre
         "building" => identifier.building_identifier,
         "individual_object" => identifier.individual_object_identifier
       }.compact
-      records = CadastralProperty.where(cadastral_identifier: identifiers.values)
+      records = CadastralProperty.usable.where(cadastral_identifier: identifiers.values)
         .index_by(&:cadastral_identifier)
       identifiers.transform_values { |value| records[value] }.compact
     end
@@ -71,7 +71,7 @@ module Cadastre
         [ parcel, "parcel_representative_point" ]
       end
       if focus_record
-        point = CadastralProperty.where(id: focus_record.id).pick(Arel.sql("ST_PointOnSurface(geometry)"))
+        point = CadastralProperty.usable.where(id: focus_record.id).pick(Arel.sql("ST_PointOnSurface(geometry)"))
         result["analysis_point"] = point
         result["centroid"] = point # Legacy field consumed by existing reports.
         result["precision"] = "cadastral_geometry"

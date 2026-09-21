@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_11_100200) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_20_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -286,6 +286,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_100200) do
     t.string "currency", null: false
     t.string "email", null: false
     t.datetime "failed_at"
+    t.datetime "immediate_performance_consented_at"
+    t.string "legal_document_version"
     t.datetime "paid_at"
     t.string "payment_provider", null: false
     t.string "product_code", null: false
@@ -293,7 +295,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_100200) do
     t.string "provider_reference"
     t.uuid "public_token", default: -> { "gen_random_uuid()" }, null: false
     t.string "status", default: "pending", null: false
+    t.datetime "terms_accepted_at"
     t.datetime "updated_at", null: false
+    t.datetime "withdrawal_loss_acknowledged_at"
     t.index ["property_analysis_id", "status"], name: "index_orders_on_property_analysis_id_and_status"
     t.index ["property_analysis_id"], name: "index_orders_on_property_analysis_id"
     t.index ["provider_reference"], name: "index_orders_on_provider_reference", unique: true, where: "(provider_reference IS NOT NULL)"

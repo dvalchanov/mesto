@@ -54,7 +54,7 @@ module PropertyFinder
     end
 
     def building_scope
-      CadastralProperty
+      CadastralProperty.usable
         .where(identifier_level: "building")
         .where("objects_count > 0")
         .where.not(geometry: nil)

@@ -1,0 +1,10 @@
+<aside class="legal-page__aside">
+  <p class="legal-page__aside-label"><%= localized_copy("Правни документи", "Legal documents") %></p>
+  <nav aria-label="<%= localized_copy('Правни документи', 'Legal documents') %>">
+    <%= link_to localized_copy("За оператора", "Operator information"), legal_notice_path, aria: { current: (current_page?(legal_notice_path) ? "page" : nil) } %>
+    <%= link_to localized_copy("Общи условия", "Terms of use"), terms_of_use_path, aria: { current: (current_page?(terms_of_use_path) ? "page" : nil) } %>
+    <%= link_to localized_copy("Поверителност", "Privacy notice"), privacy_policy_path, aria: { current: (current_page?(privacy_policy_path) ? "page" : nil) } %>
+    <%= link_to localized_copy("Бисквитки", "Cookie notice"), cookie_policy_path, aria: { current: (current_page?(cookie_policy_path) ? "page" : nil) } %>
+    <%= link_to localized_copy("Източници и методология", "Sources and methodology"), data_sources_policy_path, aria: { current: (current_page?(data_sources_policy_path) ? "page" : nil) } %>
+  </nav>
+</aside>

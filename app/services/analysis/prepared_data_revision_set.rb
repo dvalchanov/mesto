@@ -2,7 +2,7 @@ module Analysis
   class PreparedDataRevisionSet
     def self.call(profile:, identifiers: [])
       identifiers = Array(identifiers).compact.map(&:to_s).uniq.sort
-      spatial = SpatialDataset.prepared.where(coverage_profile_key: profile.key).to_h do |dataset|
+      spatial = SpatialDataset.usable.where(coverage_profile_key: profile.key).to_h do |dataset|
         [ "spatial:#{dataset.key}", [ dataset.importer_version, dataset.revision_key ] ]
       end
       scoped_snapshots = SourceSnapshot.for_profile(profile)
@@ -16,11 +16,11 @@ module Analysis
 
         [ "source:#{source_key}", snapshot.revision.presence || snapshot.checksum.presence || snapshot.fetched_at&.iso8601 ]
       end.to_h
-      cadastral = CadastralProperty.where(cadastral_identifier: identifiers)
+      cadastral = CadastralProperty.usable.where(cadastral_identifier: identifiers)
         .pluck(:cadastral_identifier, :updated_at)
         .to_h { |identifier, updated_at| [ "cadastre:#{identifier}", updated_at.iso8601(6) ] }
       cadastre_rights = identifiers.to_h do |identifier|
-        rows = CadastreRight.where(cadastral_identifier: identifier).order(:record_fingerprint)
+        rows = CadastreRight.usable.where(cadastral_identifier: identifier).order(:record_fingerprint)
           .pluck(:record_fingerprint, :updated_at)
           .map { |fingerprint, updated_at| [ fingerprint, updated_at.iso8601(6) ] }
         [ "cadastre-rights:#{identifier}", Digest::SHA256.hexdigest(JSON.generate(rows)) ]

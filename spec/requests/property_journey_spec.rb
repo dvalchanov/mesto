@@ -88,9 +88,18 @@ RSpec.describe "Property report journey", type: :request do
     )
     expect(response.body).not_to include(I18n.t("reports.full.timeline"))
 
-    post report_orders_path(public_token: analysis), params: { order: { email: "buyer@example.com", amount_cents: 1 } }
+    post report_orders_path(public_token: analysis), params: {
+      order: {
+        email: "buyer@example.com", amount_cents: 1,
+        accept_terms: "1", accept_immediate_delivery: "1"
+      }
+    }
     order = analysis.orders.last
     expect(order.amount_cents).to eq(2_490)
+    expect(order.terms_accepted_at).to be_present
+    expect(order.immediate_performance_consented_at).to be_present
+    expect(order.withdrawal_loss_acknowledged_at).to be_present
+    expect(order.legal_document_version).to eq("2026-09-20")
     expect(response).to redirect_to(checkout_path(public_token: order))
 
     post fake_checkout_succeed_path(public_token: order)
@@ -119,6 +128,24 @@ RSpec.describe "Property report journey", type: :request do
     follow_redirect!
     expect(response.body).to include(I18n.t("checkout.cancelled"))
     expect(analysis.reload).not_to be_full_report_unlocked
+  end
+
+  it "does not create an order without both checkout confirmations" do
+    analysis = create(
+      :property_analysis,
+      status: "ready",
+      coverage_status: "complete",
+      summary: { "paid_content_available" => true }
+    )
+
+    expect {
+      post report_orders_path(public_token: analysis), params: {
+        order: { email: "buyer@example.com", accept_terms: "1" }
+      }
+    }.not_to change(Order, :count)
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.body).to include(I18n.t("checkout.immediate_consent_required"))
   end
 
   it "does not offer checkout for non-Sofia or no-data reports" do

@@ -59,6 +59,9 @@ class PropertyAnalysis < ApplicationRecord
   end
 
   def administrative_acts
+    permission_status = DataSources.config.dig("nag", "permission_status")
+    return AdministrativeAct.none unless DataSources::PermissionGate.production_use_allowed?(permission_status)
+
     AdministrativeAct.joins(:administrative_act_references)
       .where(administrative_act_references: { cadastral_identifier: identifiers_for_matching })
       .distinct

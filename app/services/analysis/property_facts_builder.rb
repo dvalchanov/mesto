@@ -115,7 +115,7 @@ module Analysis
           "building" => @analysis.building_identifier,
           "individual_object" => @analysis.individual_object_identifier
         }.compact
-        records = CadastralProperty.where(cadastral_identifier: identifiers.values)
+        records = CadastralProperty.usable.where(cadastral_identifier: identifiers.values)
           .index_by(&:cadastral_identifier)
         identifiers.transform_values { |value| records[value] }.compact
       end

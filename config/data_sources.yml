@@ -116,6 +116,13 @@ shared: &shared
       download_timeout: 120
       max_archive_bytes: <%= ENV.fetch("CADASTRE_MAX_ARCHIVE_BYTES", 1.gigabyte) %>
       permission_status: review_required
+      permission_by_object_kind:
+        parcels: review_required
+        buildings: review_required
+        individual_objects: review_required
+        parcel_rights: review_required
+        building_rights: review_required
+        individual_object_rights: review_required
       attribution: "Агенция по геодезия, картография и кадастър"
       permission_reference: "https://kais.cadastre.bg/bg/OpenData"
       storage_reuse: unknown

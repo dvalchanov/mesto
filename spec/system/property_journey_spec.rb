@@ -22,6 +22,8 @@ RSpec.describe "Mesto journey", type: :system do
 
     click_link I18n.t("reports.locked.cta")
     fill_in I18n.t("checkout.email"), with: "buyer@example.com"
+    check "order_accept_terms"
+    check "order_accept_immediate_delivery"
     click_button I18n.t("checkout.submit")
     click_button I18n.t("checkout.success_action")
     expect(page).to have_text(I18n.t("checkout.success_title"))
