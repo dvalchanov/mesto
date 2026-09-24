@@ -126,6 +126,37 @@
   </div>
 </section>
 
+<section class="home-section home-film" aria-labelledby="home-film-title">
+  <div class="site-shell">
+    <div class="section-heading section-heading--split">
+      <div>
+        <p class="eyebrow"><span></span><%= t("home.film.eyebrow") %></p>
+        <h2 id="home-film-title"><%= t("home.film.title") %></h2>
+      </div>
+      <p><%= t("home.film.description") %></p>
+    </div>
+    <% film_locale = I18n.locale == :en ? "en" : "bg" %>
+    <figure class="home-film__frame"
+            data-controller="explainer-video"
+            data-explainer-video-play-label-value="<%= t('home.film.play') %>"
+            data-explainer-video-pause-label-value="<%= t('home.film.pause') %>">
+      <video muted loop playsinline preload="none"
+             poster="<%= asset_path("mesto-explainer-#{film_locale}-poster.jpg") %>"
+             aria-describedby="home-film-summary"
+             data-explainer-video-target="video"
+             data-action="play->explainer-video#render pause->explainer-video#render">
+        <source src="<%= asset_path("mesto-explainer-#{film_locale}.webm") %>" type="video/webm">
+        <source src="<%= asset_path("mesto-explainer-#{film_locale}.mp4") %>" type="video/mp4">
+      </video>
+      <button type="button" class="home-film__toggle" aria-label="<%= t('home.film.play') %>" data-state="paused" data-explainer-video-target="toggle" data-action="explainer-video#toggle">
+        <svg class="home-film__play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5L8 5.5Z"/></svg>
+        <svg class="home-film__pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg>
+      </button>
+      <figcaption id="home-film-summary" class="sr-only"><%= t("home.film.summary") %></figcaption>
+    </figure>
+  </div>
+</section>
+
 <section class="home-section home-section--paper">
   <div class="site-shell">
     <div class="section-heading section-heading--split">
