@@ -7,6 +7,9 @@ RSpec.describe "Copy style" do
 
     offenders = paths.select do |path|
       contents = File.binread(path)
+      # Binary media (images, video) can contain these byte sequences by chance.
+      next false if contents.include?("\x00".b)
+
       forbidden_dashes.any? { |dash| contents.include?(dash) }
     end
 

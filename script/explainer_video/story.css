@@ -1,0 +1,56 @@
+/* "From dark to clear" cut. Builds on composition.css. */
+
+#night {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(1200px 800px at 66% 56%, #1d3029 0%, rgba(29, 48, 41, 0) 70%),
+    radial-gradient(1400px 900px at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(3, 9, 7, .55) 100%),
+    #0d1a16;
+}
+#night svg { position: absolute; right: -120px; top: -40px; width: 1500px; height: auto; }
+#night path { stroke: rgba(244, 240, 232, .05); stroke-width: 1.2; }
+
+#brand-night { inset: auto; left: 140px; top: 64px; width: 150px; }
+#brand-night svg { display: block; width: 100%; height: auto; }
+
+.cap--night h1, .cap--night h2 { color: var(--paper); }
+.cap--night h2 em { color: var(--clay-bright); }
+.cap--night > p { color: rgba(244, 240, 232, .62); }
+.cap--night .cap__eyebrow { color: var(--clay-bright); }
+#cap1 { top: 330px; width: 760px; }
+#cap1 h2 { font-size: 96px; line-height: 1.02; }
+#cap1 > p { max-width: 560px; }
+.cap__eyebrow--plain i { width: 44px; }
+
+.map-flat { position: absolute; inset: 0; }
+#buildings { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 0 0; }
+.box, .box .floor { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 0 0; }
+.box .face--left { background: var(--fl); }
+.box .face--right { background: var(--fr); }
+.box .roof { background: var(--rf); box-shadow: inset 0 0 0 1.5px var(--rs, rgba(0, 0, 0, 0)); }
+.box .win { background: var(--wn); }
+.box .win.is-warm { background: var(--ww); box-shadow: 0 0 6px var(--wg, rgba(0, 0, 0, 0)); }
+.box--wire .face, .box--wire .roof { background: var(--wf, transparent); border: 2px dashed var(--wire); box-shadow: none; }
+
+#dim { position: absolute; inset: 0; background: rgba(6, 14, 11, .55); pointer-events: none; }
+#panel { box-shadow: 0 0 0 1px rgba(244, 240, 232, .2), 0 40px 120px -20px rgba(231, 191, 122, .35), 0 60px 110px -50px rgba(0, 0, 0, .7); }
+
+#spark { position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 4px; background: var(--clay-bright); box-shadow: 0 0 30px 8px rgba(231, 150, 110, .7), 0 0 90px 30px rgba(231, 191, 122, .35); }
+#glow { position: absolute; left: 0; top: 0; width: 900px; height: 900px; margin: -450px 0 0 -450px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 236, 200, .85) 0%, rgba(255, 226, 180, .35) 30%, rgba(255, 226, 180, 0) 65%); mix-blend-mode: screen; }
+#burst { position: absolute; left: 0; top: 0; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; border: 3px solid rgba(231, 191, 122, .9); }
+
+.tag { position: absolute; left: 0; top: 0; }
+.tag__dot { position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%; }
+.tag__line { position: absolute; left: -1px; bottom: 0; width: 2px; height: var(--lh, 70px); transform-origin: bottom; }
+.tag__pill { position: absolute; bottom: var(--lh, 70px); left: 0; display: flex; align-items: center; gap: 12px; white-space: nowrap; padding: 11px 18px 11px 11px; border-radius: 999px; transform: translateX(-50%); font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.tag--q .tag__dot { background: rgba(244, 240, 232, .55); box-shadow: 0 0 0 5px rgba(244, 240, 232, .1); }
+.tag--q .tag__line { background: linear-gradient(to top, rgba(244, 240, 232, .45), rgba(244, 240, 232, .1)); }
+.tag--q .tag__pill { background: rgba(18, 33, 29, .78); color: rgba(244, 240, 232, .88); box-shadow: 0 0 0 1px rgba(244, 240, 232, .16), 0 20px 40px -20px rgba(0, 0, 0, .8); backdrop-filter: blur(6px); }
+.tag--q .tag__pill b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: rgba(207, 122, 87, .18); color: var(--clay-bright); font-family: var(--serif); font-size: 19px; }
+.tag--a .tag__dot { background: var(--pine); box-shadow: 0 0 0 5px rgba(23, 63, 52, .14); }
+.tag--a .tag__line { background: var(--pine); }
+.tag--a .tag__pill { background: var(--white); color: var(--ink); box-shadow: 0 0 0 1px rgba(23, 63, 52, .1), 0 22px 44px -24px rgba(23, 40, 33, .55); }
+.tag--a .tag__pill > i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--pine); }
+.tag--a .tag__pill > i svg { width: 16px; height: 16px; fill: none; stroke: var(--paper); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.tag--a .tag__pill em { font-style: normal; padding: 5px 9px; border-radius: 7px; background: var(--paper); color: var(--pine); font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.tag--hot .tag__pill > i { background: var(--clay); }

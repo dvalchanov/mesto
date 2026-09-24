@@ -73,6 +73,27 @@ RSpec.describe "Home page", type: :system do
     expect(page).to have_css(".property-locator__selection", text: I18n.t("property_finder.locator.selected"))
   end
 
+  it "shows the dark-to-clear explainer on the Bulgarian home page" do
+    visit root_path
+
+    expect(page).to have_css(".home-film source[src*='mesto-explainer-story-bg'][type='video/webm']", visible: :all)
+    expect(page).to have_css(".home-film video[poster*='mesto-explainer-story-bg-poster']", visible: :all)
+  end
+
+  it "plays a localized explainer video that visitors can pause" do
+    visit root_path(locale: "en")
+
+    expect(page).to have_css(".home-film source[src*='mesto-explainer-story-en'][type='video/webm']", visible: :all)
+    expect(page).to have_css("#home-film-summary", text: I18n.t("home.film.summary", locale: :en), visible: :all)
+
+    page.execute_script("document.querySelector('.home-film video').scrollIntoView({ block: 'center' })")
+    expect(page).to have_css(".home-film__toggle[data-state='playing']")
+
+    find(".home-film__toggle").click
+
+    expect(page).to have_css(".home-film__toggle[data-state='paused'][aria-label='#{I18n.t('home.film.play', locale: :en)}']")
+  end
+
   it "opens building selection on a map without navigating away" do
     visit root_path
 

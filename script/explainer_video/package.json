@@ -1,0 +1,11 @@
+{
+  "name": "mesto-explainer-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render.mjs --comp story --lang bg && node render.mjs --comp story --lang en"
+  },
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>Mesto explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,600;1,7..72,500;1,7..72,600&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=block" rel="stylesheet">
+<link rel="stylesheet" href="composition.css">
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+  <svg class="topo" viewBox="0 0 760 640" fill="none" aria-hidden="true">
+    <path d="M760 52C650 50 588 105 500 110c-105 6-170-50-265-19C144 120 70 180 61 256c-11 92 61 127 127 173 64 45 88 129 149 211"/>
+    <path d="M760 125c-95-4-158 40-235 46-90 7-150-45-231-22-79 23-147 74-154 137-8 73 49 100 104 138 56 39 79 124 135 216"/>
+    <path d="M760 200c-78-6-132 26-198 35-76 11-127-36-197-18-68 17-125 55-132 103-8 58 38 79 83 111 45 31 64 117 109 209"/>
+    <path d="M760 278c-62-9-107 15-160 27-60 13-103-27-159-13-55 13-101 42-107 77-7 44 29 59 65 85 36 26 50 100 86 186"/>
+  </svg>
+
+  <!-- Persistent chrome -->
+  <div id="brand" class="chrome"></div>
+  <div id="domain" class="chrome">mesto.bg</div>
+  <div id="disclaimer" class="chrome" data-k="disclaimer"></div>
+  <div id="progress" class="chrome"></div>
+
+  <!-- Scene 1: the questions -->
+  <section id="s1">
+    <div class="cap cap--hero">
+      <h1 data-words="s1_title"></h1>
+      <p data-words="s1_sub"></p>
+    </div>
+    <div id="listing">
+      <div class="listing__image">
+        <svg viewBox="0 0 480 300" id="listing-art"></svg>
+        <div class="listing__heart"><svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.3A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.6c0 5.7-7.5 10.3-7.5 10.3Z"/></svg></div>
+        <div class="listing__tag" data-k="listing_tag"></div>
+      </div>
+      <div class="listing__body">
+        <div>
+          <h3 data-k="listing_title"></h3>
+          <p data-k="listing_place"></p>
+        </div>
+        <div class="listing__price">
+          <strong data-k="listing_price"></strong>
+          <span data-k="listing_meta"></span>
+        </div>
+      </div>
+    </div>
+    <div id="questions"></div>
+  </section>
+
+  <!-- Scene 2: address -->
+  <section id="s2">
+    <div class="cap" id="cap2"></div>
+    <div id="panel">
+      <div class="panel__heading">
+        <span class="panel__icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></span>
+        <div><p data-k="panel_eyebrow"></p><h3 data-k="panel_title"></h3></div>
+      </div>
+      <div class="panel__tabs"><span class="is-active" data-k="tab_addr"></span><span data-k="tab_id"></span></div>
+      <label data-k="addr_label"></label>
+      <div class="panel__field">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></svg>
+        <span id="typed"></span><i id="caret"></i>
+      </div>
+      <div id="suggestions"></div>
+      <div class="panel__actions">
+        <div class="button" id="find-button"><span data-k="button"></span><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></div>
+        <div id="selected-chip"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4L19 7"/></svg><span data-k="selected"></span></div>
+      </div>
+    </div>
+    <svg id="cursor" viewBox="0 0 32 32"><path d="M6 3.5v22.2l6.1-5.6 3.9 8.6 4-1.8-3.9-8.5 8.4-.4L6 3.5Z"/></svg>
+  </section>
+
+  <!-- Scene 3-5: the property stack (one continuous 3D object) -->
+  <section id="s3">
+    <div class="cap" id="cap3"></div>
+    <div id="chips"></div>
+  </section>
+  <section id="s4">
+    <div class="cap" id="cap4"></div>
+  </section>
+  <section id="s5">
+    <div class="cap" id="cap5"></div>
+    <div id="report">
+      <header class="report__header">
+        <div>
+          <p class="report__eyebrow" data-k="report_eyebrow"></p>
+          <h3 data-k="report_title"></h3>
+          <code data-k="report_id"></code>
+        </div>
+        <span class="report__badge"><i></i><span data-k="report_badge"></span></span>
+      </header>
+      <div class="report__body">
+        <ul id="findings"></ul>
+        <div class="report__side">
+          <div class="report__map-slot"></div>
+          <div id="asks">
+            <p data-k="asks_title"></p>
+            <ol></ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="stack-wrap">
+    <div id="stack">
+      <div class="layer" id="layer-0"><svg viewBox="0 0 460 460" class="layer__svg" id="map-base"></svg><div id="building"></div></div>
+      <div class="layer" id="layer-1"><svg viewBox="0 0 460 460" class="layer__svg" id="map-planning"></svg></div>
+      <div class="layer" id="layer-2"><svg viewBox="0 0 460 460" class="layer__svg" id="map-permits"></svg></div>
+      <div class="layer" id="layer-3"><svg viewBox="0 0 460 460" class="layer__svg" id="map-around"></svg></div>
+    </div>
+  </div>
+  <div id="overlay-2d">
+    <div id="focus-ring"></div>
+    <div id="callout"><i></i><div><strong data-k="callout_title"></strong><span data-k="callout_label"></span><code data-k="report_id"></code></div></div>
+    <div id="layer-labels"></div>
+    <div id="map-pin"><span></span></div>
+  </div>
+
+  <!-- Scene 6: end card -->
+  <div id="wipe"></div>
+  <div id="end-bg"></div>
+  <section id="s6">
+    <div id="end-logo"></div>
+    <h2 data-words="end_title"></h2>
+    <div class="end__row">
+      <div class="end__cta"><span data-k="end_cta"></span><b>mesto.bg</b><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></div>
+      <div class="end__trust"></div>
+    </div>
+  </section>
+
+  <div id="grain"></div>
+</div>
+</div>
+<script src="composition.js"></script>
+</body>
+</html>

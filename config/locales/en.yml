@@ -50,6 +50,13 @@ en:
     coverage_label: "Current coverage"
     coverage_value: "Sofia · expanding across Bulgaria"
     trust_note: "One identifier. A clear trail to every public source used."
+    film:
+      eyebrow: "In short"
+      title: "How Mesto helps before you buy"
+      description: "From questions left in the dark to a clear picture of the home and the neighbourhood, with a source for every fact. In under 30 seconds."
+      play: "Play video"
+      pause: "Pause video"
+      summary: "Silent video with illustrative data. The neighbourhood around the home is in the dark, full of questions: what will be built nearby, what the cadastre shows, how far the metro is. You enter the address in Mesto, the home and the neighbourhood light up, and every question gets an answer with a source such as AGCC, NAG or SofiaPlan. Finally you get a report with the facts, what is still left to verify and questions for the seller."
     search:
       card_eyebrow: "Start here"
       card_title: "Check a specific property"
