@@ -135,9 +135,8 @@
       </div>
       <p><%= t("home.film.description") %></p>
     </div>
-    <%# Bulgarian uses the "dark to clear" cut; English keeps the original until its cut is rendered. %>
-    <% film = I18n.locale == :en ? "mesto-explainer-en" : "mesto-explainer-story-bg" %>
-    <figure class="home-film__frame<%= " home-film__frame--dusk" if film.include?("story") %>"
+    <% film = "mesto-explainer-story-#{I18n.locale == :en ? 'en' : 'bg'}" %>
+    <figure class="home-film__frame"
             data-controller="explainer-video"
             data-explainer-video-play-label-value="<%= t('home.film.play') %>"
             data-explainer-video-pause-label-value="<%= t('home.film.pause') %>">

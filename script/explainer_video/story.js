@@ -6,16 +6,16 @@
  * sourced answer, then into a clear report.
  *
  * Same deterministic engine as composition.js. Open story.html to preview
- * (space: play/pause, ←/→: scrub, ?t=12.5 to freeze).
+ * (space: play/pause, ←/→: scrub, ?lang=en, ?t=12.5 to freeze).
  */
 (() => {
   const params = new URLSearchParams(location.search);
-  const LANG = "bg";
+  const LANG = params.get("lang") === "en" ? "en" : "bg";
   const DURATION = 29;
   document.documentElement.lang = LANG;
 
   // ---------------------------------------------------------------- copy
-  const COPY = {
+  const COPY_BG = {
     cap1_title: "Купуваш имот,\nно не знаеш\n*нищо* за него?",
     cap1_sub: "Сградата, кварталът, документите: всичко е на тъмно.",
     cap2_eyebrow: "Решението",
@@ -60,6 +60,52 @@
     end_title: "Опознай мястото,\nпреди да го наречеш *дом.*",
     end_trust: ["Безплатен преглед", "Без регистрация"]
   };
+  const COPY_EN = {
+    cap1_title: "Buying a place\nyou know\n*nothing* about?",
+    cap1_sub: "The building, the neighbourhood, the paperwork: all in the dark.",
+    cap2_eyebrow: "The answer",
+    cap2_title: "Check it\nin Mesto.",
+    cap2_sub: "Enter the address. No registration.",
+    cap3_eyebrow: "Clarity",
+    cap3_title: "Mesto lights up the home and the neighbourhood.",
+    cap3_sub: "Data from 12+ public sources, each with a clear origin.",
+    cap5_eyebrow: "Report",
+    cap5_title: "Decide\nwith clarity.",
+    cap5_sub: "Sourced facts, plus what's left to check.",
+    tags: [
+      { q: "What will be built here?", a: "Building permit", src: "NAG" },
+      { q: "What does the cadastre say?", a: "Apt 12 · 78 m²", src: "AGCC", hot: true },
+      { q: "What does the plan allow?", a: "Residential zone", src: "SofiaPlan" },
+      { q: "How far is the metro?", a: "Metro · 450 m", src: "SofiaPlan" },
+      { q: "Any schools nearby?", a: "3 schools · park", src: "SofiaPlan" }
+    ],
+    disclaimer: "Illustrative data",
+    panel_eyebrow: "Start here",
+    panel_title: "Check a specific property",
+    tab_addr: "By address",
+    tab_id: "By identifier",
+    addr_label: "Building address",
+    address: "ул. Проф. Крикор Азарян 25",
+    suggestions: [["ул. Проф. Крикор Азарян 25", "Lozenets, Sofia · 1 building"], ["ул. Проф. Крикор Азарян 25А", "Lozenets, Sofia"], ["ул. Проф. Крикор Азарян 27", "Lozenets, Sofia"]],
+    button: "Check the property",
+    selected: "Exact building selected",
+    report_id: "68134.4356.27.1.12",
+    report_eyebrow: "Property report",
+    report_title: "ул. Проф. Крикор Азарян 25, apt 12",
+    report_badge: "Analysis ready",
+    findings: [
+      ["building", "Identity", "Apartment · 78 m² · floor 4", "AGCC"],
+      ["layers", "Planning", "Residential zone · regulation", "SofiaPlan"],
+      ["doc", "Construction nearby", "3 permits within 500 m", "NAG"],
+      ["tree", "Surroundings", "Metro 450 m · 3 schools · park 8 min", "SofiaPlan"],
+      ["alert", "Still to verify", "Ownership and encumbrances", "Property Register", "warn"]
+    ],
+    asks_title: "Questions for the seller",
+    asks: ["Any mortgage or encumbrances?", "Does the building have Act 16?", "What's being built next door?"],
+    end_title: "Know the place\nbefore you call it *home.*",
+    end_trust: ["Free preview", "No registration"]
+  };
+  const COPY = LANG === "en" ? COPY_EN : COPY_BG;
 
   // -------------------------------------------------------------- engine
   function bezier(x1, y1, x2, y2) {
@@ -448,7 +494,7 @@
   async function build() {
     await document.fonts.ready;
     await Promise.all([
-      document.fonts.load('600 80px "Literata"', "Купуваш имот"),
+      document.fonts.load('600 80px "Literata"', "Купуваш имот Buying"),
       document.fonts.load('italic 500 80px "Literata"', "нищо дом"),
       document.fonts.load('800 20px "Manrope"', "Провери имот"),
       document.fonts.load('600 20px "Manrope"', "Провери имот"),

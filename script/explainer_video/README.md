@@ -4,9 +4,9 @@
 
 Story: a buyer's questions → start with an address → pinpoint the exact apartment → public sources stack up as map layers → they collapse into a sourced report → end card.
 
-### Alternative cut: from dark to clear
+### Landing-page cut: from dark to clear
 
-`story.html` (Bulgarian only for now) tells the same product story as problem → solution. A neighbourhood sits at dusk, full of unanswered questions. The buyer checks the address in Mesto, the clay "your place" cell drops into the building, and light spreads outwards, turning each question into a sourced answer before the scene becomes the report. Render it with `--comp story`; files are named `mesto-explainer-story-<lang>.*`.
+`story.html` is the version on the landing page, in Bulgarian and English (`?lang=en`). It tells the same product story as problem → solution. A neighbourhood sits at dusk, full of unanswered questions. The buyer checks the address in Mesto, the clay "your place" cell drops into the building, and light spreads outwards, turning each question into a sourced answer before the scene becomes the report. Render it with `--comp story`; files are named `mesto-explainer-story-<lang>.*`, and its poster is the first frame so the page never flashes a lit frame before playback. `story.css` builds on `composition.css`, so keep both.
 
 ## Preview
 
@@ -17,7 +17,7 @@ Open `composition.html` in a browser. Space plays or pauses, arrow keys scrub (h
 ```sh
 cd script/explainer_video
 npm install
-npm run render            # both languages
+npm run render            # landing-page cut, both languages
 node render.mjs --lang en --stills 3,12.5,22.5 --out ../../tmp   # review stills
 ```
 

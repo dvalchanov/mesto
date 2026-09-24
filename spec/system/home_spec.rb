@@ -83,7 +83,7 @@ RSpec.describe "Home page", type: :system do
   it "plays a localized explainer video that visitors can pause" do
     visit root_path(locale: "en")
 
-    expect(page).to have_css(".home-film source[src*='mesto-explainer-en'][type='video/webm']", visible: :all)
+    expect(page).to have_css(".home-film source[src*='mesto-explainer-story-en'][type='video/webm']", visible: :all)
     expect(page).to have_css("#home-film-summary", text: I18n.t("home.film.summary", locale: :en), visible: :all)
 
     page.execute_script("document.querySelector('.home-film video').scrollIntoView({ block: 'center' })")

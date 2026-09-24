@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "render": "node render.mjs --lang bg && node render.mjs --lang en"
+    "render": "node render.mjs --comp story --lang bg && node render.mjs --comp story --lang en"
   },
   "dependencies": {
     "playwright": "^1.63.0"
