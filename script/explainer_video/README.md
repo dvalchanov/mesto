@@ -4,6 +4,10 @@
 
 Story: a buyer's questions → start with an address → pinpoint the exact apartment → public sources stack up as map layers → they collapse into a sourced report → end card.
 
+### Alternative cut: from dark to clear
+
+`story.html` (Bulgarian only for now) tells the same product story as problem → solution. A neighbourhood sits at dusk, full of unanswered questions. The buyer checks the address in Mesto, the clay "your place" cell drops into the building, and light spreads outwards, turning each question into a sourced answer before the scene becomes the report. Render it with `--comp story`; files are named `mesto-explainer-story-<lang>.*`.
+
 ## Preview
 
 Open `composition.html` in a browser. Space plays or pauses, arrow keys scrub (hold Shift for bigger steps). Add `?lang=en` for English or `?t=18.5` to freeze on a moment.

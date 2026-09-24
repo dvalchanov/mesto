@@ -135,18 +135,19 @@
       </div>
       <p><%= t("home.film.description") %></p>
     </div>
-    <% film_locale = I18n.locale == :en ? "en" : "bg" %>
-    <figure class="home-film__frame"
+    <%# Bulgarian uses the "dark to clear" cut; English keeps the original until its cut is rendered. %>
+    <% film = I18n.locale == :en ? "mesto-explainer-en" : "mesto-explainer-story-bg" %>
+    <figure class="home-film__frame<%= " home-film__frame--dusk" if film.include?("story") %>"
             data-controller="explainer-video"
             data-explainer-video-play-label-value="<%= t('home.film.play') %>"
             data-explainer-video-pause-label-value="<%= t('home.film.pause') %>">
       <video muted loop playsinline preload="none"
-             poster="<%= asset_path("mesto-explainer-#{film_locale}-poster.jpg") %>"
+             poster="<%= asset_path("#{film}-poster.jpg") %>"
              aria-describedby="home-film-summary"
              data-explainer-video-target="video"
              data-action="play->explainer-video#render pause->explainer-video#render">
-        <source src="<%= asset_path("mesto-explainer-#{film_locale}.webm") %>" type="video/webm">
-        <source src="<%= asset_path("mesto-explainer-#{film_locale}.mp4") %>" type="video/mp4">
+        <source src="<%= asset_path("#{film}.webm") %>" type="video/webm">
+        <source src="<%= asset_path("#{film}.mp4") %>" type="video/mp4">
       </video>
       <button type="button" class="home-film__toggle" aria-label="<%= t('home.film.play') %>" data-state="paused" data-explainer-video-target="toggle" data-action="explainer-video#toggle">
         <svg class="home-film__play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5L8 5.5Z"/></svg>

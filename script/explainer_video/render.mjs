@@ -3,7 +3,8 @@
 //   node render.mjs --lang bg                 # MP4 + WebM + poster
 //   node render.mjs --lang en --stills 2,7.5  # PNG stills for review
 //
-// Options: --fps 60, --out <dir>, --poster <seconds>, --chrome <executable>.
+// Options: --comp story (the "dark to clear" cut), --fps 60, --out <dir>,
+// --poster <seconds>, --chrome <executable>.
 import { spawn } from "node:child_process";
 import { mkdirSync, existsSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
@@ -18,9 +19,14 @@ const args = Object.fromEntries(process.argv.slice(2).reduce((pairs, arg, i, all
 }, []));
 
 const lang = args.lang === "en" ? "en" : "bg";
+const comp = args.comp === "story" ? "story" : "composition";
+const name = comp === "story" ? `mesto-explainer-story-${lang}` : `mesto-explainer-${lang}`;
+// The story cut opens in the dark, so its poster must be the first frame or
+// the page flashes a lit frame before playback starts.
+const posterAt = Number(args.poster ?? (comp === "story" ? 0 : 22.5));
 const fps = Number(args.fps || 60);
 const outDir = resolve(args.out || join(here, "../../app/assets/videos"));
-const posterAt = Number(args.poster || 22.5);
+
 mkdirSync(outDir, { recursive: true });
 
 function chromeExecutable() {
@@ -46,7 +52,7 @@ function ffmpeg(ffArgs) {
 const browser = await chromium.launch({ executablePath: chromeExecutable(), args: ["--force-color-profile=srgb", "--hide-scrollbars"] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 page.on("pageerror", (error) => { console.error(error); process.exitCode = 1; });
-const url = `${pathToFileURL(join(here, "composition.html")).href}?render&lang=${lang}`;
+const url = `${pathToFileURL(join(here, `${comp}.html`)).href}?render&lang=${lang}`;
 await page.goto(url, { waitUntil: "networkidle" });
 await page.evaluate(() => window.__ready);
 const duration = await page.evaluate(() => window.__duration);
@@ -60,7 +66,7 @@ async function frameAt(t) {
 if (args.stills) {
   const times = String(args.stills).split(",").map(Number);
   for (const t of times) {
-    const file = join(outDir, `still-${lang}-${t.toFixed(2)}.png`);
+    const file = join(outDir, `still-${name}-${t.toFixed(2)}.png`);
     await page.evaluate((time) => window.__seek(time), t);
     await stage.screenshot({ path: file, scale: "css" });
     console.log(file);
@@ -69,11 +75,11 @@ if (args.stills) {
   process.exit();
 }
 
-const base = join(outDir, `mesto-explainer-${lang}`);
+const base = join(outDir, name);
 // Lossless intermediate first, so both delivery encodes come from identical pixels.
 const tmpDir = join(here, "../../tmp");
 mkdirSync(tmpDir, { recursive: true });
-const master = join(tmpDir, `mesto-explainer-${lang}.master.mkv`);
+const master = join(tmpDir, `${name}.master.mkv`);
 const { proc, done } = ffmpeg(["-f", "image2pipe", "-framerate", String(fps), "-c:v", "png", "-i", "-", "-c:v", "ffv1", "-pix_fmt", "yuv444p", master]);
 const total = Math.round(duration * fps);
 const started = Date.now();
