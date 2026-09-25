@@ -5,17 +5,17 @@
       <h2><%= t("reports.property_facts.title") %></h2>
       <p><%= t("reports.property_facts.description") %></p>
     </div>
-    <span class="w-fit shrink-0 whitespace-nowrap rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600 ring-1 ring-slate-200"><%= t("reports.property_facts.from_public_data") %></span>
+    <span class="w-fit shrink-0 sm:whitespace-nowrap rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600 ring-1 ring-slate-200"><%= t("reports.property_facts.from_public_data") %></span>
   </header>
 
   <div class="grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4">
     <div class="bg-white p-5 sm:p-6">
-      <dt class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.property_facts.type") %></dt>
+      <dt class="meta-label text-slate-500"><%= t("reports.property_facts.type") %></dt>
       <dd class="mt-2 text-lg font-black text-slate-950"><%= t("reports.hierarchy.levels.#{facts['property_type']}") %></dd>
       <p class="mt-2 text-xs leading-5 text-slate-500"><%= t("reports.property_facts.from_identifier") %></p>
     </div>
     <div class="bg-white p-5 sm:p-6">
-      <dt class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.property_facts.area_labels.#{facts['property_type']}") %></dt>
+      <dt class="meta-label text-slate-500"><%= t("reports.property_facts.area_labels.#{facts['property_type']}") %></dt>
       <% if facts["subject_area_sqm"] %>
         <dd class="mt-2 text-2xl font-black text-slate-950"><%= number_with_precision(facts["subject_area_sqm"], precision: 2, strip_insignificant_zeros: true) %> m²</dd>
         <p class="mt-2 text-xs leading-5 text-emerald-700"><%= t("reports.property_facts.area_sources.#{facts['subject_area_source']}", product_name:) %></p>
@@ -26,7 +26,7 @@
       <% end %>
     </div>
     <div class="bg-white p-5 sm:p-6">
-      <dt class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.property_facts.address") %></dt>
+      <dt class="meta-label text-slate-500"><%= t("reports.property_facts.address") %></dt>
       <dd class="mt-2 text-base font-black leading-6 text-slate-950"><%= facts["address"].presence || t("reports.property_facts.missing") %></dd>
       <p class="mt-2 text-xs leading-5 text-slate-500"><%= if facts["address"].blank?
         t("reports.property_facts.address_missing_help")
@@ -37,7 +37,7 @@
       end %></p>
     </div>
     <div class="bg-white p-5 sm:p-6">
-      <dt class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.property_facts.public_records") %></dt>
+      <dt class="meta-label text-slate-500"><%= t("reports.property_facts.public_records") %></dt>
       <dd class="mt-2 text-2xl font-black text-slate-950"><%= facts["direct_acts_count"] %></dd>
       <p class="mt-2 text-xs leading-5 text-slate-500"><%= facts["latest_act_on"] ? t("reports.property_facts.latest_record", date: l(Date.iso8601(facts["latest_act_on"]), format: :short)) : t("reports.property_facts.no_records") %></p>
     </div>
@@ -45,11 +45,11 @@
 
   <div class="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.1fr_.9fr]">
     <div>
-      <h3 class="text-sm font-black uppercase tracking-wide text-slate-500"><%= t("reports.property_facts.identifiers_title") %></h3>
+      <h3 class="report-subheading"><%= t("reports.property_facts.identifiers_title") %></h3>
       <div class="mt-4 space-y-3">
         <% [["parcel", facts["parcel_identifier"]], ["building", facts["building_identifier"]], ["individual_object", facts["individual_object_identifier"]]].each do |level, value| %>
           <% next if value.blank? %>
-          <div class="flex flex-col gap-1 rounded-xl bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div class="flex flex-col gap-1 rounded-sm bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <span class="text-xs font-bold text-slate-500"><%= t("reports.hierarchy.#{level}") %></span>
             <code class="break-all text-sm font-black text-slate-900"><%= value %></code>
           </div>
@@ -57,7 +57,7 @@
       </div>
     </div>
     <div>
-      <h3 class="text-sm font-black uppercase tracking-wide text-slate-500"><%= t("reports.property_facts.location_title") %></h3>
+      <h3 class="report-subheading"><%= t("reports.property_facts.location_title") %></h3>
       <dl class="mt-4 grid grid-cols-2 gap-x-5 gap-y-4 text-sm">
         <% [["settlement", t("reports.property_facts.settlements.#{facts['settlement_code']}", default: facts["settlement_code"])], ["cadastre_area", facts["cadastre_area_code"]], ["district", facts["district"]], ["locality", facts["locality"]], ["upi", facts["upi"]], ["parcel_number", facts["parcel_number"]], ["object_number", facts["object_number"]], ["floor", facts["floor"]], ["levels_count", facts["levels_count"]], ["entrance", facts["entrance"]]].each do |label, value| %>
           <div class="border-b border-slate-100 pb-3">
@@ -76,8 +76,8 @@
     <div class="grid gap-4 border-t border-slate-200 bg-slate-50/70 p-6 sm:p-8 lg:grid-cols-3">
       <% [["purpose", facts["purpose"]], ["additional_parts", facts["additional_parts"]], ["validation_document", facts["validation_document"]]].each do |label, value| %>
         <% next if value.blank? %>
-        <div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-          <p class="text-xs font-bold uppercase tracking-wide text-slate-500"><%= t("reports.property_facts.#{label}") %></p>
+        <div class="rounded-lg bg-white p-4 ring-1 ring-slate-200">
+          <p class="meta-label text-slate-500"><%= t("reports.property_facts.#{label}") %></p>
           <p class="mt-2 text-sm font-semibold leading-6 text-slate-800"><%= value %></p>
         </div>
       <% end %>

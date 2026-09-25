@@ -2,7 +2,7 @@
 <% content_for :description, localized_copy("Защитено плащане за отключване на пълния личен отчет в Mesto.", "Secure checkout to unlock your full private Mesto report.") %>
 <% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="site-shell checkout-page">
-  <%= link_to report_path(public_token: @analysis), class: "checkout-back" do %>← <%= t("common.back") %><% end %>
+  <%= link_to report_path(public_token: @analysis), class: "back-link" do %><%= mesto_icon("arrow-left", css_class: "size-4") %><%= t("common.back") %><% end %>
   <div class="checkout-shell">
     <div class="checkout-main">
       <p class="eyebrow"><span></span><%= t("payments.products.full_property_report.name") %></p>
@@ -33,7 +33,7 @@
       <p class="checkout-aside__label"><%= t("checkout.includes_title") %></p>
       <h2><%= t("checkout.includes") %></h2>
       <ul>
-        <% %w[timeline planning nearby evidence].each do |item| %>
+        <% %w[timeline planning surroundings evidence].each do |item| %>
           <li><%= mesto_icon("check", css_class: "size-4") %><%= t("reports.locked.previews.#{item}") %></li>
         <% end %>
       </ul>

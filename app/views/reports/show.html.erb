@@ -28,13 +28,13 @@
       <aside class="report-toc">
         <p><%= t("reports.navigation.title") %></p>
         <nav aria-label="<%= t('reports.title', identifier: @analysis.submitted_identifier) %>">
-          <a href="#overview" data-turbo="false"><span>00</span><%= t("reports.navigation.overview") %></a>
+          <a href="#overview" data-turbo="false"><span><%= mesto_icon("spark", css_class: "size-3.5") %></span><%= t("reports.navigation.overview") %></a>
           <a href="#identity" data-turbo="false"><span>01</span><%= t("reports.property_facts.title") %></a>
           <a href="#records" data-turbo="false"><span>02</span><%= t("reports.findings.title") %></a>
           <a href="#ownership" data-turbo="false"><span>03</span><%= t("reports.property_graph.nav") %></a>
           <a href="#context" data-turbo="false"><span>04</span><%= t("reports.neighborhood.title") %></a>
           <a href="#next-steps" data-turbo="false"><span>05</span><%= t("reports.buyer_checklist.title") %></a>
-          <a href="#sources" data-turbo="false"><span>·</span><%= t("reports.sources.title") %></a>
+          <a href="#sources" data-turbo="false"><span><%= mesto_icon("shield", css_class: "size-3.5") %></span><%= t("reports.sources.title") %></a>
         </nav>
       </aside>
 

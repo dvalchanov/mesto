@@ -22,12 +22,12 @@
         <section id="terms-<%= group[:key] %>" class="library-group">
           <header class="library-group__heading"><div><p class="eyebrow"><span></span><%= group[:label] %></p><h2><%= group[:title] %></h2></div><p><%= group[:description] %></p></header>
           <div class="content-index content-index--terms">
-            <% group[:entries].each do |entry| %><%= link_to term_path(slug: entry["slug"]) do %><span><%= group[:label] %></span><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><% end %><% end %>
+            <% group[:entries].each do |entry| %><%= link_to term_path(slug: entry["slug"]) do %><h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p><% end %><% end %>
           </div>
         </section>
       <% end %>
     </div>
   <% else %>
-    <section class="empty-state"><h2><%= localized_copy("Не намерихме такъв термин", "We couldn't find that term") %></h2><p><%= localized_copy("Провери изписването или потърси с по-кратка или по-обща дума.", "Check the spelling or try a shorter, more general search term.") %></p></section>
+    <section class="empty-state"><h2><%= localized_copy("Не намерихме такъв термин", "We couldn't find that term") %></h2><p><%= localized_copy("Провери изписването или потърси с по-кратка или по-обща дума.", "Check the spelling or try a shorter, more general search term.") %></p><%= link_to localized_copy("Виж документите", "Browse the documents"), education_documents_path, class: "button button--secondary" %></section>
   <% end %>
 </div>

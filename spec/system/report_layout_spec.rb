@@ -25,10 +25,10 @@ RSpec.describe "Report reading hierarchy", type: :system do
     expect(section_chrome.map { |section| section.except("id") }.uniq).to eq([
       {
         "backgroundColor" => "rgb(255, 255, 255)",
-        "borderTopColor" => "rgb(185, 95, 63)",
+        "borderTopColor" => "rgb(176, 88, 58)",
         "borderTopWidth" => "3px",
         "borderRightWidth" => "1px",
-        "borderRadius" => "6px",
+        "borderRadius" => "8px",
         "headerPadding" => "28px 30px 26px",
         "titleFontSize" => "30px",
         "titleLineHeight" => "36px"
@@ -57,8 +57,8 @@ RSpec.describe "Report reading hierarchy", type: :system do
     expect(section_chrome.map { |section| section.except("id") }.uniq.size).to eq(1)
     expect(section_chrome.first.slice("headerPadding", "titleFontSize", "titleLineHeight")).to eq(
       "headerPadding" => "22px 20px 20px",
-      "titleFontSize" => "24px",
-      "titleLineHeight" => "28.8px"
+      "titleFontSize" => "26px",
+      "titleLineHeight" => "31.2px"
     )
     expect(page_width).to be <= viewport_width
   end
@@ -106,7 +106,7 @@ RSpec.describe "Report reading hierarchy", type: :system do
     expect(page).to have_css("[data-testid='paid-report-unavailable'] .button--secondary")
     expect(unavailable_panel_styles).to eq(
       "backgroundColor" => "rgb(255, 255, 255)",
-      "borderTopColor" => "rgb(185, 95, 63)",
+      "borderTopColor" => "rgb(176, 88, 58)",
       "headerBackgroundColor" => "rgb(251, 247, 244)",
       "statusIconColor" => "rgb(163, 73, 67)",
       "buttonBackgroundColor" => "rgb(23, 63, 52)",

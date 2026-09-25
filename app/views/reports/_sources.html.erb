@@ -1,11 +1,11 @@
-<details class="report-disclosure group rounded-3xl border border-slate-200 bg-white">
+<details class="report-disclosure group rounded-lg border border-slate-200 bg-white">
   <summary class="report-disclosure__summary">
     <div>
       <p class="report-section-label"><%= t("reports.sources.eyebrow") %></p>
       <h2><%= t("reports.sources.title") %></h2>
       <p><%= t("reports.sources.summary", succeeded: coverage["succeeded"].to_i, checked: coverage["checked"].to_i) %></p>
     </div>
-    <span class="report-disclosure-toggle grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-xl font-bold text-slate-700 transition group-open:rotate-45" aria-hidden="true">+</span>
+    <span class="disclosure-icon" aria-hidden="true"></span>
   </summary>
   <div class="px-6 pb-6 sm:px-8 sm:pb-8">
     <div class="divide-y divide-slate-100">
@@ -29,6 +29,6 @@
       <% end %>
       <% if source_runs.empty? %><p class="py-5 text-sm text-slate-500"><%= t("reports.sources.empty") %></p><% end %>
     </div>
-    <p class="rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-600"><%= t("reports.sources.method_note") %></p>
+    <p class="rounded-sm bg-slate-50 p-4 text-xs leading-5 text-slate-600"><%= t("reports.sources.method_note") %></p>
   </div>
 </details>

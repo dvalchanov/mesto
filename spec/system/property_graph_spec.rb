@@ -29,7 +29,7 @@ RSpec.describe "Property graph dossier", type: :system do
     ).to eq([ "synthetic_demo" ])
     visit report_path(public_token: analysis)
 
-    expect(page).to have_css(".report-disclosure-toggle", text: "+", count: 2)
+    expect(page).to have_css(".report-disclosure__summary .disclosure-icon", count: 2)
     disclosure_styles = page.evaluate_script(<<~JS)
       [...document.querySelectorAll(".report-disclosure")].map((disclosure) => {
         const summary = disclosure.querySelector(".report-disclosure__summary")

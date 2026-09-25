@@ -6,11 +6,11 @@
     <% if @outcome %>
       <span class="checkout-state__icon is-error"><%= mesto_icon("lock", css_class: "size-7") %></span>
       <h1><%= t("checkout.#{@outcome}") %></h1>
-      <%= link_to t("checkout.try_again"), report_checkout_path(public_token: @analysis), class: "button button--secondary mt-7" %>
+      <%= link_to t("checkout.try_again"), report_checkout_path(public_token: @analysis), class: "button button--primary mt-7" %>
     <% elsif @order.status == "paid" %>
       <span class="checkout-state__icon"><%= mesto_icon("check", css_class: "size-8") %></span>
       <h1><%= t("checkout.success_title") %></h1>
-      <%= link_to t("checkout.back_to_report"), report_path(public_token: @analysis), class: "button button--secondary mt-7" %>
+      <%= link_to t("checkout.back_to_report"), report_path(public_token: @analysis), class: "button button--primary mt-7" %>
     <% else %>
       <span class="checkout-state__icon"><%= mesto_icon("shield", css_class: "size-8") %></span>
       <h1><%= t("checkout.processing_title") %></h1>

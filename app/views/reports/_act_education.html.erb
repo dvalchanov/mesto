@@ -1,7 +1,7 @@
 <% content_key = Education::ReportEvidenceAdapter.document_key_for(act) %>
 <% if content_key && (entry = Education::Catalog.instance.find(content_key)) %>
   <details class="act-education" data-controller="product-event" data-action="toggle->product-event#recordOnce" data-product-event-name-value="contextual_explanation_opened" data-product-event-content-key-value="<%= content_key %>" data-product-event-mode-value="property_connected">
-    <summary><%= localized_copy("Разбери този вид документ", "Understand this type of document") %> <span>+</span></summary>
+    <summary><%= localized_copy("Разбери този вид документ", "Understand this type of document") %> <span class="disclosure-icon" aria-hidden="true"></span></summary>
     <div>
       <article><strong><%= localized_copy("Какво означава?", "What does it mean?") %></strong><p><%= entry.dig("sections", "what") %></p></article>
       <article><strong><%= localized_copy("Защо е важно?", "Why is it important?") %></strong><p><%= entry.dig("sections", "why") %></p></article>

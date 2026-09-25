@@ -28,7 +28,7 @@
     <div class="schedule-row__remaining" data-amount-type-field="remaining" <%= "hidden" unless amount_type == "remaining" %>>
       <strong><%= localized_copy("Остатъкът", "Remaining balance") %></strong><span><%= localized_copy("Изчислява се автоматично", "Calculated automatically") %></span>
     </div>
-    <button type="button" class="schedule-row__remove" data-action="schedule-editor#remove" aria-label="<%= localized_copy("Премахни събитието", "Remove the event") %>">×</button>
+    <button type="button" class="schedule-row__remove" data-action="schedule-editor#remove" aria-label="<%= localized_copy("Премахни събитието", "Remove the event") %>"><%= mesto_icon("x", css_class: "size-4") %></button>
   </div>
 
   <details class="schedule-row__advanced" <%= "open" if advanced_open %>>

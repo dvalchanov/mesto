@@ -9,7 +9,7 @@
       <p><%= localized_copy("Не е нужно вече да си избрал имот. Започни от своята ситуация, от вида на имота или от етапа на строителството.", "You don't need to have chosen a property yet. Start with your situation, the type of property or its stage of construction.") %></p>
       <div class="education-actions">
         <%= link_to localized_copy("Избери моята ситуация", "Choose my situation"), buying_guide_path(anchor: "buyer-guide-start"), class: "button button--primary" %>
-        <%= link_to localized_copy("Виж строителните етапи", "View the construction stages"), new_build_guide_path, class: "button button--secondary" %>
+        <%= link_to localized_copy("Виж строителните етапи", "View the construction stages"), new_build_guide_path, class: "button button--outline" %>
       </div>
     </div>
     <div class="education-principle" aria-label="<%= localized_copy("Подходът на Mesto", "The Mesto approach") %>">
@@ -83,7 +83,7 @@
     <%= form_with url: education_documents_path, method: :get, class: "education-search" do |form| %>
       <%= form.label :q, localized_copy("Търси документ или термин", "Search documents or terms"), class: "form-label" %>
       <div class="education-search__field"><%= mesto_icon("search", css_class: "size-5") %><%= form.search_field :q, placeholder: localized_copy("Напр. Акт 15, УПИ, тежести…", "E.g. Act 15, regulated plot, encumbrances…") %><%= form.submit localized_copy("Търси", "Search"), class: "button button--secondary" %></div>
+      <div class="library-links"><%= link_to localized_copy("Всички документи", "All documents"), education_documents_path %><%= link_to localized_copy("Всички термини", "All terms"), terms_path %></div>
     <% end %>
-    <div class="library-links"><%= link_to localized_copy("Всички документи", "All documents"), education_documents_path %><%= link_to localized_copy("Всички термини", "All terms"), terms_path %></div>
   </section>
 </div>

@@ -487,7 +487,7 @@ en:
         name: "Name"
         planning_area: "Planning area"
         predominant_floors: "Predominant floors"
-      fact_values: { active: "Active", inactive: "Inactive", none: "No registered circumstance" }
+      fact_values: { active: "Active", inactive: "Inactive", none: "No registered circumstance", square_metres: "%{value} m²", planning_functional_zoning: "Predominant functional use", planning_development_potential: "Development potential" }
       limitations:
         cadastre_identity_not_ownership: "Cadastral hierarchy establishes object identity and containment, but it does not establish ownership."
         cadastre_rights_snapshot_not_property_register: "This is an exact row from an AGCC cadastral-register OpenData snapshot. It is not a current Property Register reference, does not prove title, and does not establish complete history or encumbrances. Mesto does not retain masked natural-person rows."
@@ -1157,6 +1157,7 @@ en:
       historical_amenity_count: "Historical dataset: %{count} records within %{radius} m"
       green_transport: "Green space and transport"
       nearest: "%{name} - approximately %{distance} m"
+      nearest_distance: "Approximately %{distance} m"
       no_nearest: "No imported data for a reliable calculation."
       not_calculated: "Not calculated because the required source did not complete. This is not a zero."
       none_in_dataset: "No matching feature was found in the imported dataset."

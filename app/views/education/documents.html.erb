@@ -25,7 +25,8 @@
           <div class="content-index">
             <% group[:entries].each do |entry| %>
               <%= link_to education_path_for(entry) do %>
-                <span><%= { "term" => localized_copy("Термин", "Term"), "stage" => localized_copy("Строителен етап", "Construction stage"), "guide" => localized_copy("Насока за купувача", "Buyer guidance") }.fetch(entry["kind"], group[:label]) %></span>
+                <% kind_label = { "term" => localized_copy("Термин", "Term"), "stage" => localized_copy("Строителен етап", "Construction stage"), "guide" => localized_copy("Насока за купувача", "Buyer guidance") }[entry["kind"]] %>
+                <% if kind_label %><span><%= kind_label %></span><% end %>
                 <h3><%= entry["title"] %></h3><p><%= entry["summary"] %></p>
               <% end %>
             <% end %>

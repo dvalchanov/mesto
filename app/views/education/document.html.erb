@@ -20,7 +20,7 @@
       <header class="article-section-heading"><p class="eyebrow"><span></span><%= localized_copy("Какво доказва документът", "What the document proves") %></p><h2 id="evidence-boundary-title"><%= localized_copy("Какво можеш да установиш от него?", "What can you establish from it?") %></h2><p><%= localized_copy("Всеки документ отговаря на различен въпрос. Рядко един от тях е достатъчен, за да докаже едновременно собствеността, извършените строителни работи и основанието за плащане.", "Each document answers a different question. A single document is rarely enough to prove title, completed construction work and the basis for payment at the same time.") %></p></header>
       <div>
         <article><span class="evidence-mark evidence-mark--yes"><%= mesto_icon("check", css_class: "size-4") %></span><div><h3><%= localized_copy("Какво установява?", "What does it establish?") %></h3><%= education_prose(@entry.dig("sections", "establishes")) %></div></article>
-        <article class="evidence-boundary__not"><span class="evidence-mark">×</span><div><h3><%= localized_copy("Какво не установява?", "What does it not establish?") %></h3><%= education_prose(@entry.dig("sections", "not_establish")) %></div></article>
+        <article class="evidence-boundary__not"><span class="evidence-mark"><%= mesto_icon("x", css_class: "size-4") %></span><div><h3><%= localized_copy("Какво не установява?", "What does it not establish?") %></h3><%= education_prose(@entry.dig("sections", "not_establish")) %></div></article>
       </div>
     </section>
 

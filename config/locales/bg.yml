@@ -502,7 +502,7 @@ bg:
         name: "Наименование"
         planning_area: "Устройствена зона"
         predominant_floors: "Преобладаваща етажност"
-      fact_values: { active: "Активно", inactive: "Неактивно", none: "Няма вписано обстоятелство" }
+      fact_values: { active: "Активно", inactive: "Неактивно", none: "Няма вписано обстоятелство", square_metres: "%{value} m²", planning_functional_zoning: "Преобладаващо функционално предназначение", planning_development_potential: "Потенциал за развитие" }
       limitations:
         cadastre_identity_not_ownership: "Кадастралната йерархия установява идентичност и принадлежност на обектите, но не установява собственост."
         cadastre_rights_snapshot_not_property_register: "Това е точен ред от моментния OpenData експорт на кадастралния регистър на АГКК. Той не е актуална справка от Имотния регистър, не доказва титул и не установява пълна история или тежести. Маскираните физически лица не се пазят от Mesto."
@@ -1211,6 +1211,7 @@ bg:
       historical_amenity_count: "Исторически набор: %{count} записа до %{radius} м"
       green_transport: "Зелени площи и транспорт"
       nearest: "%{name} - приблизително %{distance} м"
+      nearest_distance: "Приблизително %{distance} м"
       no_nearest: "Няма достатъчно данни за надеждно изчисление."
       not_calculated: "Не е изчислено, защото задължителният източник не завърши. Това не е нула."
       none_in_dataset: "В наличните данни не е открит съответстващ обект."

@@ -1,14 +1,16 @@
 <% content_for :title, localized_copy("Ипотечен калкулатор за месечна вноска | #{product_name}", "Mortgage Payment Calculator | #{product_name}") %>
 <% content_for :description, localized_copy("Изчисли ориентировъчната месечна вноска, общата лихва и погасителния план за ипотечен кредит в евро. Без регистрация.", "Estimate your monthly mortgage payment, total interest and repayment schedule in euros. No registration required.") %>
 
-<section class="calculator-hero calculator-hero--mortgage">
+<section class="calculator-hero calculator-hero--compact">
   <div class="site-shell calculator-hero__inner">
-    <div>
+    <div class="calculator-hero__copy">
       <p class="eyebrow"><span></span><%= localized_copy("Ипотечен калкулатор", "Mortgage calculator") %></p>
       <h1><%= localized_copy("Каква би била месечната ти вноска?", "What would your monthly payment be?") %></h1>
       <p><%= localized_copy("Изчисли кредит с постоянна номинална лихва. Резултатът не е ГПР, банкова оферта, одобрение или официален погасителен план.", "Calculate a loan with a constant nominal interest rate. The result is not an APR, bank offer, approval or formal repayment plan.") %></p>
+      <div class="calculator-hero__actions">
+        <%= link_to purchase_calculator_path, class: "text-link" do %><%= localized_copy("Към пълния план за покупка", "Go to the full purchase plan") %><%= mesto_icon("arrow-right", css_class: "size-4") %><% end %>
+      </div>
     </div>
-    <%= link_to localized_copy("Към пълния план за покупка →", "To the full purchase plan →"), purchase_calculator_path, class: "button button--outline" %>
   </div>
 </section>
 

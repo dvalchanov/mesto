@@ -37,7 +37,7 @@ RSpec.describe "Legal pages", type: :system do
 
     expect(layout.fetch("legalLeft")).to be_within(1).of(layout.fetch("headerLeft"))
     expect(layout.fetch("legalRight")).to be_within(1).of(layout.fetch("headerRight"))
-    expect(layout).to include("bodySize" => "16px", "navigationSize" => "13px")
+    expect(layout).to include("bodySize" => "16px", "navigationSize" => "14px")
 
     visit data_sources_policy_path
     source_sizes = page.evaluate_script(<<~JAVASCRIPT)
@@ -46,6 +46,6 @@ RSpec.describe "Legal pages", type: :system do
         details: getComputedStyle(document.querySelector(".legal-source dd")).fontSize
       }))()
     JAVASCRIPT
-    expect(source_sizes).to eq("summary" => "16px", "details" => "13px")
+    expect(source_sizes).to eq("summary" => "16px", "details" => "14px")
   end
 end
