@@ -61,7 +61,7 @@
             <%= link_to t("navigation.language_en"), localized_page_path(:en), class: (I18n.locale == :en ? "is-active" : nil), aria: { current: (I18n.locale == :en ? "page" : nil) } %>
           </div>
           <details class="mobile-nav">
-            <summary><%= t("navigation.menu") %></summary>
+            <summary><%= mesto_icon("menu", css_class: "size-4") %><%= t("navigation.menu") %></summary>
             <div>
               <%= link_to t("navigation.check_property"), root_path(anchor: "property-check") %>
               <%= link_to t("navigation.guides"), guide_path %>
@@ -69,6 +69,10 @@
               <%= link_to t("navigation.documents"), education_documents_path %>
               <%= link_to t("navigation.glossary"), terms_path %>
               <% if current_buyer_journey %><%= link_to t("navigation.my_mesto"), my_mesto_path %><% end %>
+              <div class="mobile-nav__locale" aria-label="<%= t('navigation.language') %>">
+                <%= link_to t("navigation.language_bg"), localized_page_path(:bg), class: (I18n.locale == :bg ? "is-active" : nil), aria: { current: (I18n.locale == :bg ? "page" : nil) } %>
+                <%= link_to t("navigation.language_en"), localized_page_path(:en), class: (I18n.locale == :en ? "is-active" : nil), aria: { current: (I18n.locale == :en ? "page" : nil) } %>
+              </div>
             </div>
           </details>
           <%= link_to root_path(anchor: "property-check"), class: "button button--small button--secondary site-actions__cta" do %>

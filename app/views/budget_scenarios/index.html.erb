@@ -2,7 +2,7 @@
 <% content_for :description, localized_copy("Личните ти сметки за разходите, финансирането и плащанията при покупка на имот.", "Your private property purchase cost, funding and payment calculations.") %>
 <% content_for :head do %><meta name="robots" content="noindex,nofollow"><% end %>
 <section class="scenario-page"><div class="site-shell">
-  <div class="scenario-page__heading"><div><p class="eyebrow"><span></span><%= localized_copy("Твоите изчисления", "Your calculations") %></p><h1><%= localized_copy("Запазени сметки", "Saved calculations") %></h1><p><%= localized_copy("Тези сметки са достъпни само в този браузър.", "These calculations are available only in this browser.") %></p></div><%= link_to localized_copy("Нова сметка", "New calculation"), purchase_calculator_path, class: "button button--secondary" %></div>
+  <div class="scenario-page__heading"><div><p class="eyebrow"><span></span><%= localized_copy("Твоите изчисления", "Your calculations") %></p><h1><%= localized_copy("Запазени сметки", "Saved calculations") %></h1><p><%= localized_copy("Тези сметки са достъпни само в този браузър.", "These calculations are available only in this browser.") %></p></div><% if @scenarios.any? %><%= link_to localized_copy("Нова сметка", "New calculation"), purchase_calculator_path, class: "button button--secondary" %><% end %></div>
 
   <% if @scenarios.any? %>
     <%= form_with url: compare_budget_scenarios_path, method: :post, class: "scenario-list" do %>
@@ -20,7 +20,7 @@
           </div>
         </article>
       <% end %>
-      <button class="button button--secondary" type="submit"><%= localized_copy("Сравни двете сметки", "Compare the two calculations") %></button>
+      <button class="button button--primary" type="submit"><%= localized_copy("Сравни двете сметки", "Compare the two calculations") %></button>
     <% end %>
   <% else %>
     <div class="empty-state"><h2><%= localized_copy("Все още нямаш запазени сметки", "You don't have any saved calculations yet") %></h2><p><%= localized_copy("Направи сметка в калкулатора и я запази, за да можеш да я отвориш отново или да я сравниш с друг вариант.", "Run a calculation and save it so you can return to it or compare it with another option.") %></p><%= link_to localized_copy("Направи нова сметка", "Start a new calculation"), purchase_calculator_path, class: "button button--primary" %></div>

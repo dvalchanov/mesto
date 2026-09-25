@@ -25,6 +25,9 @@ module ApplicationHelper
 
   ICON_PATHS = {
     "arrow-right" => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    "arrow-left" => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+    "plus" => '<path d="M12 5v14M5 12h14"/>',
+    "x" => '<path d="M18 6 6 18M6 6l12 12"/>',
     "arrow-up-right" => '<path d="M7 17 17 7M7 7h10v10"/>',
     "book" => '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13Z"/><path d="M8 7h8M8 11h6"/>',
     "building" => '<path d="M4 21h16M6 21V7l6-4 6 4v14M9 10h.01M15 10h.01M9 14h.01M15 14h.01M10 21v-3h4v3"/>',
@@ -130,12 +133,22 @@ module ApplicationHelper
     t("reports.property_graph.fact_labels.#{key}", default: key.to_s.humanize)
   end
 
-  def property_graph_fact_value(value)
+  # Internal lookup keys that mean nothing to a buyer.
+  PROPERTY_GRAPH_HIDDEN_FACTS = %w[external_key].freeze
+
+  def property_graph_fact_value(value, key = nil)
+    case key.to_s
+    when "identifier_level" then return t("reports.hierarchy.levels.#{value}", default: value.to_s)
+    when "registry_kind" then return t("reports.acts.kinds.#{value}", default: value.to_s)
+    when "dataset_key" then return t("reports.sources.names.#{value}", default: value.to_s)
+    when "area_sqm" then return t("reports.property_graph.fact_values.square_metres", value: number_with_precision(value, precision: 2, strip_insignificant_zeros: true))
+    end
+
     case value
     when Hash
-      value.filter_map { |key, child| "#{property_graph_fact_label(key)}: #{property_graph_fact_value(child)}" if child.present? }.join(" · ")
+      value.filter_map { |child_key, child| "#{property_graph_fact_label(child_key)}: #{property_graph_fact_value(child, child_key)}" if child.present? }.join(" · ")
     when Array
-      value.map { |child| property_graph_fact_value(child) }.join(" · ")
+      value.map { |child| property_graph_fact_value(child, key) }.join(" · ")
     when true
       t("common.yes", default: "Yes")
     when false

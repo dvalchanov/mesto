@@ -7,8 +7,8 @@
 
 <section class="property-finder-page">
   <div class="site-shell">
-    <%= link_to root_path(anchor: "property-check"), class: "property-finder__back" do %>
-      <span aria-hidden="true">←</span><%= t("property_finder.back") %>
+    <%= link_to root_path(anchor: "property-check"), class: "back-link" do %>
+      <%= mesto_icon("arrow-left", css_class: "size-4") %><%= t("property_finder.back") %>
     <% end %>
 
     <header class="property-finder__hero">
@@ -68,7 +68,7 @@
           <p class="property-locator__selection" data-property-locator-target="selection" <%= "hidden" unless @building_identifier %>><%= t("property_finder.locator.selected_identifier", identifier: @building_identifier) if @building_identifier %></p>
         </div>
         <div class="finder-address-form__actions">
-          <%= form.button class: "button button--secondary" do %>
+          <%= form.button class: "button button--primary" do %>
             <%= t("property_finder.search") %><%= mesto_icon("search", css_class: "size-4") %>
           <% end %>
           <button type="button" class="button button--outline" data-action="property-locator#openMap">

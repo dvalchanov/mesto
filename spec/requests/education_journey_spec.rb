@@ -5,9 +5,10 @@ RSpec.describe "Education and anonymous buyer journey", type: :request do
     get guide_path
     expect(response).to have_http_status(:ok)
     expect(response.body).to include(
-      "Подготви покупката си стъпка по стъпка", "<summary>Меню</summary>",
+      "Подготви покупката си стъпка по стъпка",
       "Сравняване на конкретни имоти", "Първите месеци като собственик", "Намери ясно обяснение"
     )
+    expect(response.body).to match(%r{<details class="mobile-nav">\s*<summary><svg[^>]*>.*?</svg>Меню</summary>}m)
 
     get new_build_stage_path(stage: "akt-15")
     expect(response).to have_http_status(:ok)

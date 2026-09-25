@@ -16,10 +16,10 @@
         <% metadata = amenities.dig("datasets", category) %>
         <% current = available && amenity_dataset_current?(metadata, as_of: report_date) %>
         <% count = amenities.dig(category, "1000").to_i %>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5" data-testid="amenity-<%= category %>">
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-5" data-testid="amenity-<%= category %>">
           <p class="text-2xl font-black text-slate-950"><%= current ? count : "-" %></p>
           <p class="mt-1 text-xs font-bold leading-5 text-slate-800"><%= t("reports.neighborhood.#{category}") %></p>
-          <p class="mt-2 text-[11px] leading-4 text-slate-600"><%= if !available
+          <p class="mt-2 text-xs leading-5 text-slate-600"><%= if !available
             t("reports.neighborhood.not_calculated")
           elsif current
             nearest = amenities["nearest_#{category.singularize}"]
@@ -43,10 +43,10 @@
         ["green_spaces", "nearest_green_space", "green_space"]
       ].each do |category, key, label| %>
         <% nearest = amenities[key] %>
-        <div class="rounded-2xl border border-slate-200 p-4 text-sm">
+        <div class="rounded-lg border border-slate-200 p-4 text-sm">
           <p class="text-xs font-semibold text-slate-500"><%= t("reports.neighborhood.#{label}") %></p>
           <p class="mt-1 font-bold text-slate-900"><%= if amenities.dig("availability", category)
-            nearest ? t("reports.full.nearest", name: nearest["name"].presence || t("reports.neighborhood.#{label}"), distance: nearest["distance_m"]) : t("reports.neighborhood.not_found")
+            nearest ? (nearest["name"].present? ? t("reports.full.nearest", name: nearest["name"], distance: nearest["distance_m"]) : t("reports.full.nearest_distance", distance: nearest["distance_m"])) : t("reports.neighborhood.not_found")
           else
             t("reports.neighborhood.not_calculated")
           end %></p>

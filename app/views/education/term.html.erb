@@ -5,7 +5,7 @@
   <%= render "breadcrumbs", items: [[localized_copy("Термини", "Terms"), terms_path], [@entry["title"], nil]] %>
   <header class="article-hero term-hero"><p class="eyebrow"><span></span><%= localized_copy("Термин", "Term") %> · <%= education_term_category_label(@entry["category"]) %></p><h1><%= @entry["title"] %></h1><p><%= @entry["summary"] %></p><div class="term-definition"><span><%= localized_copy("Определение", "Definition") %></span><%= education_prose(@entry.dig("sections", "definition")) %></div></header>
   <article class="term-article">
-    <section class="term-example"><div><p class="eyebrow"><span></span><%= localized_copy("Пример", "Example") %></p><h2><%= localized_copy("Как изглежда на практика?", "What does it look like in practice?") %></h2></div><%= education_prose(@entry.dig("sections", "example")) %></section>
+    <section class="term-example"><div><p class="eyebrow"><span></span><%= localized_copy("Пример", "Example") %></p><h2><%= localized_copy("Как изглежда на практика?", "What does it look like in practice?") %></h2></div><div class="term-example__body"><%= education_prose(@entry.dig("sections", "example")) %></div></section>
     <section class="term-contrast">
       <div><span><%= localized_copy("Често объркване", "Common misconception") %></span><h2><%= localized_copy("С какво често се бърка?", "What is it commonly confused with?") %></h2><%= education_prose(@entry.dig("sections", "confusion")) %></div>
       <div><span><%= localized_copy("Практическо значение", "Practical significance") %></span><h2><%= localized_copy("Защо има значение?", "Why does it matter?") %></h2><%= education_prose(@entry.dig("sections", "importance")) %></div>

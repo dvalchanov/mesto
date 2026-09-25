@@ -9,8 +9,8 @@ Rails.application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
-  # Show full error reports.
-  config.consider_all_requests_local = true
+  # Show full error reports. Set SHOW_ERROR_PAGES=1 to preview the public/ error pages instead.
+  config.consider_all_requests_local = ENV["SHOW_ERROR_PAGES"].blank?
 
   # Enable server timing.
   config.server_timing = true

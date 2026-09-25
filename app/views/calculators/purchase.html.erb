@@ -230,7 +230,7 @@
           </select>
           <small><%= localized_copy("Шаблоните не са законово изискване или препоръка.", "Templates are not a legal requirement or recommendation.") %></small>
         </div>
-        <button type="button" class="button button--outline button--small" data-action="schedule-editor#add"><%= localized_copy("+ Добави събитие", "+ Add event") %></button>
+        <button type="button" class="button button--outline" data-action="schedule-editor#add"><%= mesto_icon("plus", css_class: "size-4") %><%= localized_copy("Добави събитие", "Add event") %></button>
       </div>
       <datalist id="schedule-event-labels">
             <% [localized_copy("Резервация", "Reservation"), localized_copy("Предварителен договор", "Preliminary contract"), localized_copy("Акт 14", "Act 14"), localized_copy("Акт 15", "Act 15"), localized_copy("Въвеждане в експлоатация", "Commissioning"), localized_copy("Нотариално прехвърляне", "Notarial transfer"), localized_copy("Предаване", "Handover")].each do |label| %><option value="<%= label %>"><% end %>
@@ -300,8 +300,8 @@
     </section>
 
     <div class="calculator-form__footer">
-      <button type="submit" class="button button--secondary"><%= localized_copy("Преизчисли", "Recalculate") %></button>
-      <%= link_to localized_copy("Зареди примерните данни", "Load the sample data"), purchase_calculator_path(example: 1), class: "button button--outline button--small" %>
+      <button type="submit" class="button button--primary"><%= localized_copy("Преизчисли", "Recalculate") %></button>
+      <%= link_to localized_copy("Зареди примерните данни", "Load the sample data"), purchase_calculator_path(example: 1), class: "button button--outline" %>
       <% if @scenarios&.any? %><%= link_to localized_copy("Запазени сметки (#{@scenarios.size})", "Saved calculations (#{@scenarios.size})"), budget_scenarios_path, class: "text-link" %><% end %>
     </div>
   <% end %>

@@ -14,7 +14,10 @@ RSpec.describe "Standalone calculators", type: :system do
 
   def choose_custom_select(label, option, within: page)
     native_select = within.find_field(label, visible: :all)
-    native_select.find(:xpath, "..").find(".select-menu__trigger").click
+    trigger = native_select.find(:xpath, "..").find(".select-menu__trigger")
+    # The menu closes on page scroll, so settle the scroll position before opening it.
+    page.execute_script("arguments[0].scrollIntoView({ block: 'center' })", trigger)
+    trigger.click
     page.find('.select-menu__options:not([hidden]) .select-menu__option', text: option, exact_text: true).click
   end
 
@@ -40,7 +43,7 @@ RSpec.describe "Standalone calculators", type: :system do
     expect(page).to have_text("Въведи цена, за да започне изчислението")
 
     example_action = find_link("Зареди примерните данни")
-    expect(example_action[:class]).to include("button--outline", "button--small")
+    expect(example_action[:class]).to include("button--outline")
     example_action.click
     expect(page).to have_field("Цена по сделката", with: "300000")
     expect(page).to have_button("Започни отначало")
@@ -394,8 +397,8 @@ RSpec.describe "Standalone calculators", type: :system do
       })()
     JS
 
-    expect(marker.fetch("width")).to eq("30px")
-    expect(marker.fetch("height")).to eq("30px")
+    expect(marker.fetch("width")).to eq("28px")
+    expect(marker.fetch("height")).to eq("28px")
     expect(marker.fetch("backgroundImage")).not_to eq("none")
     expect(page.evaluate_script("arguments[0].open", breakdown)).to be(false)
 
@@ -522,7 +525,8 @@ RSpec.describe "Standalone calculators", type: :system do
         return { appearance: style.appearance, backgroundImage: style.backgroundImage }
       })()
     JS
-    expect(native_style).to eq("appearance" => "auto", "backgroundImage" => "none")
+    expect(native_style.fetch("appearance")).to eq("none")
+    expect(native_style.fetch("backgroundImage")).to include("data:image/svg+xml")
     click_button "03 График на плащанията"
     expect(page).to have_text(/Примерен график/i)
     mobile_event_field = first(".schedule-row").find_field("Събитие")
